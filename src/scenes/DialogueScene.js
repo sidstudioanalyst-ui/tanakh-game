@@ -12,8 +12,10 @@
 //   Берётся первая запись, у которой выполнены все указанные условия (флаги — строка или массив).
 //   Так повторный разговор не выдаёт эффекты второй раз.
 //
-// В игре показывается иврит; русский — с ?ru в адресе или у черновиков.
-// Управление: 1–9 или клик — выбор; Пробел/Enter — дальше (если выбор один).
+// Язык — как выбран в игре (UI.lang): иврит, иврит с русским переводом («оба языка») или
+// русский. У черновиков в иврите под заглушкой всегда виден русский.
+// Управление: 1–9 или клик — выбор; Пробел/Enter — дальше (если выбор один);
+// L / B — сменить язык прямо в диалоге (текущая реплика перерисуется, эффекты не повторятся).
 class DialogueScene extends Phaser.Scene {
   constructor() {
     super('DialogueScene');
@@ -38,6 +40,7 @@ class DialogueScene extends Phaser.Scene {
     });
     kb.on('keydown-SPACE', () => this.options.length === 1 && this.options[0]());
     kb.on('keydown-ENTER', () => this.options.length === 1 && this.options[0]());
+    bindLanguageKeys(this, () => this.show(this.currentLineId));
 
     this.show(this.entryNode());
   }
@@ -60,6 +63,9 @@ class DialogueScene extends Phaser.Scene {
       return;
     }
     const line = this.lines[lineId];
+    this.currentLineId = lineId;
+    this.tweens.killAll();
+    this.layer.setAlpha(1);
     this.layer.removeAll(true);
     this.options = [];
     if (line.style === 'narration') this.showNarration(line);
@@ -97,19 +103,16 @@ class DialogueScene extends Phaser.Scene {
     const margin = 20;
     const innerRight = CONFIG.WIDTH - margin - 20;
     const innerWidth = CONFIG.WIDTH - margin * 2 - 40;
-    const add = (obj) => obj && this.layer.add(obj) && obj;
+    const put = (block) => {
+      this.layer.add(block.objects);
+      return block.height;
+    };
 
     // Сначала раскладываем содержимое от y=0, затем сдвигаем всё к низу экрана
     let y = 16;
     const speaker = this.dialogue.speakers[line.speaker];
-    const name = add(addHebrewText(this, innerRight, y, speaker.name_he, { size: 18, bold: true, color: '#ebcb8b' }));
-    y += name.height + 2;
-
-    const text = add(addHebrewText(this, innerRight, y, line.text_he, { size: 19, width: innerWidth, lineSpacing: 6 }));
-    y += text.height + 4;
-    const ru = add(addRuHint(this, innerRight, y, line.text_ru, innerWidth, !!line.draft));
-    if (ru) y += ru.height + 4;
-    y += 8;
+    y += put(addContentText(this, innerRight, y, speaker.name_he, speaker.name_ru, { size: 18, bold: true, color: '#ebcb8b', noHint: true })) + 2;
+    y += put(addContentText(this, innerRight, y, line.text_he, line.text_ru, { size: 19, width: innerWidth, lineSpacing: 6, draft: line.draft })) + 12;
 
     y = this.addButtons(line, innerRight, y, innerWidth) + 4;
 
@@ -120,23 +123,25 @@ class DialogueScene extends Phaser.Scene {
 
   // Повествование: затемнение и короткая строка текста по центру
   showNarration(line) {
-    this.dim.setFillStyle(0x000000, 0);
-    this.tweens.add({ targets: this.dim, fillAlpha: 1, duration: 600 });
+    // Затемнение — только при первом показе; при смене языка текст просто перерисовывается
+    const first = this.narrationShown !== line.id;
+    this.narrationShown = line.id;
     this.layer.y = 0;
-    this.layer.setAlpha(0);
-    this.tweens.add({ targets: this.layer, alpha: 1, delay: 400, duration: 500 });
+    if (first) {
+      this.dim.setFillStyle(0x000000, 0);
+      this.tweens.add({ targets: this.dim, fillAlpha: 1, duration: 600 });
+      this.layer.setAlpha(0);
+      this.tweens.add({ targets: this.layer, alpha: 1, delay: 400, duration: 500 });
+    } else {
+      this.dim.setFillStyle(0x000000, 1);
+    }
 
     const width = 600;
     const right = CONFIG.WIDTH / 2 + width / 2;
     let y = CONFIG.HEIGHT / 2 - 70;
-    const text = addHebrewText(this, right, y, line.text_he, { size: 22, width, lineSpacing: 8 });
-    this.layer.add(text);
+    const text = addContentText(this, right, y, line.text_he, line.text_ru, { size: 22, width, lineSpacing: 8, draft: line.draft });
+    this.layer.add(text.objects);
     y += text.height + 6;
-    const ru = addRuHint(this, right, y, line.text_ru, width, !!line.draft);
-    if (ru) {
-      this.layer.add(ru);
-      y += ru.height + 6;
-    }
     this.addButtons(line, right, y + 24, width);
   }
 

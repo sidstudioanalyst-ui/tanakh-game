@@ -36,11 +36,19 @@ class TrialScene extends Phaser.Scene {
     });
     kb.on('keydown-SPACE', () => this.options.length === 1 && this.options[0]());
     kb.on('keydown-ENTER', () => this.options.length === 1 && this.options[0]());
+    // Смена языка — перерисовать текущую страницу (ответы уже выбранных вопросов не меняются)
+    bindLanguageKeys(this, () => this.render());
 
-    this.showProfile();
+    this.show(() => this.showProfile());
   }
 
   // --- раскладка ------------------------------------------------------------
+  // Координаты задаются «по-ивритски» (справа налево); в русском всё отражается.
+
+  show(render) {
+    this.render = render;
+    render();
+  }
 
   clear() {
     this.layer.removeAll(true);
@@ -52,16 +60,40 @@ class TrialScene extends Phaser.Scene {
     return obj;
   }
 
+  putText(block) {
+    this.layer.add(block.objects);
+    return block.height;
+  }
+
+  // Прямоугольник (левый край и ширина — для иврита) на своём месте в текущем языке
+  rect(left, y, w, h, color, alpha = 1) {
+    const x = UI.rtl ? left : CONFIG.WIDTH - left - w;
+    return this.put(this.add.rectangle(x, y, w, h, color, alpha).setOrigin(0));
+  }
+
+  // Мелкий русский перевод в той же строке, у противоположного края (для плотного профиля)
+  inlineHint(y, text) {
+    if (!UI.showHint || !text) return;
+    this.put(this.add.text(this.margin, y + 4, text, { fontFamily: 'sans-serif', fontSize: '11px', color: '#8f9bb3' }));
+  }
+
   heading(y) {
-    const title = this.put(addHebrewText(this, this.right, y, this.trial.title_he, { size: 26, bold: true, color: '#ebcb8b' }));
-    return y + title.height + 6;
+    const t = this.trial;
+    return y + this.putText(addContentText(this, this.right, y, t.title_he, t.title_ru, { size: 26, bold: true, color: '#ebcb8b', noHint: true })) + 6;
   }
 
   paragraph(y, he, ru, size = 18) {
-    const t = this.put(addHebrewText(this, this.right, y, he, { size, width: this.contentWidth, lineSpacing: 6 }));
-    y += t.height;
-    const r = this.put(addRuHint(this, this.right, y, ru, this.contentWidth));
-    return y + (r ? r.height : 0) + 8;
+    return y + this.putText(addContentText(this, this.right, y, he, ru, { size, width: this.contentWidth, lineSpacing: 6 })) + 8;
+  }
+
+  // Подпись интерфейса (ui-strings) у одного из краёв: 'start' — начало строки, 'end' — конец
+  label(y, text, edge, opts = {}) {
+    const atStart = edge === 'start';
+    const obj = addUiLabel(this, UI.rx(atStart ? this.right : this.margin), y, text, {
+      ...opts,
+      originX: UI.rtl === atStart ? 1 : 0,
+    });
+    return this.put(obj);
   }
 
   buttons(y, list) {
@@ -95,7 +127,7 @@ class TrialScene extends Phaser.Scene {
       return;
     }
     const label = UI.both('trial_to_questions');
-    this.buttons(y + 4, [{ text_he: label.he, text_ru: label.ru, onSelect: () => this.showQuestion(0) }]);
+    this.buttons(y + 4, [{ text_he: label.he, text_ru: label.ru, onSelect: () => this.show(() => this.showQuestion(0)) }]);
   }
 
   measureRow(y, m, value) {
@@ -103,17 +135,19 @@ class TrialScene extends Phaser.Scene {
     const lightShare = total ? value.light / total : 0.5;
     const band = !total ? 'untested' : lightShare >= 0.65 ? 'light' : lightShare <= 0.35 ? 'shadow' : 'balance';
 
-    const name = this.put(addHebrewText(this, this.right, y, m.name_he, { size: 17, bold: true }));
-    this.put(addUiLabel(this, this.margin, y + 2, UI.t(`band_${band}`), { size: 14, color: '#a0a8b8', originX: 0 }));
-    y += name.height + 2;
+    const nameH = this.putText(addContentText(this, this.right, y, m.name_he, m.name_ru, { size: 17, bold: true, noHint: true }));
+    // в конце строки — наклон; в режиме «оба» рядом с ним — русское название величины
+    const bandText = UI.showHint ? `${UI.t(`band_${band}`)}  ·  ${m.name_ru}` : UI.t(`band_${band}`);
+    this.label(y + 2, bandText, 'end', { size: 14, color: '#a0a8b8' });
+    y += nameH;
 
-    // Полоса: справа (начало строки на иврите) — свет, слева — тень. Без чисел.
+    // Полоса: у начала строки — свет, у конца — тень. Без чисел.
     const barH = 10;
-    this.put(this.add.rectangle(this.margin, y, this.contentWidth, barH, 0x3b4252).setOrigin(0));
+    this.rect(this.margin, y, this.contentWidth, barH, 0x3b4252);
     if (total) {
       const lightW = Math.round(this.contentWidth * lightShare);
-      this.put(this.add.rectangle(this.right - lightW, y, lightW, barH, CONFIG.COLORS.light).setOrigin(0));
-      this.put(this.add.rectangle(this.margin, y, this.contentWidth - lightW, barH, CONFIG.COLORS.shadow).setOrigin(0));
+      this.rect(this.right - lightW, y, lightW, barH, CONFIG.COLORS.light);
+      this.rect(this.margin, y, this.contentWidth - lightW, barH, CONFIG.COLORS.shadow);
     }
     y += barH + 4;
 
@@ -121,13 +155,16 @@ class TrialScene extends Phaser.Scene {
     const dim = 0.35;
     const lightAlpha = total ? dim + (1 - dim) * lightShare : dim;
     const shadowAlpha = total ? dim + (1 - dim) * (1 - lightShare) : dim;
-    const side = (text, color, swatch, alpha) => {
-      const t = this.put(addHebrewText(this, this.right - 14, y, text, { size: 14, color }).setAlpha(alpha));
-      this.put(this.add.rectangle(this.right - 8, y + t.height / 2, 8, 8, swatch).setAlpha(alpha));
-      y += t.height - 4;
+    const side = (he, ru, color, swatch, alpha) => {
+      const block = addContentText(this, this.right - 18, y, he, ru, { size: 14, color, noHint: true });
+      block.objects.forEach((o) => o.setAlpha(alpha));
+      const h = this.putText(block);
+      this.rect(this.right - 12, y + h / 2 - 4, 8, 8, swatch).setAlpha(alpha);
+      this.inlineHint(y, ru);
+      y += h - 4;
     };
-    side(m.light_he, '#ebcb8b', CONFIG.COLORS.light, lightAlpha);
-    side(m.shadow_he, '#b4a7e0', CONFIG.COLORS.shadow, shadowAlpha);
+    side(m.light_he, m.light_ru, '#ebcb8b', CONFIG.COLORS.light, lightAlpha);
+    side(m.shadow_he, m.shadow_ru, '#b4a7e0', CONFIG.COLORS.shadow, shadowAlpha);
     return y + 10;
   }
 
@@ -141,19 +178,17 @@ class TrialScene extends Phaser.Scene {
     }
     this.clear();
     let y = this.heading(24);
-    const counter = this.put(
-      addUiLabel(this, this.right, y, UI.t('trial_question_counter', { n: index + 1, total: this.trial.questions.length }), {
-        size: 15,
-        color: '#a0a8b8',
-      })
-    );
+    const counter = this.label(y, UI.t('trial_question_counter', { n: index + 1, total: this.trial.questions.length }), 'start', {
+      size: 15,
+      color: '#a0a8b8',
+    });
     y += counter.height + 6;
     y = this.paragraph(y, q.text_he, q.text_ru, 20) + 10;
 
     const pick = (side) => () => {
       GameState.applyEffects(q[side].effects);
       this.answers.push(side);
-      this.showQuestion(index + 1);
+      this.show(() => this.showQuestion(index + 1));
     };
     this.buttons(y, [
       { text_he: q.for.text_he, text_ru: q.for.text_ru, onSelect: pick('for') },

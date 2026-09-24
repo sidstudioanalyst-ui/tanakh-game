@@ -58,6 +58,7 @@ class GameScene extends Phaser.Scene {
     this.cameras.main.fadeIn(200);
 
     this.createUI();
+    this.bindKeys();
     this.bindEvents();
 
     // Короткая пауза перед тем, как выходы и триггеры начнут срабатывать — чтобы не «отскочить» обратно
@@ -361,7 +362,7 @@ class GameScene extends Phaser.Scene {
     this.player.setVelocity(0, 0);
     this.enemies.getChildren().forEach((e) => e.body && e.setVelocity(0, 0));
     this.cameras.main.flash(250, 191, 97, 106);
-    this.messageText.setText(`${UI.t(reasonKey)}\n${UI.t('fail_retry')}`).setVisible(true);
+    this.showMessage([reasonKey, 'fail_retry']);
     this.time.delayedCall(1600, () => {
       const entry = GameState.restartZone();
       this.transitioning = true;
@@ -387,7 +388,23 @@ class GameScene extends Phaser.Scene {
 
   // --- UI и события ----------------------------------------------------------
 
+  // HUD целиком; при смене языка удаляется и строится заново (раскладка зеркальная)
   createUI() {
+    const before = new Set(this.children.list);
+    this.buildHud();
+    this.hudObjects = this.children.list.filter((o) => !before.has(o));
+  }
+
+  rebuildUI() {
+    // всплывающее сообщение живёт 2,5 с — переносим его текст как есть
+    const toast = this.toastText && this.toastText.visible ? this.toastText.text : null;
+    this.hudObjects.forEach((o) => o.destroy());
+    this.createUI();
+    if (toast) this.showToast(toast);
+    if (this.messageKeys) this.showMessage(this.messageKeys);
+  }
+
+  buildHud() {
     this.healthBar = new HealthBar(this, 16, 16, 200, 18);
     this.healthBar.draw(this.player.hp, this.player.maxHp);
 
@@ -395,10 +412,13 @@ class GameScene extends Phaser.Scene {
     this.equipmentText = addUiText(this, 16, 42, '').setScrollFactor(0).setDepth(100);
     this.updateEquipmentHud();
 
-    // Название карты и зоны (иврит) — сверху по центру; под ним — строка механик и шкал
+    // Название карты и зоны — сверху по центру; под ним — строка механик и шкал
     const map = GameState.map;
-    addHebrewText(this, CONFIG.WIDTH / 2, 10, `${map.name_he} · ${this.zone.name_he}`, { size: 16, color: '#e5e9f0' })
-      .setOrigin(0.5, 0)
+    addUiText(this, CONFIG.WIDTH / 2, 10, `${UI.pick(map, 'name')} · ${UI.pick(this.zone, 'name')}`, {
+      center: true,
+      size: UI.rtl ? 15 : 12, // моноширинный русский шире — иначе наезжает на подсказки
+      color: '#e5e9f0',
+    })
       .setScrollFactor(0)
       .setDepth(100);
     this.statusText = addUiText(this, CONFIG.WIDTH / 2, 36, '', { center: true, size: 14, color: '#ebcb8b' })
@@ -436,6 +456,38 @@ class GameScene extends Phaser.Scene {
       .setDepth(200)
       .setVisible(false);
 
+    this.buildLanguageButtons();
+  }
+
+  // Кнопки языка внизу, в углу со стороны подсказок: [RU]/[עב] — язык (как L),
+  // [עב+RU] — оба языка (как B; подсвечена, когда включена)
+  buildLanguageButtons() {
+    const style = (active) => ({
+      fontFamily: CONFIG.HEBREW_FONT, // в нём есть и иврит, и латиница
+      fontSize: '13px',
+      color: active ? '#2e3440' : '#d8dee9',
+      backgroundColor: active ? '#ebcb8b' : '#3b4252',
+      padding: { x: 7, y: 4 },
+    });
+    const y = CONFIG.HEIGHT - 30;
+    const make = (label, active, onClick) => {
+      const b = this.add.text(0, y, label, style(active)).setScrollFactor(0).setDepth(160);
+      b.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
+      return b;
+    };
+    const lang = make(UI.lang === 'he' ? 'RU' : 'עב', false, () => UI.toggleLanguage());
+    const both = make('עב+RU', UI.bilingual, () => UI.toggleBilingual());
+    // слева направо в русском, справа налево в иврите (в том же углу, что подсказки)
+    if (UI.rtl) {
+      lang.setPosition(16, y);
+      both.setPosition(16 + lang.width + 6, y);
+    } else {
+      lang.setOrigin(1, 0).setPosition(CONFIG.WIDTH - 16, y);
+      both.setOrigin(1, 0).setPosition(CONFIG.WIDTH - 16 - lang.width - 6, y);
+    }
+  }
+
+  bindKeys() {
     const kb = this.input.keyboard;
     kb.on('keydown-R', () => {
       if (!this.deadWaitingRestart) return;
@@ -445,6 +497,13 @@ class GameScene extends Phaser.Scene {
     });
     kb.on('keydown-I', () => this.openInventory());
     kb.on('keydown-E', () => this.talk());
+    bindLanguageKeys(this, () => this.rebuildUI());
+  }
+
+  // Большое сообщение над игроком (провал, смерть) — по ключам строк, чтобы переводилось
+  showMessage(keys) {
+    this.messageKeys = keys;
+    this.messageText.setText(keys.map((k) => UI.t(k)).join('\n')).setVisible(true);
   }
 
   updateEquipmentHud() {
@@ -496,7 +555,7 @@ class GameScene extends Phaser.Scene {
     this.events.on('enemy-dead', (enemy) => enemy.spawnKey && GameState.markRemoved(this.zoneId, enemy.spawnKey));
     this.events.on('player-dead', () => {
       const key = GameState.map.restartOnDeath === 'zone' ? 'death_message_zone' : 'death_message';
-      this.endGame(UI.t(key));
+      this.endGame(key);
       this.deadWaitingRestart = true;
     });
 
@@ -533,11 +592,11 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  endGame(message) {
+  endGame(messageKey) {
     if (this.gameOver) return;
     this.gameOver = true;
     this.player.setVelocity(0, 0);
     this.enemies.getChildren().forEach((e) => e.body && e.setVelocity(0, 0));
-    this.messageText.setText(message).setVisible(true);
+    this.showMessage([messageKey]);
   }
 }

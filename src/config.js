@@ -9,8 +9,7 @@ const CONFIG = {
   BACKGROUND: '#111111',
   DEBUG: URL_PARAMS.has('debug'), // ?debug — показать хитбоксы Arcade Physics
 
-  // ?ru — показывать под ивритом русский перевод (только для проверки текстов)
-  SHOW_RU: URL_PARAMS.has('ru'),
+  // Язык: ?ru / ?he / ?both — см. src/ui/strings.js (там же память выбора в браузере)
   // ?zone=<id> — начать сразу с указанной зоны (для отладки)
   START_ZONE: URL_PARAMS.get('zone'),
   // ?map=demo — тестовые карты «Деревня у ворот» и «Город». По умолчанию — «Спасители».
