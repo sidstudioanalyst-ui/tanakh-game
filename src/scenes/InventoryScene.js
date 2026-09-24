@@ -15,8 +15,8 @@ class InventoryScene extends Phaser.Scene {
   create() {
     const W = CONFIG.WIDTH;
     const H = CONFIG.HEIGHT;
-    const panelW = 520;
-    const panelH = 400;
+    const panelW = 560;
+    const panelH = 480;
     this.panelX = (W - panelW) / 2;
     this.panelY = (H - panelH) / 2;
 
@@ -53,7 +53,7 @@ class InventoryScene extends Phaser.Scene {
 
   // Плоский список строк: слоты, затем сумка
   entries() {
-    const slots = Object.entries(CONFIG.EQUIPMENT_SLOTS).map(([slot, label]) => ({ kind: 'slot', slot, label }));
+    const slots = Object.entries(EQUIPMENT_SLOTS).map(([slot, label]) => ({ kind: 'slot', slot, label }));
     const bag = this.equipment.bag.map((id, index) => ({ kind: 'bag', id, index }));
     return [...slots, ...bag];
   }
@@ -74,11 +74,12 @@ class InventoryScene extends Phaser.Scene {
   }
 
   redraw() {
-    this.statsText.setText(`Урон: ${this.player.getAttackDamage()}    Защита: ${this.player.getDefense()}`);
+    const p = this.player;
+    this.statsText.setText(`Урон: ${p.getAttackDamage()}    Защита: ${p.getDefense()}    Здоровье: ${p.hp}/${p.maxHp}`);
 
     const lines = [];
     const entries = this.entries();
-    const slotCount = Object.keys(CONFIG.EQUIPMENT_SLOTS).length;
+    const slotCount = Object.keys(EQUIPMENT_SLOTS).length;
     entries.forEach((entry, i) => {
       if (i === slotCount) lines.push('', 'Сумка:');
       const mark = i === this.cursor ? '▶ ' : '  ';

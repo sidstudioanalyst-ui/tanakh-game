@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Шрифт с ивритом лежит в репозитории (assets/fonts), не на CDN -->
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
   <title>Tanakh Game — прототип</title>
   <style>
     html, body {
@@ -23,18 +25,35 @@
   <!-- Phaser 3 с CDN: сборщик не нужен, работает на GitHub Pages -->
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
 
-  <!-- Порядок важен: сначала конфиг и данные, затем сущности, сцены и точка входа.
-       Обычные (не module) скрипты работают и на GitHub Pages, и при открытии файла напрямую. -->
+  <!-- Порядок важен: конфиг → данные → системы → UI → сущности → сцены → точка входа.
+       Обычные (не module) скрипты: сборщик не нужен. -->
+  <script src="src/utils/phaserFixes.js"></script>
   <script src="src/config.js"></script>
-  <script src="src/maps.js"></script>
+
+  <!-- Данные. Новую зону добавляйте строкой src/data/maps/<id>.js ниже. -->
+  <script src="src/data/items.js"></script>
+  <script src="src/data/measures.js"></script>
+  <script src="src/data/world.js"></script>
+  <script src="src/data/maps/village.js"></script>
+  <script src="src/data/maps/field.js"></script>
+  <script src="src/data/maps/city.js"></script>
+
   <script src="src/utils/pathfinding.js"></script>
   <script src="src/systems/Equipment.js"></script>
+  <script src="src/systems/GameState.js"></script>
+  <script src="src/systems/validateContent.js"></script>
   <script src="src/ui/HealthBar.js"></script>
+  <script src="src/ui/HebrewText.js"></script>
+  <script src="src/ui/ChoiceButton.js"></script>
   <script src="src/entities/Player.js"></script>
   <script src="src/entities/Enemy.js"></script>
   <script src="src/entities/Item.js"></script>
+  <script src="src/entities/Npc.js"></script>
+  <script src="src/scenes/BootScene.js"></script>
   <script src="src/scenes/GameScene.js"></script>
   <script src="src/scenes/InventoryScene.js"></script>
+  <script src="src/scenes/DialogueScene.js"></script>
+  <script src="src/scenes/TrialScene.js"></script>
   <script src="src/main.js"></script>
 </body>
 </html>

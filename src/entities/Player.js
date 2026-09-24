@@ -1,4 +1,5 @@
-// Игрок: движение на WASD/стрелках, атака по пробелу, здоровье, экипировка.
+// Игрок: движение на WASD/стрелках, атака по пробелу, здоровье.
+// Экипировка и здоровье хранятся в GameState, чтобы переживать переходы между зонами.
 class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'player');
@@ -6,13 +7,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     scene.physics.add.existing(this);
 
     this.stats = CONFIG.PLAYER;
-    this.maxHp = this.stats.maxHp;
-    this.hp = this.maxHp;
+    this.equipment = GameState.equipment;
+    this.hp = GameState.hp === null ? this.maxHp : Math.min(GameState.hp, this.maxHp);
+    this.lastMaxHp = this.maxHp;
     this.isDead = false;
     this.nextAttackAt = 0;
     this.invulnerableUntil = 0;
     this.stunnedUntil = 0;
-    this.equipment = new Equipment(() => scene.events.emit('equipment-changed', this.equipment));
 
     this.setCollideWorldBounds(true);
     this.setDepth(10);
@@ -73,6 +74,25 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     return this.equipment.bonus('defense');
   }
 
+  // Максимум здоровья зависит от особых предметов
+  get maxHp() {
+    return this.stats.maxHp + this.equipment.bonus('maxHp');
+  }
+
+  // Вызывается при смене экипировки: прибавка к максимуму сразу добавляет здоровье,
+  // а при снятии предмета здоровье не может превышать новый максимум
+  onEquipmentChanged() {
+    const delta = this.maxHp - this.lastMaxHp;
+    this.lastMaxHp = this.maxHp;
+    this.setHp(Phaser.Math.Clamp(this.hp + Math.max(0, delta), 0, this.maxHp));
+  }
+
+  setHp(value) {
+    this.hp = value;
+    GameState.hp = value;
+    this.scene.events.emit('player-hp-changed', this.hp, this.maxHp);
+  }
+
   showAttackEffect() {
     const ring = this.scene.add.circle(this.x, this.y, this.stats.attackRange, CONFIG.COLORS.attack, 0.25);
     ring.setStrokeStyle(2, CONFIG.COLORS.attack, 0.9).setDepth(9);
@@ -90,9 +110,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     // Броня поглощает часть урона, но хотя бы 1 единица проходит всегда
     const taken = Math.max(1, amount - this.getDefense());
-    this.hp = Math.max(0, this.hp - taken);
+    this.setHp(Math.max(0, this.hp - taken));
     this.invulnerableUntil = time + this.stats.invulnTime;
-    this.scene.events.emit('player-hp-changed', this.hp, this.maxHp);
 
     // Отбрасывание от источника урона
     const push = new Phaser.Math.Vector2(this.x - fromX, this.y - fromY).normalize().scale(this.stats.knockback);

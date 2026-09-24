@@ -1,14 +1,19 @@
-// Основная игровая сцена: строит карту, создаёт игрока, врагов и предметы, связывает физику и UI.
+// Сцена зоны: строит текущую зону из ZONES, создаёт игрока, врагов, предметы, NPC и выходы.
+// Переход в другую зону — перезапуск этой же сцены с другим zoneId. Всё, что должно
+// сохраниться (экипировка, здоровье, Мерило, убитые враги), лежит в GameState.
 class GameScene extends Phaser.Scene {
   constructor() {
     super('GameScene');
   }
 
+  // data.zoneId / data.at (тайл появления) передаются при переходе через выход
   init(data) {
-    // Карта: из data (при рестарте) → из URL (?map=...) → по умолчанию
-    const fromUrl = new URLSearchParams(window.location.search).get('map');
-    this.mapKey = data.mapKey || (fromUrl && MAPS[fromUrl] ? fromUrl : CONFIG.START_MAP);
+    this.zoneId = data.zoneId || GameState.currentZone;
+    this.spawnAt = data.at || null;
+    GameState.currentZone = this.zoneId;
+    this.zone = ZONES[this.zoneId];
     this.gameOver = false;
+    this.transitioning = false;
   }
 
   create() {
@@ -17,11 +22,14 @@ class GameScene extends Phaser.Scene {
     this.walls = this.physics.add.staticGroup();
     this.enemies = this.physics.add.group();
     this.items = this.physics.add.staticGroup();
+    this.npcs = this.physics.add.staticGroup();
+    this.exits = [];
 
-    this.buildMap(MAPS[this.mapKey]);
+    this.buildZone(this.zone);
 
     // Коллизии
     this.physics.add.collider(this.player, this.walls);
+    this.physics.add.collider(this.player, this.npcs);
     this.physics.add.collider(this.enemies, this.walls);
     this.physics.add.collider(this.enemies, this.enemies);
     this.physics.add.overlap(this.player, this.enemies, (player, enemy) => {
@@ -29,18 +37,25 @@ class GameScene extends Phaser.Scene {
     });
     this.physics.add.overlap(this.player, this.items, (player, item) => this.pickUpItem(item));
 
-    // Камера следует за игроком в пределах карты
+    // Камера следует за игроком в пределах зоны
     this.cameras.main.setBounds(0, 0, this.mapWidth, this.mapHeight);
     this.cameras.main.startFollow(this.player, true, 0.15, 0.15);
+    this.cameras.main.setBackgroundColor('#242933'); // если зона ниже/уже экрана
+    this.cameras.main.fadeIn(200);
 
     this.createUI();
     this.bindEvents();
+
+    // Короткая пауза перед тем, как выходы начнут срабатывать — чтобы не «отскочить» обратно
+    this.exitsArmedAt = this.time.now + 300;
   }
 
   update(time) {
-    if (this.gameOver) return;
+    if (this.gameOver || this.transitioning) return;
     this.player.update(time);
     this.enemies.getChildren().forEach((enemy) => enemy.update(time, this.player));
+    this.updateNpcHints();
+    this.checkExits(time);
   }
 
   // --- Построение мира -------------------------------------------------------
@@ -52,15 +67,21 @@ class GameScene extends Phaser.Scene {
     this.makeRectTexture('floorA', T, T, CONFIG.COLORS.floorA);
     this.makeRectTexture('floorB', T, T, CONFIG.COLORS.floorB);
     this.makeRectTexture('wall', T, T, CONFIG.COLORS.wall, 0x4c6a91);
+    this.makeRectTexture('exit', T, T, CONFIG.COLORS.exit);
+    this.makeRectTexture('trialExit', T, T, CONFIG.COLORS.trialExit);
     this.makeRectTexture('player', CONFIG.PLAYER.size, CONFIG.PLAYER.size, CONFIG.PLAYER.color, 0xffffff);
 
     Object.entries(CONFIG.ENEMY_TYPES).forEach(([key, type]) => {
       this.makeRectTexture(`enemy-${key}`, type.size, type.size, type.color, 0x000000);
     });
-
-    Object.entries(CONFIG.ITEMS).forEach(([key, item]) => {
+    Object.entries(ITEMS).forEach(([key, item]) => {
       this.makeRectTexture(`item-${key}`, CONFIG.ITEM_SIZE, CONFIG.ITEM_SIZE, item.color, 0xffffff);
     });
+    Object.values(ZONES).forEach((zone) =>
+      (zone.npcs || []).forEach((npc) => {
+        this.makeRectTexture(`npc-${npc.id}`, CONFIG.NPC_SIZE, CONFIG.NPC_SIZE, npc.color || 0xe5e9f0, 0x2e3440);
+      })
+    );
   }
 
   makeRectTexture(key, w, h, color, borderColor) {
@@ -76,55 +97,67 @@ class GameScene extends Phaser.Scene {
     g.destroy();
   }
 
-  buildMap(map) {
-    if (!map) throw new Error(`Карта "${this.mapKey}" не найдена в MAPS`);
+  tileCenter(tx, ty) {
+    const T = CONFIG.TILE_SIZE;
+    return { x: tx * T + T / 2, y: ty * T + T / 2 };
+  }
+
+  buildZone(zone) {
+    if (!zone) throw new Error(`Зона "${this.zoneId}" не найдена в ZONES`);
 
     const T = CONFIG.TILE_SIZE;
-    const rows = map.tiles;
+    const rows = zone.tiles;
     this.mapWidth = rows[0].length * T;
     this.mapHeight = rows.length * T;
     this.physics.world.setBounds(0, 0, this.mapWidth, this.mapHeight);
 
-    // Символ на карте → ключ типа врага
-    const enemyBySymbol = {};
-    Object.entries(CONFIG.ENEMY_TYPES).forEach(([key, type]) => {
-      enemyBySymbol[type.symbol] = key;
-    });
-    const itemBySymbol = {};
-    Object.entries(CONFIG.ITEMS).forEach(([key, item]) => {
-      itemBySymbol[item.symbol] = key;
-    });
-
-    let playerSpawn = null;
-    const enemySpawns = [];
     // Сетка проходимости для поиска пути врагов
     this.walkable = rows.map((row) => [...row].map((ch) => ch !== CONFIG.TILES.WALL));
 
     rows.forEach((row, ty) => {
       [...row].forEach((ch, tx) => {
-        const x = tx * T + T / 2;
-        const y = ty * T + T / 2;
-
-        if (ch === CONFIG.TILES.WALL) {
-          this.walls.create(x, y, 'wall');
-          return;
-        }
-
-        // Всё, что не стена, — пол (шахматный узор, чтобы было видно движение)
-        this.add.image(x, y, (tx + ty) % 2 ? 'floorA' : 'floorB');
-
-        if (ch === CONFIG.TILES.PLAYER) playerSpawn = { x, y };
-        else if (enemyBySymbol[ch]) enemySpawns.push({ x, y, type: enemyBySymbol[ch] });
-        else if (itemBySymbol[ch]) this.items.add(new Item(this, x, y, itemBySymbol[ch]));
+        const { x, y } = this.tileCenter(tx, ty);
+        if (ch === CONFIG.TILES.WALL) this.walls.create(x, y, 'wall');
+        else this.add.image(x, y, (tx + ty) % 2 ? 'floorA' : 'floorB');
       });
     });
 
-    if (!playerSpawn) throw new Error(`На карте "${this.mapKey}" нет старта игрока (${CONFIG.TILES.PLAYER})`);
+    // Выходы: подсвеченные тайлы, при входе на них — переход
+    (zone.exits || []).forEach((exit) => {
+      const w = exit.w || 1;
+      const h = exit.h || 1;
+      for (let dy = 0; dy < h; dy++) {
+        for (let dx = 0; dx < w; dx++) {
+          const { x, y } = this.tileCenter(exit.x + dx, exit.y + dy);
+          this.add.image(x, y, exit.trial ? 'trialExit' : 'exit').setAlpha(0.8);
+        }
+      }
+      this.exits.push({ ...exit, rect: new Phaser.Geom.Rectangle(exit.x * T, exit.y * T, w * T, h * T) });
+    });
 
-    this.player = new Player(this, playerSpawn.x, playerSpawn.y);
-    enemySpawns.forEach((s) => {
-      const EnemyClass = ENEMY_CLASSES[CONFIG.ENEMY_TYPES[s.type].class] || Enemy;
-      this.enemies.add(new EnemyClass(this, s.x, s.y, s.type));
+    // Предметы и враги, которых уже подобрали/убили, не появляются снова
+    (zone.items || []).forEach((data, i) => {
+      const key = `item:${i}`;
+      if (GameState.isRemoved(this.zoneId, key)) return;
+      const { x, y } = this.tileCenter(data.x, data.y);
+      this.items.add(new Item(this, x, y, data.id, key));
+    });
+
+    (zone.npcs || []).forEach((data) => {
+      const { x, y } = this.tileCenter(data.x, data.y);
+      this.npcs.add(new Npc(this, x, y, data));
+    });
+
+    const [sx, sy] = this.spawnAt || zone.start;
+    const spawn = this.tileCenter(sx, sy);
+    this.player = new Player(this, spawn.x, spawn.y);
+
+    (zone.enemies || []).forEach((data, i) => {
+      const key = `enemy:${i}`;
+      if (GameState.isRemoved(this.zoneId, key)) return;
+      const { x, y } = this.tileCenter(data.x, data.y);
+      const EnemyClass = ENEMY_CLASSES[CONFIG.ENEMY_TYPES[data.type].class] || Enemy;
+      this.enemies.add(new EnemyClass(this, x, y, data.type, key));
     });
   }
 
@@ -135,15 +168,68 @@ class GameScene extends Phaser.Scene {
     const toTile = (x, y) => ({ tx: Math.floor(x / T), ty: Math.floor(y / T) });
     const path = findPath(this.walkable, toTile(fromX, fromY), toTile(toX, toY));
     if (!path || path.length <= 2) return { x: toX, y: toY };
-    const next = path[1];
-    return { x: next.tx * T + T / 2, y: next.ty * T + T / 2 };
+    return this.tileCenter(path[1].tx, path[1].ty);
   }
+
+  // --- Взаимодействие --------------------------------------------------------
 
   pickUpItem(item) {
     if (!item.body.enable) return;
     item.collect();
-    const equipped = this.player.equipment.pickUp(item.itemId);
+    GameState.markRemoved(this.zoneId, item.spawnKey);
+    const equipped = GameState.equipment.pickUp(item.itemId);
     this.showToast(`${equipped ? 'Надето' : 'В сумку'}: ${describeItem(item.itemId)}`);
+  }
+
+  nearestNpc() {
+    let best = null;
+    let bestDist = CONFIG.PLAYER.talkRange;
+    this.npcs.getChildren().forEach((npc) => {
+      const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, npc.x, npc.y);
+      if (d <= bestDist) {
+        best = npc;
+        bestDist = d;
+      }
+    });
+    return best;
+  }
+
+  updateNpcHints() {
+    const near = this.nearestNpc();
+    this.npcs.getChildren().forEach((npc) => npc.setHintVisible(npc === near));
+  }
+
+  talk() {
+    if (this.gameOver || this.transitioning) return;
+    const npc = this.nearestNpc();
+    if (!npc) return;
+    this.openOverlay('DialogueScene', { dialogueId: npc.dialogueId });
+  }
+
+  openInventory() {
+    if (this.gameOver || this.transitioning) return;
+    this.openOverlay('InventoryScene', { player: this.player });
+  }
+
+  // Окно поверх игры (инвентарь, диалог): игра стоит на паузе, пока оно открыто
+  openOverlay(sceneKey, data) {
+    this.player.setVelocity(0, 0);
+    this.scene.pause();
+    this.scene.launch(sceneKey, data);
+  }
+
+  checkExits(time) {
+    if (time < this.exitsArmedAt) return;
+    const exit = this.exits.find((e) => e.rect.contains(this.player.x, this.player.y));
+    if (!exit) return;
+
+    this.transitioning = true;
+    this.player.setVelocity(0, 0);
+    this.cameras.main.fadeOut(200);
+    this.cameras.main.once('camerafadeoutcomplete', () => {
+      if (exit.trial) this.scene.start('TrialScene', { trialId: GameState.map.trial });
+      else this.scene.restart({ zoneId: exit.to, at: exit.at });
+    });
   }
 
   // --- UI и события ----------------------------------------------------------
@@ -152,27 +238,20 @@ class GameScene extends Phaser.Scene {
     this.healthBar = new HealthBar(this, 16, 16, 200, 18);
     this.healthBar.draw(this.player.hp, this.player.maxHp);
 
-    const hudStyle = { fontFamily: 'monospace', fontSize: '13px', color: '#d8dee9', lineSpacing: 2 };
+    const hudStyle = { fontFamily: CONFIG.UI_FONT, fontSize: '13px', color: '#d8dee9', lineSpacing: 2 };
     this.equipmentText = this.add.text(16, 42, '', hudStyle).setScrollFactor(0).setDepth(100);
     this.updateEquipmentHud();
 
-    // Всплывающее сообщение о подобранном предмете
-    this.toastText = this.add
-      .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT - 40, '', {
-        fontFamily: 'monospace',
-        fontSize: '16px',
-        color: '#ebcb8b',
-        backgroundColor: '#000000aa',
-        padding: { x: 10, y: 6 },
-      })
-      .setOrigin(0.5)
+    // Название зоны на иврите — сверху по центру
+    const map = GameState.map;
+    addHebrewText(this, CONFIG.WIDTH / 2, 10, `${map.name_he} · ${this.zone.name_he}`, { size: 16, color: '#e5e9f0' })
+      .setOrigin(0.5, 0)
       .setScrollFactor(0)
-      .setDepth(150)
-      .setVisible(false);
+      .setDepth(100);
 
     this.add
-      .text(CONFIG.WIDTH - 16, 16, 'WASD / стрелки — движение\nПробел — атака\nI — инвентарь', {
-        fontFamily: 'monospace',
+      .text(CONFIG.WIDTH - 16, 16, 'WASD / стрелки — движение\nПробел — атака\nE — говорить\nI — инвентарь', {
+        fontFamily: CONFIG.UI_FONT,
         fontSize: '13px',
         color: '#d8dee9',
         align: 'right',
@@ -181,10 +260,25 @@ class GameScene extends Phaser.Scene {
       .setScrollFactor(0)
       .setDepth(100);
 
+    // Всплывающее сообщение (подобранный предмет и т. п.)
+    this.toastText = this.add
+      .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT - 40, '', {
+        fontFamily: CONFIG.UI_FONT,
+        fontSize: '16px',
+        color: '#ebcb8b',
+        backgroundColor: '#000000aa',
+        padding: { x: 10, y: 6 },
+        align: 'center',
+      })
+      .setOrigin(0.5)
+      .setScrollFactor(0)
+      .setDepth(150)
+      .setVisible(false);
+
     this.messageText = this.add
       // Выше центра: камера держит игрока по центру, текст не должен его закрывать
       .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.22, '', {
-        fontFamily: 'monospace',
+        fontFamily: CONFIG.UI_FONT,
         fontSize: '28px',
         color: '#ffffff',
         align: 'center',
@@ -196,28 +290,20 @@ class GameScene extends Phaser.Scene {
       .setDepth(200)
       .setVisible(false);
 
-    this.input.keyboard.on('keydown-R', () => {
-      if (this.gameOver) this.scene.restart({ mapKey: this.mapKey });
+    const kb = this.input.keyboard;
+    kb.on('keydown-R', () => {
+      if (!this.gameOver) return;
+      GameState.restartMap(); // вернуть Мерило, вещи и зоны к началу карты
+      this.scene.restart({ zoneId: GameState.currentZone });
     });
-
-    this.input.keyboard.on('keydown-I', () => this.openInventory());
-    // После паузы сбрасываем клавиши, иначе зажатые до открытия инвентаря «залипают»
-    const onResume = () => this.input.keyboard.resetKeys();
-    this.events.on('resume', onResume);
-    this.events.once('shutdown', () => this.events.off('resume', onResume));
-  }
-
-  openInventory() {
-    if (this.gameOver) return;
-    this.player.setVelocity(0, 0);
-    this.scene.pause();
-    this.scene.launch('InventoryScene', { player: this.player });
+    kb.on('keydown-I', () => this.openInventory());
+    kb.on('keydown-E', () => this.talk());
   }
 
   updateEquipmentHud() {
-    const eq = this.player.equipment;
-    const lines = Object.entries(CONFIG.EQUIPMENT_SLOTS).map(
-      ([slot, label]) => `${label}: ${eq.slots[slot] ? CONFIG.ITEMS[eq.slots[slot]].name : '—'}`
+    const eq = GameState.equipment;
+    const lines = Object.entries(EQUIPMENT_SLOTS).map(
+      ([slot, label]) => `${label}: ${eq.slots[slot] ? ITEMS[eq.slots[slot]].name_ru : '—'}`
     );
     lines.push(`Урон ${this.player.getAttackDamage()} · Защита ${this.player.getDefense()}`);
     this.equipmentText.setText(lines.join('\n'));
@@ -226,12 +312,11 @@ class GameScene extends Phaser.Scene {
   showToast(message) {
     this.toastText.setText(message).setVisible(true);
     if (this.toastTimer) this.toastTimer.remove();
-    this.toastTimer = this.time.delayedCall(2000, () => this.toastText.setVisible(false));
+    this.toastTimer = this.time.delayedCall(2500, () => this.toastText.setVisible(false));
   }
 
   bindEvents() {
     this.events.on('player-hp-changed', (hp, max) => this.healthBar.draw(hp, max));
-    this.events.on('equipment-changed', () => this.updateEquipmentHud());
 
     this.events.on('player-attack', ({ x, y, range, damage }) => {
       this.enemies.getChildren().forEach((enemy) => {
@@ -244,16 +329,28 @@ class GameScene extends Phaser.Scene {
       });
     });
 
-    this.events.on('enemy-dead', () => {
-      const alive = this.enemies.getChildren().filter((e) => !e.isDead);
-      if (alive.length === 0) this.endGame('Победа!\nR — сыграть ещё раз');
-    });
+    this.events.on('enemy-dead', (enemy) => GameState.markRemoved(this.zoneId, enemy.spawnKey));
+    this.events.on('player-dead', () => this.endGame('Вы погибли\nR — начать карту заново'));
 
-    this.events.on('player-dead', () => this.endGame('Вы погибли\nR — начать заново'));
+    // Сообщения от окон поверх игры (диалог выдал предмет и т. п.)
+    this.events.on('toast', (message) => this.showToast(message));
+
+    // Экипировка меняется и из инвентаря, и из диалогов — HUD и здоровье обновляем по событию
+    const onEquipment = () => {
+      this.player.onEquipmentChanged();
+      this.updateEquipmentHud();
+    };
+    GameState.events.on('equipment-changed', onEquipment);
+
+    // После паузы сбрасываем клавиши, иначе зажатые до открытия окна «залипают»
+    const onResume = () => this.input.keyboard.resetKeys();
+    this.events.on('resume', onResume);
 
     // Сцена переиспользует свой EventEmitter при рестарте — снимаем подписки
     this.events.once('shutdown', () => {
-      ['player-hp-changed', 'equipment-changed', 'player-attack', 'enemy-dead', 'player-dead'].forEach((e) => this.events.off(e));
+      ['player-hp-changed', 'player-attack', 'enemy-dead', 'player-dead', 'toast'].forEach((e) => this.events.off(e));
+      this.events.off('resume', onResume);
+      GameState.events.off('equipment-changed', onEquipment);
     });
   }
 

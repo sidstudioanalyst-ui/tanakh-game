@@ -1,12 +1,14 @@
 // Враг: преследует игрока, наносит урон при касании, умирает от атак.
 // Параметры берутся из CONFIG.ENEMY_TYPES[typeKey].
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y, typeKey) {
+  // spawnKey — метка в зоне ('enemy:0'), чтобы убитый враг не появлялся снова
+  constructor(scene, x, y, typeKey, spawnKey) {
     super(scene, x, y, `enemy-${typeKey}`);
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
     this.typeKey = typeKey;
+    this.spawnKey = spawnKey;
     this.stats = CONFIG.ENEMY_TYPES[typeKey];
     this.hp = this.stats.hp;
     this.isDead = false;
