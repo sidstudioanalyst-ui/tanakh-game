@@ -1,0 +1,131 @@
+{
+  "id": "a2_eglon",
+  "speakers": {
+    "eglon": {
+      "name_he": "עֶגְלוֹן מֶלֶךְ מוֹאָב",
+      "name_ru": "Эглон, царь Моава"
+    }
+  },
+  "start": "greet",
+  "lines": [
+    {
+      "id": "greet",
+      "speaker": "eglon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "А, человек из Биньямина. Дань уже сложена у моих ног. Что ещё тебе нужно в моей прохладной горнице?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Тайное слово у меня к тебе, царь.",
+          "next": "hush",
+          "effects": {
+            "counsel": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Облегчи дань, царь: вдовы Биньямина продают последнее.",
+          "next": "mock",
+          "effects": {
+            "justice": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Я пришёл снова поклониться великому царю.",
+          "next": "pleased",
+          "effects": {
+            "knowledge": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "mock",
+      "speaker": "eglon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Вдовы? Сильный назначает дань, слабый платит. Так было всегда.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Тогда выслушай тайное слово.",
+          "next": "hush"
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Сильный не всегда остаётся сильным.",
+          "next": "hush",
+          "effects": {
+            "counsel": 1,
+            "justice": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "pleased",
+      "speaker": "eglon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Вот речь раба, который знает своё место!",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Есть у меня для тебя и тайное слово.",
+          "next": "hush"
+        }
+      ]
+    },
+    {
+      "id": "hush",
+      "speaker": "eglon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Тише! — Слугам: — Все вон отсюда. — Слуги выходят. Эхуд и царь остаются одни.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Слово Б-га у меня к тебе.",
+          "next": "end",
+          "effects": {
+            "knowledge": 1,
+            "set_flag": "eglon_done",
+            "goto_zone": {
+              "to": "a3",
+              "at": [
+                2,
+                2
+              ]
+            }
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Слово от всех, кого ты угнетал восемнадцать лет.",
+          "next": "end",
+          "effects": {
+            "justice": 1,
+            "set_flag": "eglon_done",
+            "goto_zone": {
+              "to": "a3",
+              "at": [
+                2,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "end",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Царь поднялся с престола. Всё решилось в одно мгновение. Эхуд вышел и запер за собой двери горницы.",
+      "next": null
+    }
+  ]
+}

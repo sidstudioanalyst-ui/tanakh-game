@@ -1,8 +1,8 @@
 // Игрок: движение на WASD/стрелках, атака по пробелу, здоровье.
 // Экипировка и здоровье хранятся в GameState, чтобы переживать переходы между зонами.
 class Player extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y) {
-    super(scene, x, y, 'player');
+  constructor(scene, x, y, texture = 'player') {
+    super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
@@ -113,10 +113,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.setHp(Math.max(0, this.hp - taken));
     this.invulnerableUntil = time + this.stats.invulnTime;
 
-    // Отбрасывание от источника урона
-    const push = new Phaser.Math.Vector2(this.x - fromX, this.y - fromY).normalize().scale(this.stats.knockback);
-    this.setVelocity(push.x, push.y);
-    this.stunnedUntil = time + 150;
+    this.knockFrom(fromX, fromY, time);
 
     // Мигание на время неуязвимости
     this.setTint(0xff6666);
@@ -133,6 +130,13 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     });
 
     if (this.hp <= 0) this.die();
+  }
+
+  // Отбрасывание от точки (fromX, fromY): удар врага, столкновение с препятствием
+  knockFrom(fromX, fromY, time) {
+    const push = new Phaser.Math.Vector2(this.x - fromX, this.y - fromY).normalize().scale(this.stats.knockback);
+    this.setVelocity(push.x, push.y);
+    this.stunnedUntil = time + 150;
   }
 
   die() {

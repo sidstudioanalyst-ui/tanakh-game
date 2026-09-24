@@ -1,0 +1,105 @@
+{
+  "id": "a4_young",
+  "speakers": {
+    "w": {
+      "name_he": "בַּחוּרֵי אֶפְרַיִם",
+      "name_ru": "Юноши Эфраима"
+    }
+  },
+  "start": "greet",
+  "entry": [
+    {
+      "if_flag": "young_done",
+      "node": "again"
+    },
+    {
+      "if_missing_item": "shofar",
+      "node": "no_shofar"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы слышали шофар. Кто ты, чтобы звать нас? Моав силён, а у нас нет даже мечей.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Не я зову вас. «Идите за мной, ибо Г-сподь предал врагов ваших, Моав, в ваши руки».",
+          "next": "join",
+          "effects": {
+            "knowledge": 1,
+            "gauge": {
+              "warriors": 100
+            },
+            "set_flag": "young_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Эглон мёртв — я сам его сразил. Идите за мной!",
+          "next": "doubt",
+          "effects": {
+            "counsel": 1,
+            "knowledge": -1,
+            "gauge": {
+              "warriors": 50
+            },
+            "set_flag": "young_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Решайте сами — я никого не заставляю.",
+          "next": "refuse",
+          "effects": {
+            "counsel": -1,
+            "set_flag": "young_done"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Тогда мы с тобой, сын Геры.",
+      "next": null
+    },
+    {
+      "id": "doubt",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Смелые слова. Пойдут не все — но пойдут.",
+      "next": null
+    },
+    {
+      "id": "refuse",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Тогда мы подождём, чем всё кончится.",
+      "next": null
+    },
+    {
+      "id": "no_shofar",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы пасём стада. Если бы кто-то протрубил в шофар — может быть, и собрались бы.",
+      "next": null
+    },
+    {
+      "id": "again",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы готовы. Веди нас к Иордану.",
+      "next": null
+    }
+  ]
+}

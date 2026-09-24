@@ -9,8 +9,15 @@ class TrialScene extends Phaser.Scene {
   }
 
   init(data) {
-    this.trial = Content.trial(data.trialId);
+    // trial: null у карты — Суд ещё не написан: показываем только профиль Мерила
+    this.trial = (data.trialId && Content.trial(data.trialId)) || this.stubTrial();
     this.answers = [];
+  }
+
+  stubTrial() {
+    const title = UI.both('trial_stub_title');
+    const intro = UI.both('trial_stub_intro');
+    return { id: null, title_he: title.he, title_ru: title.ru, intro_he: intro.he, intro_ru: intro.ru, questions: [], stub: true };
   }
 
   create() {
@@ -80,6 +87,13 @@ class TrialScene extends Phaser.Scene {
       y = this.measureRow(y, m, GameState.measures[key]);
     });
 
+    if (this.trial.stub) {
+      // Вопросов нет — сразу дальше (следующая карта или начало заново)
+      const last = !GameState.hasNextMap();
+      const next = UI.both(last ? 'trial_restart' : 'trial_next_map');
+      this.buttons(y + 4, [{ text_he: next.he, text_ru: next.ru, onSelect: () => this.finish(last) }]);
+      return;
+    }
     const label = UI.both('trial_to_questions');
     this.buttons(y + 4, [{ text_he: label.he, text_ru: label.ru, onSelect: () => this.showQuestion(0) }]);
   }
@@ -161,7 +175,7 @@ class TrialScene extends Phaser.Scene {
   }
 
   finish(last) {
-    if (last) GameState.newGame();
+    if (last) GameState.newGame(GameState.campaign);
     else GameState.startMap(GameState.mapIndex + 1); // Мерило и вещи остаются
     this.scene.start('GameScene', { zoneId: GameState.currentZone });
   }

@@ -13,14 +13,19 @@ const CONFIG = {
   SHOW_RU: URL_PARAMS.has('ru'),
   // ?zone=<id> — начать сразу с указанной зоны (для отладки)
   START_ZONE: URL_PARAMS.get('zone'),
+  // ?map=demo — тестовые карты «Деревня у ворот» и «Город». По умолчанию — «Спасители».
+  CAMPAIGN: URL_PARAMS.get('map') === 'demo' ? 'demo' : 'saviors',
 
   HEBREW_FONT: '"Noto Sans Hebrew", sans-serif',
+  // Временный text_he у реплик-черновиков (draft: true). Без draft валидатор такой текст не пропустит.
+  DRAFT_TEXT: 'טְיוּטָה',
   UI_FONT: 'monospace',
 
   // Символы тайлов в зонах
   TILES: {
     WALL: '#',
     FLOOR: '.',
+    WATER: '~', // непроходимо, как стена, но выглядит как вода (броды — обычный пол)
   },
 
   COLORS: {
@@ -32,6 +37,15 @@ const CONFIG = {
     attack: 0xebcb8b,
     light: 0xebcb8b,     // «свет» в профиле Мерила
     shadow: 0x5b4b8a,    // «тень» в профиле Мерила
+    water: 0x2e5a88,
+    door: 0x8a6d3b,      // закрытая дверь (открывается эффектом open_door)
+    lockedExit: 0x4c566a, // выход, для которого не выполнено условие
+    cone: 0xebcb8b,      // конус зрения стражи
+    coneAlert: 0xbf616a,
+    hazard: 0xd08770,    // движущееся препятствие (А3)
+    guard: 0xb48ead,
+    escapeZone: 0x88c0d0, // «другой берег» (А5)
+    gauge: 0xa3be8c,
   },
 
   PLAYER: {
@@ -69,5 +83,26 @@ const CONFIG = {
       damage: 12,
       aggroRange: 260,
     },
+    // Воин Моава в А5: бежит к бродам на другой берег; нападает, только если Эхуд рядом
+    moabite: {
+      class: 'Runner',
+      size: 22,
+      color: 0x9c5b5b,
+      speed: 95,
+      hp: 3,
+      damage: 10,
+      aggroRange: 70,
+    },
+  },
+
+  // Стража (скрытность, А2): конус зрения с учётом стен.
+  // В зоне страж задаётся { x, y, facing, patrol: [[x, y], ...], range?, fov? }.
+  GUARD: {
+    size: 24,
+    speed: 45,        // скорость обхода
+    range: 150,       // дальность взгляда, px
+    fov: 70,          // ширина конуса, градусы
+    pauseMs: 900,     // остановка в точке маршрута
+    rays: 24,         // сколько лучей в конусе (точность отрисовки и проверки стен)
   },
 };

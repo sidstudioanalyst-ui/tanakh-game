@@ -31,9 +31,12 @@ class BootScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     const dialogueIds = new Set();
-    Object.values(ZONES).forEach((zone) => (zone.npcs || []).forEach((npc) => dialogueIds.add(npc.dialogue)));
+    Object.values(ZONES).forEach((zone) => {
+      (zone.npcs || []).forEach((npc) => dialogueIds.add(npc.dialogue));
+      (zone.triggers || []).forEach((t) => t.dialogue && dialogueIds.add(t.dialogue));
+    });
     Content.dialogueIds = [...dialogueIds];
-    Content.trialIds = [...new Set(MAPS.map((m) => m.trial))];
+    Content.trialIds = [...new Set(ALL_MAPS.map((m) => m.trial).filter(Boolean))];
 
     this.load.json('ui-strings', 'src/data/ui-strings.json');
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
@@ -61,15 +64,19 @@ class BootScene extends Phaser.Scene {
     UI.load(this.cache.json.get('ui-strings'));
     validateContent(Content, UI.strings);
 
-    GameState.newGame();
+    GameState.newGame(CONFIG.CAMPAIGN);
 
-    // ?zone=<id> — начать с конкретной зоны (удобно для отладки)
+    // ?zone=<id> — начать с конкретной зоны (удобно для отладки). Кампания и карта
+    // определяются по зоне, так что ?zone=field сам переключит на демо.
     if (CONFIG.START_ZONE && ZONES[CONFIG.START_ZONE]) {
-      const index = MAPS.findIndex((m) => m.zones.includes(CONFIG.START_ZONE));
-      if (index >= 0) {
+      Object.entries(CAMPAIGNS).some(([campaign, maps]) => {
+        const index = maps.findIndex((m) => m.zones.includes(CONFIG.START_ZONE));
+        if (index < 0) return false;
+        GameState.newGame(campaign);
         GameState.startMap(index);
         GameState.currentZone = CONFIG.START_ZONE;
-      }
+        return true;
+      });
     }
 
     this.scene.start('GameScene');

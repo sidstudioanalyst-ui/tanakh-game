@@ -1,14 +1,14 @@
 // Кнопка выбора с текстом на иврите. Номер (клавиша 1, 2, 3…) — в отдельной плашке справа,
 // чтобы «1.» не перемешивался с ивритом по правилам bidi.
 // Возвращает контейнер; высота — в container.height (для раскладки).
-function createChoiceButton(scene, { rightX, y, width, number, text_he, text_ru, onSelect }) {
+function createChoiceButton(scene, { rightX, y, width, number, text_he, text_ru, onSelect, draft = false }) {
   const container = scene.add.container(0, 0);
   const pad = 10;
   const badgeW = 26;
   const textWidth = width - badgeW - pad * 3;
 
   const label = addHebrewText(scene, rightX - badgeW - pad * 2, y + pad - 2, text_he, { size: 17, width: textWidth });
-  const ru = addRuHint(scene, rightX - badgeW - pad * 2, label.y + label.height, text_ru, textWidth);
+  const ru = addRuHint(scene, rightX - badgeW - pad * 2, label.y + label.height, text_ru, textWidth, draft);
   const contentBottom = (ru ? ru.y + ru.height : label.y + label.height) + pad - 4;
   const height = contentBottom - y;
 

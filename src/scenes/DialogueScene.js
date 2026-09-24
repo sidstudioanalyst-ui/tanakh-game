@@ -1,12 +1,19 @@
 // Окно диалога поверх игры. Данные — src/data/dialogues/<id>.json.
 //
 // Реплика: { id, speaker, text_he, text_ru, next } или { ..., choices: [...] }
+//   style: 'narration' — повествование: чёрный экран и строка текста по центру, без говорящего
+//                        (так показываются развязки — например, сцена с Эглоном)
+//   draft: true        — иврит ещё не написан: text_he — временный текст, под ним всегда
+//                        показывается русский (и у выборов этой реплики тоже)
 // Выбор:   { text_he, text_ru, next, effects }
 // next: id следующей реплики или null — конец диалога.
-// entry: [{ if_flag, node }] — с какой реплики начать, если флаг уже стоит (повторный разговор).
 //
-// В игре показывается иврит; русский — только с ?ru в адресе.
-// Управление: 1–9 или клик — выбор; Пробел/Enter — дальше (если выбора нет).
+// entry: [{ node, if_flag, if_not_flag, if_item, if_missing_item }] — с какой реплики начать.
+//   Берётся первая запись, у которой выполнены все указанные условия (флаги — строка или массив).
+//   Так повторный разговор не выдаёт эффекты второй раз.
+//
+// В игре показывается иврит; русский — с ?ru в адресе или у черновиков.
+// Управление: 1–9 или клик — выбор; Пробел/Enter — дальше (если выбор один).
 class DialogueScene extends Phaser.Scene {
   constructor() {
     super('DialogueScene');
@@ -21,7 +28,7 @@ class DialogueScene extends Phaser.Scene {
   }
 
   create() {
-    this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x000000, 0.35).setOrigin(0);
+    this.dim = this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x000000, 0.35).setOrigin(0);
     this.layer = this.add.container(0, 0);
 
     const kb = this.input.keyboard;
@@ -36,7 +43,14 @@ class DialogueScene extends Phaser.Scene {
   }
 
   entryNode() {
-    const entry = (this.dialogue.entry || []).find((e) => GameState.flags[e.if_flag]);
+    const all = (v, test) => [].concat(v || []).every(test);
+    const entry = (this.dialogue.entry || []).find(
+      (e) =>
+        all(e.if_flag, (f) => GameState.flags[f]) &&
+        all(e.if_not_flag, (f) => !GameState.flags[f]) &&
+        all(e.if_item, (id) => GameState.hasItem(id)) &&
+        all(e.if_missing_item, (id) => !GameState.hasItem(id))
+    );
     return entry ? entry.node : this.dialogue.start;
   }
 
@@ -47,10 +61,41 @@ class DialogueScene extends Phaser.Scene {
     }
     const line = this.lines[lineId];
     this.layer.removeAll(true);
+    this.options = [];
+    if (line.style === 'narration') this.showNarration(line);
+    else this.showLine(line);
+  }
 
+  // Кнопки: выборы из данных или одна кнопка «дальше» / «конец»
+  choicesOf(line) {
+    const label = UI.both(line.next ? 'dialogue_continue' : 'dialogue_end');
+    return line.choices || [{ text_he: label.he, text_ru: label.ru, next: line.next, auto: true }];
+  }
+
+  addButtons(line, rightX, y, width) {
+    const choices = this.choicesOf(line);
+    this.options = choices.map((choice) => () => this.choose(choice));
+    choices.forEach((choice, i) => {
+      const btn = createChoiceButton(this, {
+        rightX,
+        y,
+        width,
+        number: i + 1,
+        text_he: choice.text_he,
+        text_ru: choice.text_ru,
+        onSelect: this.options[i],
+        draft: line.draft && !choice.auto,
+      });
+      this.layer.add(btn);
+      y += btn.height + 6;
+    });
+    return y;
+  }
+
+  showLine(line) {
+    this.dim.setFillStyle(0x000000, 0.35);
     const margin = 20;
-    const boxRight = CONFIG.WIDTH - margin;
-    const innerRight = boxRight - 20;
+    const innerRight = CONFIG.WIDTH - margin - 20;
     const innerWidth = CONFIG.WIDTH - margin * 2 - 40;
     const add = (obj) => obj && this.layer.add(obj) && obj;
 
@@ -62,34 +107,37 @@ class DialogueScene extends Phaser.Scene {
 
     const text = add(addHebrewText(this, innerRight, y, line.text_he, { size: 19, width: innerWidth, lineSpacing: 6 }));
     y += text.height + 4;
-    const ru = add(addRuHint(this, innerRight, y, line.text_ru, innerWidth));
+    const ru = add(addRuHint(this, innerRight, y, line.text_ru, innerWidth, !!line.draft));
     if (ru) y += ru.height + 4;
     y += 8;
 
-    // Варианты: выборы из данных или одна кнопка «дальше» / «конец»
-    const label = UI.both(line.next ? 'dialogue_continue' : 'dialogue_end');
-    const choices = line.choices || [{ text_he: label.he, text_ru: label.ru, next: line.next }];
-    this.options = choices.map((choice) => () => this.choose(choice));
-    choices.forEach((choice, i) => {
-      const btn = add(
-        createChoiceButton(this, {
-          rightX: innerRight,
-          y,
-          width: innerWidth,
-          number: i + 1,
-          text_he: choice.text_he,
-          text_ru: choice.text_ru,
-          onSelect: this.options[i],
-        })
-      );
-      y += btn.height + 6;
-    });
-    y += 10;
+    y = this.addButtons(line, innerRight, y, innerWidth) + 4;
 
-    const boxTop = CONFIG.HEIGHT - margin - y;
     const box = this.add.rectangle(margin, 0, CONFIG.WIDTH - margin * 2, y, 0x2e3440, 0.97).setOrigin(0).setStrokeStyle(2, 0x88c0d0);
     this.layer.addAt(box, 0);
-    this.layer.y = boxTop;
+    this.layer.y = CONFIG.HEIGHT - margin - y;
+  }
+
+  // Повествование: затемнение и короткая строка текста по центру
+  showNarration(line) {
+    this.dim.setFillStyle(0x000000, 0);
+    this.tweens.add({ targets: this.dim, fillAlpha: 1, duration: 600 });
+    this.layer.y = 0;
+    this.layer.setAlpha(0);
+    this.tweens.add({ targets: this.layer, alpha: 1, delay: 400, duration: 500 });
+
+    const width = 600;
+    const right = CONFIG.WIDTH / 2 + width / 2;
+    let y = CONFIG.HEIGHT / 2 - 70;
+    const text = addHebrewText(this, right, y, line.text_he, { size: 22, width, lineSpacing: 8 });
+    this.layer.add(text);
+    y += text.height + 6;
+    const ru = addRuHint(this, right, y, line.text_ru, width, !!line.draft);
+    if (ru) {
+      this.layer.add(ru);
+      y += ru.height + 6;
+    }
+    this.addButtons(line, right, y + 24, width);
   }
 
   choose(choice) {
