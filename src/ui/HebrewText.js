@@ -26,14 +26,15 @@ function addHebrewText(scene, rightX, y, text, opts = {}) {
 }
 
 // Русский перевод под ивритом — только при ?ru в адресе (для проверки текстов).
+// force: true — показать всегда (реплики-черновики draft: true, где иврита ещё нет).
 // Возвращает null, если перевод выключен.
-function addRuHint(scene, rightX, y, text, width) {
-  if (!CONFIG.SHOW_RU || !text) return null;
+function addRuHint(scene, rightX, y, text, width, force = false) {
+  if ((!CONFIG.SHOW_RU && !force) || !text) return null;
   return scene.add
     .text(rightX, y, text, {
       fontFamily: 'sans-serif',
-      fontSize: '12px',
-      color: '#8f9bb3',
+      fontSize: force ? '15px' : '12px',
+      color: force ? '#d8dee9' : '#8f9bb3',
       align: 'right',
       wordWrap: { width },
       fixedWidth: width,

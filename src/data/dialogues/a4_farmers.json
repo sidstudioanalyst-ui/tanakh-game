@@ -1,0 +1,101 @@
+{
+  "id": "a4_farmers",
+  "speakers": {
+    "w": {
+      "name_he": "אִכָּרֵי הָהָר",
+      "name_ru": "Земледельцы нагорья"
+    }
+  },
+  "start": "greet",
+  "entry": [
+    {
+      "if_flag": "farmers_done",
+      "node": "again"
+    },
+    {
+      "if_missing_item": "shofar",
+      "node": "no_shofar"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Если все мужчины уйдут к Иордану, кто защитит поля, вдов и сирот от моавитских отрядов?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Пусть старшие и часть юношей останутся охранять селения. Остальные — со мной.",
+          "next": "join",
+          "effects": {
+            "justice": 1,
+            "wisdom": 1,
+            "gauge": {
+              "warriors": 80
+            },
+            "set_flag": "farmers_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Идти должны все, иначе мы не победим.",
+          "next": "hard",
+          "effects": {
+            "justice": -1,
+            "counsel": 1,
+            "gauge": {
+              "warriors": 100
+            },
+            "set_flag": "farmers_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "О полях подумаем после победы.",
+          "next": "hard",
+          "effects": {
+            "justice": -1,
+            "gauge": {
+              "warriors": 40
+            },
+            "set_flag": "farmers_done"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Это мудро. Кто может — пойдёт с тобой.",
+      "next": null
+    },
+    {
+      "id": "hard",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Пойдём… но сердцем мы останемся дома.",
+      "next": null
+    },
+    {
+      "id": "no_shofar",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы работаем в полях. Отсюда шофара не слышно.",
+      "next": null
+    },
+    {
+      "id": "again",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Кто мог, уже с тобой.",
+      "next": null
+    }
+  ]
+}

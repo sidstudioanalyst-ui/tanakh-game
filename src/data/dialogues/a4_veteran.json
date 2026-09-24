@@ -1,0 +1,101 @@
+{
+  "id": "a4_veteran",
+  "speakers": {
+    "w": {
+      "name_he": "לוֹחֵם זָקֵן",
+      "name_ru": "Старый воин"
+    }
+  },
+  "start": "greet",
+  "entry": [
+    {
+      "if_flag": "veteran_done",
+      "node": "again"
+    },
+    {
+      "if_missing_item": "shofar",
+      "node": "no_shofar"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Я помню ещё войну с Кушан-Ришатаимом. Моавитов больше, чем нас. Как ты думаешь победить?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Займём броды Иордана — они не смогут уйти в Моав.",
+          "next": "join",
+          "effects": {
+            "wisdom": 1,
+            "counsel": 1,
+            "gauge": {
+              "warriors": 100
+            },
+            "set_flag": "veteran_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Нападём на их лагерь прямо сейчас, пока они не опомнились.",
+          "next": "doubt",
+          "effects": {
+            "wisdom": -1,
+            "counsel": 1,
+            "gauge": {
+              "warriors": 50
+            },
+            "set_flag": "veteran_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Подождём, пока Г-сподь сделает всё за нас.",
+          "next": "doubt",
+          "effects": {
+            "counsel": -1,
+            "gauge": {
+              "warriors": 20
+            },
+            "set_flag": "veteran_done"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Вот это план воина. Я и мои люди — с тобой.",
+      "next": null
+    },
+    {
+      "id": "doubt",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Хм. Я пойду, но не все пойдут за таким планом.",
+      "next": null
+    },
+    {
+      "id": "no_shofar",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Сначала дай знак всем — протруби в шофар. Потом говори со мной.",
+      "next": null
+    },
+    {
+      "id": "again",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Увидимся у бродов.",
+      "next": null
+    }
+  ]
+}

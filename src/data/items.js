@@ -56,4 +56,33 @@ const ITEMS = {
     defense: 1,
     color: 0xe5c07b,
   },
+
+  // --- «Спасители», часть А (Эхуд) ---
+  ehud_dagger: {
+    name_ru: 'Обоюдоострый кинжал',
+    name_he: 'חֶרֶב פִּיפִיּוֹת',
+    slot: 'weapon',
+    damage: 2,
+    color: 0xeceff4,
+  },
+  ehud_garment: {
+    name_ru: 'Плащ',
+    name_he: 'מַדִּים',
+    slot: 'armor',
+    defense: 3,
+    color: 0x7b6f5a,
+  },
+  tribute_bag: {
+    name_ru: 'Мешок с данью',
+    name_he: 'שַׂק הַמִּנְחָה',
+    slot: 'special',
+    color: 0xd4a84b,
+  },
+  shofar: {
+    name_ru: 'Шофар',
+    name_he: 'שׁוֹפָר',
+    slot: 'special',
+    maxHp: 10,
+    color: 0xc8a165,
+  },
 };

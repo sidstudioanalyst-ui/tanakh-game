@@ -1,0 +1,144 @@
+{
+  "id": "a1_elders",
+  "speakers": {
+    "elders": {
+      "name_he": "זִקְנֵי בִנְיָמִין",
+      "name_ru": "Старейшины Биньямина"
+    }
+  },
+  "start": "greet",
+  "entry": [
+    {
+      "if_flag": [
+        "tribute_taken",
+        "dagger_hidden"
+      ],
+      "node": "ready"
+    },
+    {
+      "if_flag": "tribute_taken",
+      "node": "again"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Эхуд, сын Геры. Восемнадцать лет Израиль служит Эглону, царю Моава. Каждый год мы несём ему дань — и каждый год наши дети голоднее.",
+      "next": "cry"
+    },
+    {
+      "id": "cry",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Сыны Израиля воззвали к Г-споду. Старейшины выбрали тебя: ты отнесёшь дань в Город пальм, к самому Эглону.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Я понесу дань. Но пойду не только ради дани.",
+          "next": "plan",
+          "effects": {
+            "counsel": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Почему я? Я левша, я не воин.",
+          "next": "why",
+          "effects": {
+            "wisdom": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Может, лучше заплатить больше и жить спокойно?",
+          "next": "rebuke",
+          "effects": {
+            "justice": -1,
+            "counsel": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "why",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Потому что ты знаешь себя — и знаешь, как смотрят другие. Стража Эглона ищет оружие там, где его носят все.",
+      "next": "plan"
+    },
+    {
+      "id": "rebuke",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Спокойно живёт тот, у кого есть хлеб. Спроси вдов Гивы, спокойно ли им.",
+      "next": "plan"
+    },
+    {
+      "id": "plan",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Возьми мешок с данью и этот плащ. Остальное — твоё дело. Но помни: Эглон видит в нас рабов, а не людей.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Я иду не ради мести — ради свободы Израиля.",
+          "next": "blessing",
+          "effects": {
+            "knowledge": 1,
+            "justice": 1,
+            "give_item": [
+              "tribute_bag",
+              "ehud_garment"
+            ],
+            "set_flag": "tribute_taken"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Эглон заплатит за всё, что сделал.",
+          "next": "blessing",
+          "effects": {
+            "counsel": 1,
+            "knowledge": -1,
+            "give_item": [
+              "tribute_bag",
+              "ehud_garment"
+            ],
+            "set_flag": "tribute_taken"
+          }
+        }
+      ]
+    },
+    {
+      "id": "blessing",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иди. Г-сподь поднимает спасителя тем, кто кричит к Нему. Кинжал, который ты выковал, лежит в твоей мастерской — спрячь его, прежде чем выйдешь.",
+      "next": null
+    },
+    {
+      "id": "again",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Дань у тебя. Прежде чем выйти на восток, спрячь кинжал из мастерской под плащом.",
+      "next": null
+    },
+    {
+      "id": "ready",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Всё готово. Ступай с миром, сын Геры, и возвращайся с миром.",
+      "next": null
+    }
+  ]
+}

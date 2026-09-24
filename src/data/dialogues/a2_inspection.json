@@ -1,0 +1,109 @@
+{
+  "id": "a2_inspection",
+  "speakers": {
+    "guard": {
+      "name_he": "שׁוֹמֵר הַשַּׁעַר",
+      "name_ru": "Страж ворот"
+    }
+  },
+  "start": "search_left",
+  "entry": [
+    {
+      "if_flag": "gate_open",
+      "node": "open"
+    },
+    {
+      "if_flag": "dagger_right",
+      "node": "pass"
+    }
+  ],
+  "lines": [
+    {
+      "id": "pass",
+      "speaker": "guard",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Стой. Дань для царя? Подними руки — я обыщу тебя.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Поднять руки и ждать.",
+          "next": "pass2"
+        }
+      ]
+    },
+    {
+      "id": "pass2",
+      "speaker": "guard",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Страж ощупывает левое бедро, потом пояс. — Чисто. Проходи, царь в зале. Но к его горнице не подходи: там свои сторожа.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Войти.",
+          "next": null,
+          "effects": {
+            "open_door": "main_gate",
+            "set_flag": "gate_open"
+          }
+        }
+      ]
+    },
+    {
+      "id": "search_left",
+      "speaker": "guard",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Стой. Дань для царя? Подними руки — сначала проверю левое бедро.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Отступить: «Я оставил часть дани у повозки, сейчас вернусь».",
+          "next": "retreat",
+          "effects": {
+            "wisdom": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Поднять руки.",
+          "next": "caught"
+        }
+      ]
+    },
+    {
+      "id": "caught",
+      "speaker": "guard",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Рука стража тянется к левому бедру — и нащупывает рукоять. — Эй! Что у тебя там?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "…",
+          "next": null,
+          "effects": {
+            "fail_zone": "fail_searched"
+          }
+        }
+      ]
+    },
+    {
+      "id": "retreat",
+      "speaker": "guard",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Так неси скорее. Без обыска в ворота никто не войдёт.",
+      "next": null
+    },
+    {
+      "id": "open",
+      "speaker": "guard",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Проходи, не задерживайся.",
+      "next": null
+    }
+  ]
+}

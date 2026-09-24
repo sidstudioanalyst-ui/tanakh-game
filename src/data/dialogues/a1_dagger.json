@@ -1,0 +1,75 @@
+{
+  "id": "a1_dagger",
+  "speakers": {
+    "ehud": {
+      "name_he": "אֵהוּד",
+      "name_ru": "Эхуд"
+    }
+  },
+  "start": "make",
+  "entry": [
+    {
+      "if_flag": "dagger_hidden",
+      "node": "done"
+    }
+  ],
+  "lines": [
+    {
+      "id": "make",
+      "speaker": "ehud",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Я выковал кинжал: обоюдоострый, длиной в локоть. Его нужно спрятать под плащом так, чтобы стража Эглона его не нашла. Где?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "На правом бедре. Я левша, мне так удобнее, а стражники обыскивают левое бедро — там носят меч правши.",
+          "next": "right",
+          "effects": {
+            "wisdom": 1,
+            "counsel": 1,
+            "give_item": "ehud_dagger",
+            "set_flag": [
+              "dagger_hidden",
+              "dagger_right"
+            ]
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "На левом бедре — так носят все.",
+          "next": "left",
+          "effects": {
+            "wisdom": -1,
+            "give_item": "ehud_dagger",
+            "set_flag": "dagger_hidden"
+          }
+        }
+      ]
+    },
+    {
+      "id": "right",
+      "speaker": "ehud",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Кинжал на правом бедре, под плащом. С этой стороны оружия никто не ждёт.",
+      "next": null
+    },
+    {
+      "id": "left",
+      "speaker": "ehud",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Кинжал на левом бедре. Так носят все — а значит, там и будут искать. Если у ворот обыщут, придётся искать другой путь.",
+      "next": null
+    },
+    {
+      "id": "done",
+      "speaker": "ehud",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Кинжал спрятан. Пора в путь — на восток, к Иерихону.",
+      "next": null
+    }
+  ]
+}
