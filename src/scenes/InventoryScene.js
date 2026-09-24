@@ -10,7 +10,7 @@ class InventoryScene extends Phaser.Scene {
   init(data) {
     this.player = data.player;
     this.equipment = data.player.equipment;
-    this.cursor = 0;
+    this.cursor = data.cursor || 0;
   }
 
   create() {
@@ -41,6 +41,8 @@ class InventoryScene extends Phaser.Scene {
     kb.on('keydown-E', () => this.activate());
     kb.on('keydown-I', () => this.close());
     kb.on('keydown-ESC', () => this.close());
+    // Смена языка: раскладка зеркальная — проще построить экран заново (курсор сохраняется)
+    bindLanguageKeys(this, () => this.scene.restart({ player: this.player, cursor: this.cursor }));
 
     this.redraw();
   }
