@@ -80,7 +80,8 @@ class TrialScene extends Phaser.Scene {
       y = this.measureRow(y, m, GameState.measures[key]);
     });
 
-    this.buttons(y + 4, [{ text_he: 'אֶל הַשְּׁאֵלוֹת', text_ru: 'К вопросам', onSelect: () => this.showQuestion(0) }]);
+    const label = UI.both('trial_to_questions');
+    this.buttons(y + 4, [{ text_he: label.he, text_ru: label.ru, onSelect: () => this.showQuestion(0) }]);
   }
 
   measureRow(y, m, value) {
@@ -89,8 +90,7 @@ class TrialScene extends Phaser.Scene {
     const band = !total ? 'untested' : lightShare >= 0.65 ? 'light' : lightShare <= 0.35 ? 'shadow' : 'balance';
 
     const name = this.put(addHebrewText(this, this.right, y, m.name_he, { size: 17, bold: true }));
-    const bandText = this.put(addHebrewText(this, this.margin, y + 2, MEASURE_BANDS[band].he, { size: 14, color: '#a0a8b8' }));
-    bandText.setOrigin(0, 0);
+    this.put(addUiLabel(this, this.margin, y + 2, UI.t(`band_${band}`), { size: 14, color: '#a0a8b8', originX: 0 }));
     y += name.height + 2;
 
     // Полоса: справа (начало строки на иврите) — свет, слева — тень. Без чисел.
@@ -128,7 +128,7 @@ class TrialScene extends Phaser.Scene {
     this.clear();
     let y = this.heading(24);
     const counter = this.put(
-      addHebrewText(this, this.right, y, `שְׁאֵלָה ${index + 1} מִתּוֹךְ ${this.trial.questions.length}`, {
+      addUiLabel(this, this.right, y, UI.t('trial_question_counter', { n: index + 1, total: this.trial.questions.length }), {
         size: 15,
         color: '#a0a8b8',
       })
@@ -156,13 +156,8 @@ class TrialScene extends Phaser.Scene {
     y = this.paragraph(y, this.trial.outro_he, this.trial.outro_ru, 19);
 
     const last = !GameState.hasNextMap();
-    this.buttons(y + 10, [
-      {
-        text_he: last ? 'לְהַתְחִיל מֵחָדָשׁ' : 'לַדֶּרֶךְ הַבָּאָה',
-        text_ru: last ? 'Начать заново' : 'В следующий путь',
-        onSelect: () => this.finish(last),
-      },
-    ]);
+    const label = UI.both(last ? 'trial_restart' : 'trial_next_map');
+    this.buttons(y + 10, [{ text_he: label.he, text_ru: label.ru, onSelect: () => this.finish(last) }]);
   }
 
   finish(last) {

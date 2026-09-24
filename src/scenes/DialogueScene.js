@@ -67,13 +67,8 @@ class DialogueScene extends Phaser.Scene {
     y += 8;
 
     // Варианты: выборы из данных или одна кнопка «дальше» / «конец»
-    const choices = line.choices || [
-      {
-        text_he: line.next ? 'הַמְשֵׁךְ' : 'סִיּוּם',
-        text_ru: line.next ? 'Дальше' : 'Закончить',
-        next: line.next,
-      },
-    ];
+    const label = UI.both(line.next ? 'dialogue_continue' : 'dialogue_end');
+    const choices = line.choices || [{ text_he: label.he, text_ru: label.ru, next: line.next }];
     this.options = choices.map((choice) => () => this.choose(choice));
     choices.forEach((choice, i) => {
       const btn = add(

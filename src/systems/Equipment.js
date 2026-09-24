@@ -67,12 +67,19 @@ class Equipment {
   }
 }
 
-// Короткое описание бонусов предмета: «Посох (+1 урон)».
+// Название предмета на языке интерфейса.
+function itemName(id) {
+  const item = ITEMS[id];
+  return UI.lang === 'he' ? item.name_he : item.name_ru;
+}
+
+// Название с бонусами: «Посох (+1 урон)» / «מַקֵּל (+1 נֵזֶק)».
 function describeItem(id) {
   const item = ITEMS[id];
   const parts = [];
-  if (item.damage) parts.push(`+${item.damage} урон`);
-  if (item.defense) parts.push(`+${item.defense} защита`);
-  if (item.maxHp) parts.push(`+${item.maxHp} здоровье`);
-  return parts.length ? `${item.name_ru} (${parts.join(', ')})` : item.name_ru;
+  if (item.damage) parts.push(UI.t('bonus_damage', { value: `+${item.damage}` }));
+  if (item.defense) parts.push(UI.t('bonus_defense', { value: `+${item.defense}` }));
+  if (item.maxHp) parts.push(UI.t('bonus_max_hp', { value: `+${item.maxHp}` }));
+  if (!parts.length) return itemName(id);
+  return UI.t('item_with_bonus', { name: itemName(id), bonus: parts.join(', ') });
 }

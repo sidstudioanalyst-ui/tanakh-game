@@ -26,7 +26,8 @@ class BootScene extends Phaser.Scene {
 
   preload() {
     const status = this.add
-      .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, 'Загрузка…', { fontFamily: CONFIG.UI_FONT, fontSize: '18px', color: '#d8dee9' })
+      // Строки интерфейса ещё не загружены — поэтому экран загрузки двуязычный прямо в коде
+      .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, 'טוֹעֵן… / Загрузка…', { fontFamily: CONFIG.HEBREW_FONT, fontSize: '18px', color: '#d8dee9' })
       .setOrigin(0.5);
 
     const dialogueIds = new Set();
@@ -34,6 +35,7 @@ class BootScene extends Phaser.Scene {
     Content.dialogueIds = [...dialogueIds];
     Content.trialIds = [...new Set(MAPS.map((m) => m.trial))];
 
+    this.load.json('ui-strings', 'src/data/ui-strings.json');
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
     Content.trialIds.forEach((id) => this.load.json(`trial:${id}`, `src/data/trials/${id}.json`));
 
@@ -42,7 +44,8 @@ class BootScene extends Phaser.Scene {
     this.load.on('complete', () => {
       if (this.loadFailed.length) {
         status.setText(
-          'Не удалось загрузить данные:\n' +
+          'לֹא נִתָּן לִטְעֹן אֶת נְתוּנֵי הַמִּשְׂחָק.\n' +
+            'Не удалось загрузить данные:\n' +
             this.loadFailed.join('\n') +
             '\n\nJSON не грузится при открытии файла напрямую (file://).\n' +
             'Запустите через веб-сервер — см. README.'
@@ -55,7 +58,8 @@ class BootScene extends Phaser.Scene {
   create() {
     if (this.loadFailed.length) return;
     Content.cache = this.cache.json;
-    validateContent(Content);
+    UI.load(this.cache.json.get('ui-strings'));
+    validateContent(Content, UI.strings);
 
     GameState.newGame();
 
