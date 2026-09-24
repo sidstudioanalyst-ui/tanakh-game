@@ -1,4 +1,4 @@
-// Игрок: движение на WASD/стрелках, атака по пробелу, здоровье.
+// Игрок: движение на WASD/стрелках, атака по пробелу, здоровье, экипировка.
 class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y) {
     super(scene, x, y, 'player');
@@ -12,6 +12,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.nextAttackAt = 0;
     this.invulnerableUntil = 0;
     this.stunnedUntil = 0;
+    this.equipment = new Equipment(() => scene.events.emit('equipment-changed', this.equipment));
 
     this.setCollideWorldBounds(true);
     this.setDepth(10);
@@ -60,8 +61,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
       x: this.x,
       y: this.y,
       range: this.stats.attackRange,
-      damage: this.stats.attackDamage,
+      damage: this.getAttackDamage(),
     });
+  }
+
+  getAttackDamage() {
+    return this.stats.attackDamage + this.equipment.bonus('damage');
+  }
+
+  getDefense() {
+    return this.equipment.bonus('defense');
   }
 
   showAttackEffect() {
@@ -79,7 +88,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   takeDamage(amount, fromX, fromY, time) {
     if (this.isDead || time < this.invulnerableUntil) return;
 
-    this.hp = Math.max(0, this.hp - amount);
+    // Броня поглощает часть урона, но хотя бы 1 единица проходит всегда
+    const taken = Math.max(1, amount - this.getDefense());
+    this.hp = Math.max(0, this.hp - taken);
     this.invulnerableUntil = time + this.stats.invulnTime;
     this.scene.events.emit('player-hp-changed', this.hp, this.maxHp);
 
