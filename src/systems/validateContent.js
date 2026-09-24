@@ -1,6 +1,6 @@
 // Проверка игровых данных при запуске. Ошибки выводятся в консоль (console.warn)
 // и сохраняются в window.CONTENT_PROBLEMS — так опечатку в зоне или диалоге видно сразу.
-function validateContent(cache) {
+function validateContent(cache, uiStrings) {
   const problems = [];
   const warn = (msg) => problems.push(msg);
 
@@ -87,6 +87,18 @@ function validateContent(cache) {
       });
     });
   });
+
+  // Строки интерфейса: у каждого ключа есть he и ru с одинаковыми подстановками {имя}
+  const params = (s) => (s.match(/\{\w+\}/g) || []).sort().join(',');
+  Object.entries(uiStrings || {}).forEach(([key, entry]) => {
+    if (key.startsWith('_')) return;
+    if (typeof entry.he !== 'string' || typeof entry.ru !== 'string') {
+      warn(`Строка ${key}: нужны оба поля he и ru`);
+    } else if (params(entry.he) !== params(entry.ru)) {
+      warn(`Строка ${key}: подстановки в he и ru не совпадают`);
+    }
+  });
+  Object.values(EQUIPMENT_SLOTS).forEach((k) => uiStrings && !uiStrings[k] && warn(`Слот: нет строки "${k}" в ui-strings.json`));
 
   problems.forEach((p) => console.warn(`[данные] ${p}`));
   window.CONTENT_PROBLEMS = problems;

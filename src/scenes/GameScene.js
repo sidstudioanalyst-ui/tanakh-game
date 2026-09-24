@@ -178,7 +178,7 @@ class GameScene extends Phaser.Scene {
     item.collect();
     GameState.markRemoved(this.zoneId, item.spawnKey);
     const equipped = GameState.equipment.pickUp(item.itemId);
-    this.showToast(`${equipped ? 'Надето' : 'В сумку'}: ${describeItem(item.itemId)}`);
+    this.showToast(UI.t(equipped ? 'toast_equipped' : 'toast_to_bag', { item: describeItem(item.itemId) }));
   }
 
   nearestNpc() {
@@ -238,54 +238,43 @@ class GameScene extends Phaser.Scene {
     this.healthBar = new HealthBar(this, 16, 16, 200, 18);
     this.healthBar.draw(this.player.hp, this.player.maxHp);
 
-    const hudStyle = { fontFamily: CONFIG.UI_FONT, fontSize: '13px', color: '#d8dee9', lineSpacing: 2 };
-    this.equipmentText = this.add.text(16, 42, '', hudStyle).setScrollFactor(0).setDepth(100);
+    // Раскладка HUD задаётся для русского; в иврите UI.x() зеркалит её слева направо
+    this.equipmentText = addUiText(this, 16, 42, '').setScrollFactor(0).setDepth(100);
     this.updateEquipmentHud();
 
-    // Название зоны на иврите — сверху по центру
+    // Название карты и зоны (иврит) — сверху по центру
     const map = GameState.map;
     addHebrewText(this, CONFIG.WIDTH / 2, 10, `${map.name_he} · ${this.zone.name_he}`, { size: 16, color: '#e5e9f0' })
       .setOrigin(0.5, 0)
       .setScrollFactor(0)
       .setDepth(100);
 
-    this.add
-      .text(CONFIG.WIDTH - 16, 16, 'WASD / стрелки — движение\nПробел — атака\nE — говорить\nI — инвентарь', {
-        fontFamily: CONFIG.UI_FONT,
-        fontSize: '13px',
-        color: '#d8dee9',
-        align: 'right',
-      })
-      .setOrigin(1, 0)
+    // Подсказка по управлению — в противоположном от полоски здоровья углу
+    addUiText(this, CONFIG.WIDTH - 16, 16, UI.t('hud_controls'))
+      .setOrigin(UI.rtl ? 0 : 1, 0)
       .setScrollFactor(0)
       .setDepth(100);
 
     // Всплывающее сообщение (подобранный предмет и т. п.)
-    this.toastText = this.add
-      .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT - 40, '', {
-        fontFamily: CONFIG.UI_FONT,
-        fontSize: '16px',
-        color: '#ebcb8b',
-        backgroundColor: '#000000aa',
-        padding: { x: 10, y: 6 },
-        align: 'center',
-      })
-      .setOrigin(0.5)
+    this.toastText = addUiText(this, CONFIG.WIDTH / 2, CONFIG.HEIGHT - 58, '', {
+      center: true,
+      size: 16,
+      color: '#ebcb8b',
+      background: '#000000aa',
+      padding: { x: 10, y: 6 },
+    })
       .setScrollFactor(0)
       .setDepth(150)
       .setVisible(false);
 
-    this.messageText = this.add
-      // Выше центра: камера держит игрока по центру, текст не должен его закрывать
-      .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.22, '', {
-        fontFamily: CONFIG.UI_FONT,
-        fontSize: '28px',
-        color: '#ffffff',
-        align: 'center',
-        backgroundColor: '#000000aa',
-        padding: { x: 16, y: 12 },
-      })
-      .setOrigin(0.5)
+    // Выше центра: камера держит игрока по центру, текст не должен его закрывать
+    this.messageText = addUiText(this, CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.22 - 40, '', {
+      center: true,
+      size: 28,
+      color: '#ffffff',
+      background: '#000000aa',
+      padding: { x: 16, y: 12 },
+    })
       .setScrollFactor(0)
       .setDepth(200)
       .setVisible(false);
@@ -302,10 +291,10 @@ class GameScene extends Phaser.Scene {
 
   updateEquipmentHud() {
     const eq = GameState.equipment;
-    const lines = Object.entries(EQUIPMENT_SLOTS).map(
-      ([slot, label]) => `${label}: ${eq.slots[slot] ? ITEMS[eq.slots[slot]].name_ru : '—'}`
+    const lines = Object.entries(EQUIPMENT_SLOTS).map(([slot, labelKey]) =>
+      UI.t('slot_line', { slot: UI.t(labelKey), item: eq.slots[slot] ? itemName(eq.slots[slot]) : UI.t('slot_empty') })
     );
-    lines.push(`Урон ${this.player.getAttackDamage()} · Защита ${this.player.getDefense()}`);
+    lines.push(UI.t('hud_stats', { damage: this.player.getAttackDamage(), defense: this.player.getDefense() }));
     this.equipmentText.setText(lines.join('\n'));
   }
 
@@ -330,7 +319,7 @@ class GameScene extends Phaser.Scene {
     });
 
     this.events.on('enemy-dead', (enemy) => GameState.markRemoved(this.zoneId, enemy.spawnKey));
-    this.events.on('player-dead', () => this.endGame('Вы погибли\nR — начать карту заново'));
+    this.events.on('player-dead', () => this.endGame(UI.t('death_message')));
 
     // Сообщения от окон поверх игры (диалог выдал предмет и т. п.)
     this.events.on('toast', (message) => this.showToast(message));

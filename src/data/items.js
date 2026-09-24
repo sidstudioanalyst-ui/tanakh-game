@@ -1,8 +1,8 @@
-// Слоты экипировки: ключ слота → подпись в интерфейсе.
+// Слоты экипировки: ключ слота → ключ подписи в src/data/ui-strings.json.
 const EQUIPMENT_SLOTS = {
-  weapon: 'Оружие',
-  armor: 'Одежда/броня',
-  special: 'Особый предмет',
+  weapon: 'slot_weapon',
+  armor: 'slot_armor',
+  special: 'slot_special',
 };
 
 // Предметы. Ключ — id предмета: на него ссылаются зоны (items: [{ id, x, y }])

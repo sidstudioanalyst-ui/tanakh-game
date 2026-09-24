@@ -1,6 +1,7 @@
 // Экран инвентаря (клавиша I). Запускается поверх GameScene, которая на это время стоит на паузе.
 // Список: сначала слоты экипировки, затем предметы в сумке.
 //   Enter/E на слоте — снять предмет, на предмете в сумке — надеть.
+// Строки интерфейса — из ui-strings.json; в иврите раскладка зеркальная (UI.x).
 class InventoryScene extends Phaser.Scene {
   constructor() {
     super('InventoryScene');
@@ -15,28 +16,21 @@ class InventoryScene extends Phaser.Scene {
   create() {
     const W = CONFIG.WIDTH;
     const H = CONFIG.HEIGHT;
-    const panelW = 560;
+    const panelW = 580;
     const panelH = 480;
     this.panelX = (W - panelW) / 2;
     this.panelY = (H - panelH) / 2;
+    this.panelW = panelW;
 
     this.add.rectangle(0, 0, W, H, 0x000000, 0.6).setOrigin(0);
     this.add.rectangle(this.panelX, this.panelY, panelW, panelH, 0x2e3440, 0.97).setOrigin(0).setStrokeStyle(2, 0x88c0d0);
 
-    const text = (x, y, str, size, color) =>
-      this.add.text(x, y, str, { fontFamily: 'monospace', fontSize: `${size}px`, color: color || '#eceff4' });
+    const left = this.panelX + 20;
+    addUiText(this, left, this.panelY + 14, UI.t('inventory_title'), { size: 22, color: '#88c0d0', bold: true });
+    this.statsText = addUiText(this, left, this.panelY + 50, '', { size: 15, color: '#ebcb8b' });
+    addUiText(this, left, this.panelY + panelH - 50, UI.t('inventory_help'), { size: 13, color: '#a0a8b8' });
 
-    text(this.panelX + 20, this.panelY + 16, 'Инвентарь', 22, '#88c0d0');
-    this.statsText = text(this.panelX + 20, this.panelY + 50, '', 15, '#ebcb8b');
-    this.listText = text(this.panelX + 20, this.panelY + 84, '', 15);
-    this.listText.setLineSpacing(6);
-    text(
-      this.panelX + 20,
-      this.panelY + panelH - 44,
-      '↑/↓ W/S — выбор   Enter/E — надеть/снять\nI или Esc — закрыть',
-      13,
-      '#a0a8b8'
-    );
+    this.rows = this.add.container(0, 0);
 
     const kb = this.input.keyboard;
     kb.on('keydown-UP', () => this.move(-1));
@@ -53,7 +47,7 @@ class InventoryScene extends Phaser.Scene {
 
   // Плоский список строк: слоты, затем сумка
   entries() {
-    const slots = Object.entries(EQUIPMENT_SLOTS).map(([slot, label]) => ({ kind: 'slot', slot, label }));
+    const slots = Object.entries(EQUIPMENT_SLOTS).map(([slot, labelKey]) => ({ kind: 'slot', slot, labelKey }));
     const bag = this.equipment.bag.map((id, index) => ({ kind: 'bag', id, index }));
     return [...slots, ...bag];
   }
@@ -75,23 +69,43 @@ class InventoryScene extends Phaser.Scene {
 
   redraw() {
     const p = this.player;
-    this.statsText.setText(`Урон: ${p.getAttackDamage()}    Защита: ${p.getDefense()}    Здоровье: ${p.hp}/${p.maxHp}`);
+    this.statsText.setText(
+      UI.t('inventory_stats', { damage: p.getAttackDamage(), defense: p.getDefense(), hp: `${p.hp}/${p.maxHp}` })
+    );
 
-    const lines = [];
+    this.rows.removeAll(true);
+    const left = this.panelX + 20;
+    const rowH = 26;
+    let y = this.panelY + 88;
+
+    const row = (text, selected, indent = 0) => {
+      if (selected) {
+        this.rows.add(this.add.rectangle(this.panelX + 12, y - 2, this.panelW - 24, rowH, 0x4c566a).setOrigin(0));
+      }
+      this.rows.add(addUiText(this, left + indent, y, text, { size: 15, color: selected ? '#ffffff' : '#d8dee9' }));
+      y += rowH;
+    };
+
     const entries = this.entries();
     const slotCount = Object.keys(EQUIPMENT_SLOTS).length;
     entries.forEach((entry, i) => {
-      if (i === slotCount) lines.push('', 'Сумка:');
-      const mark = i === this.cursor ? '▶ ' : '  ';
+      if (i === slotCount) {
+        y += 10;
+        row(UI.t('inventory_bag'), false);
+      }
+      const selected = i === this.cursor;
       if (entry.kind === 'slot') {
         const id = this.equipment.slots[entry.slot];
-        lines.push(`${mark}${entry.label}: ${id ? describeItem(id) : '—'}`);
+        row(UI.t('slot_line', { slot: UI.t(entry.labelKey), item: id ? describeItem(id) : UI.t('slot_empty') }), selected);
       } else {
-        lines.push(`${mark}${describeItem(entry.id)}`);
+        row(describeItem(entry.id), selected, 18);
       }
     });
-    if (entries.length === slotCount) lines.push('', 'Сумка:', '  (пусто)');
-    this.listText.setText(lines.join('\n'));
+    if (entries.length === slotCount) {
+      y += 10;
+      row(UI.t('inventory_bag'), false);
+      row(UI.t('inventory_bag_empty'), false, 18);
+    }
   }
 
   close() {

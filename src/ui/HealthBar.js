@@ -1,20 +1,15 @@
 // Полоска здоровья, закреплённая на экране (не двигается вместе с камерой).
+// x — отступ в «русской» раскладке; в иврите полоска переносится вправо и заполняется справа.
 class HealthBar {
   constructor(scene, x, y, width, height) {
     this.scene = scene;
-    this.x = x;
+    this.x = UI.rtl ? CONFIG.WIDTH - x - width : x;
     this.y = y;
     this.width = width;
     this.height = height;
 
     this.graphics = scene.add.graphics().setScrollFactor(0).setDepth(100);
-    this.label = scene.add
-      .text(x + width / 2, y + height / 2, '', {
-        fontFamily: 'monospace',
-        fontSize: '14px',
-        color: '#ffffff',
-      })
-      .setOrigin(0.5)
+    this.label = addUiText(scene, this.x + width / 2, y - 1, '', { center: true, size: 12, color: '#ffffff' })
       .setScrollFactor(0)
       .setDepth(101);
   }
@@ -30,11 +25,12 @@ class HealthBar {
     g.fillStyle(0x4c566a, 1);
     g.fillRect(this.x, this.y, this.width, this.height);
 
-    // заполнение: зелёный → жёлтый → красный
+    // заполнение: зелёный → жёлтый → красный; в иврите — от правого края
     const color = ratio > 0.5 ? 0xa3be8c : ratio > 0.25 ? 0xebcb8b : 0xbf616a;
+    const fillW = this.width * ratio;
     g.fillStyle(color, 1);
-    g.fillRect(this.x, this.y, this.width * ratio, this.height);
+    g.fillRect(UI.rtl ? this.x + this.width - fillW : this.x, this.y, fillW, this.height);
 
-    this.label.setText(`HP ${Math.max(0, current)} / ${max}`);
+    this.label.setText(UI.t('hud_hp', { value: `${Math.max(0, current)}/${max}` }));
   }
 }

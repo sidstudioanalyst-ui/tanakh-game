@@ -59,7 +59,7 @@ const GameState = {
       } else if (key === 'give_item') {
         [].concat(value).forEach((id) => {
           const equipped = this.equipment.pickUp(id);
-          notes.push(`${equipped ? 'Надето' : 'В сумку'}: ${describeItem(id)}`);
+          notes.push(UI.t(equipped ? 'toast_equipped' : 'toast_to_bag', { item: describeItem(id) }));
         });
       } else if (key === 'set_flag') {
         [].concat(value).forEach((flag) => {
