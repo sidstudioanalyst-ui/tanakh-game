@@ -1,25 +1,25 @@
-// Экипировка и сумка игрока. Хранит только id предметов из CONFIG.ITEMS.
-// onChange вызывается после любого изменения — через него обновляется HUD.
+// Экипировка и сумка игрока. Хранит только id предметов из ITEMS (src/data/items.js).
+// onChange вызывается после любого изменения — через него обновляются HUD и здоровье.
 class Equipment {
   constructor(onChange) {
     this.onChange = onChange || (() => {});
     this.bag = []; // id предметов, которые не надеты
     this.slots = {};
-    Object.keys(CONFIG.EQUIPMENT_SLOTS).forEach((slot) => {
+    Object.keys(EQUIPMENT_SLOTS).forEach((slot) => {
       this.slots[slot] = null;
     });
-  }
-
-  static item(id) {
-    return CONFIG.ITEMS[id];
   }
 
   // Подобрать предмет: если слот пуст — сразу надеть, иначе положить в сумку.
   // Возвращает true, если предмет надет.
   pickUp(id) {
-    const { slot } = Equipment.item(id);
-    if (this.slots[slot] === null) {
-      this.slots[slot] = id;
+    const item = ITEMS[id];
+    if (!item) {
+      console.warn(`Предмет "${id}" не найден в ITEMS`);
+      return false;
+    }
+    if (this.slots[item.slot] === null) {
+      this.slots[item.slot] = id;
       this.onChange();
       return true;
     }
@@ -32,7 +32,7 @@ class Equipment {
   equipFromBag(index) {
     const id = this.bag[index];
     if (!id) return;
-    const { slot } = Equipment.item(id);
+    const { slot } = ITEMS[id];
     const prev = this.slots[slot];
     this.bag.splice(index, 1);
     if (prev) this.bag.push(prev);
@@ -49,17 +49,30 @@ class Equipment {
     this.onChange();
   }
 
-  // Сумма бонуса (damage / defense) по всем надетым предметам.
+  // Сумма бонуса (damage / defense / maxHp) по всем надетым предметам.
   bonus(stat) {
-    return Object.values(this.slots).reduce((sum, id) => sum + ((id && Equipment.item(id)[stat]) || 0), 0);
+    return Object.values(this.slots).reduce((sum, id) => sum + ((id && ITEMS[id][stat]) || 0), 0);
+  }
+
+  toJSON() {
+    return { slots: { ...this.slots }, bag: [...this.bag] };
+  }
+
+  load(data) {
+    Object.keys(this.slots).forEach((slot) => {
+      this.slots[slot] = (data.slots && data.slots[slot]) || null;
+    });
+    this.bag = [...(data.bag || [])];
+    this.onChange();
   }
 }
 
-// Короткое описание бонусов предмета: «+1 урон», «+5 защита».
+// Короткое описание бонусов предмета: «Посох (+1 урон)».
 function describeItem(id) {
-  const item = CONFIG.ITEMS[id];
+  const item = ITEMS[id];
   const parts = [];
   if (item.damage) parts.push(`+${item.damage} урон`);
   if (item.defense) parts.push(`+${item.defense} защита`);
-  return `${item.name} (${parts.join(', ')})`;
+  if (item.maxHp) parts.push(`+${item.maxHp} здоровье`);
+  return parts.length ? `${item.name_ru} (${parts.join(', ')})` : item.name_ru;
 }

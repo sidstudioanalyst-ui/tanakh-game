@@ -1,94 +1,73 @@
 // Общие настройки игры. Все «магические числа» живут здесь.
+// Игровые данные (зоны, предметы, диалоги, суд) лежат в src/data/.
+const URL_PARAMS = new URLSearchParams(window.location.search);
+
 const CONFIG = {
   WIDTH: 800,
   HEIGHT: 600,
   TILE_SIZE: 32,
   BACKGROUND: '#111111',
-  DEBUG: false, // true — показать хитбоксы Arcade Physics
+  DEBUG: URL_PARAMS.has('debug'), // ?debug — показать хитбоксы Arcade Physics
 
-  // Карта, которая загружается по умолчанию (ключ из MAPS в maps.js).
-  // Другую карту можно открыть через URL: index.html?map=arena
-  START_MAP: 'level1',
+  // ?ru — показывать под ивритом русский перевод (только для проверки текстов)
+  SHOW_RU: URL_PARAMS.has('ru'),
+  // ?zone=<id> — начать сразу с указанной зоны (для отладки)
+  START_ZONE: URL_PARAMS.get('zone'),
 
-  // Символы тайлов на карте
+  HEBREW_FONT: '"Noto Sans Hebrew", sans-serif',
+  UI_FONT: 'monospace',
+
+  // Символы тайлов в зонах
   TILES: {
     WALL: '#',
     FLOOR: '.',
-    PLAYER: 'P',
   },
 
   COLORS: {
     floorA: 0x3b4252,
     floorB: 0x434c5e,
     wall: 0x5e81ac,
+    exit: 0xa3be8c,      // переход в другую зону
+    trialExit: 0xebcb8b, // выход к «Суду» (конец карты)
     attack: 0xebcb8b,
+    light: 0xebcb8b,     // «свет» в профиле Мерила
+    shadow: 0x5b4b8a,    // «тень» в профиле Мерила
   },
 
   PLAYER: {
     size: 24,
     color: 0x88c0d0,
     speed: 160,
-    maxHp: 100,
+    maxHp: 100,          // базовое здоровье, особые предметы могут добавить
     attackRange: 56,     // радиус атаки в пикселях (от центра игрока)
     attackDamage: 1,     // базовый урон без оружия
     attackCooldown: 350, // мс между ударами
     invulnTime: 800,     // мс неуязвимости после получения урона
     knockback: 220,      // скорость отбрасывания при получении урона
+    talkRange: 52,       // на каком расстоянии можно заговорить с NPC
   },
 
-  // Типы врагов. Ключ — id типа, symbol — символ на карте.
-  // Чтобы добавить врага: добавьте запись сюда и поставьте её symbol на карту.
+  NPC_SIZE: 24,
+  ITEM_SIZE: 14,
+
+  // Типы врагов. В зоне враг задаётся как { type: 'chaser', x, y }.
+  // Поле class (необязательно) — ключ из ENEMY_CLASSES для врага со своим поведением.
   ENEMY_TYPES: {
     chaser: {
-      symbol: 'E',
       size: 24,
       color: 0xbf616a,
       speed: 90,
       hp: 3,             // базовый урон игрока 1 → 3 удара; с оружием — меньше
       damage: 20,        // урон игроку при касании
-      aggroRange: 1000,  // на каком расстоянии (px) замечает игрока
+      aggroRange: 320,   // на каком расстоянии (px) замечает игрока
     },
-  },
-
-  // Слоты экипировки: ключ слота → подпись в интерфейсе
-  EQUIPMENT_SLOTS: {
-    weapon: 'Оружие',
-    armor: 'Броня',
-  },
-
-  // Предметы. Ключ — id предмета, symbol — символ на карте (maps.js).
-  //   slot    — в какой слот надевается (ключ из EQUIPMENT_SLOTS)
-  //   damage  — бонус к урону атаки
-  //   defense — сколько урона поглощает броня при каждом попадании
-  ITEMS: {
-    rusty_sword: {
-      symbol: 's',
-      name: 'Ржавый меч',
-      slot: 'weapon',
-      damage: 1,
-      color: 0xd8dee9,
-    },
-    battle_axe: {
-      symbol: 'x',
-      name: 'Боевой топор',
-      slot: 'weapon',
-      damage: 2,
+    bandit: {
+      size: 20,
       color: 0xd08770,
-    },
-    leather_armor: {
-      symbol: 'l',
-      name: 'Кожаная броня',
-      slot: 'armor',
-      defense: 5,
-      color: 0xa3825c,
-    },
-    chainmail: {
-      symbol: 'c',
-      name: 'Кольчуга',
-      slot: 'armor',
-      defense: 10,
-      color: 0x8fbcbb,
+      speed: 115,
+      hp: 2,
+      damage: 12,
+      aggroRange: 260,
     },
   },
-  ITEM_SIZE: 14,
 };
