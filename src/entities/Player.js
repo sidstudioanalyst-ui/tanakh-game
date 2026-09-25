@@ -47,7 +47,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
     const dir = new Phaser.Math.Vector2((right ? 1 : 0) - (left ? 1 : 0), (down ? 1 : 0) - (up ? 1 : 0));
     // Нормализуем, чтобы по диагонали не бегать быстрее
-    dir.normalize().scale(this.stats.speed);
+    // speedFactor задают механики зоны (например, вылазка со слугами в Г1 — медленнее)
+    dir.normalize().scale(this.stats.speed * (this.speedFactor || 1));
     this.setVelocity(dir.x, dir.y);
   }
 

@@ -1,0 +1,139 @@
+{
+  "id": "g1_morning",
+  "speakers": {
+    "townsmen": {
+      "name_he": "אַנְשֵׁי הָעִיר",
+      "name_ru": "Горожане"
+    },
+    "joash": {
+      "name_he": "יוֹאָשׁ",
+      "name_ru": "Иоаш"
+    }
+  },
+  "start": "dawn",
+  "entry": [
+    {
+      "if_flag": "noticed",
+      "node": "dawn_seen"
+    }
+  ],
+  "lines": [
+    {
+      "id": "dawn",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Утро. Горожане встали рано: жертвенник Баала разрушен, Ашера срублена, на новом жертвеннике — бык. «Кто сделал это?» Долго спрашивали и искали, пока не сказали: «Гидон, сын Иоаша».",
+      "next": "demand"
+    },
+    {
+      "id": "dawn_seen",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Утро. Горожане встали рано — но кто-то ещё ночью видел, как Гидон работал у жертвенника. Искать не пришлось: толпа сразу пошла к дому Иоаша.",
+      "next": "demand_hard"
+    },
+    {
+      "id": "demand",
+      "speaker": "townsmen",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иоаш! Выведи своего сына — пусть умрёт: он разрушил жертвенник Баала и срубил Ашеру.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Промолчать и ждать, что скажет отец.",
+          "next": "joash",
+          "effects": {
+            "wisdom": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Это сделал я. Если Баал — бог, пусть сам ответит.",
+          "next": "joash",
+          "effects": {
+            "counsel": 1,
+            "knowledge": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "demand_hard",
+      "speaker": "townsmen",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иоаш! Мы видели его ночью своими глазами. Выведи сына — пусть умрёт!",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Не прятаться: «Да, это был я».",
+          "next": "joash_hard",
+          "effects": {
+            "counsel": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Встать за спину отца.",
+          "next": "joash_hard",
+          "effects": {
+            "counsel": -1
+          }
+        }
+      ]
+    },
+    {
+      "id": "joash",
+      "speaker": "joash",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Вы ли будете судиться за Баала? Вы ли спасёте его? Кто вступится за него, умрёт ещё до утра! Если он бог — пусть сам судится за себя, раз разрушили его жертвенник.",
+      "next": "name"
+    },
+    {
+      "id": "joash_hard",
+      "speaker": "joash",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Видели? Тогда вы видели и то, что Баал промолчал. Кто вступится за него, умрёт ещё до утра! Если он бог — пусть сам судится за себя.",
+      "next": "name"
+    },
+    {
+      "id": "name",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "В тот день Гидона назвали Йеруббаал: «Пусть Баал судится с ним, ибо тот разрушил его жертвенник».",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "В путь.",
+          "next": null,
+          "effects": {
+            "set_flag": [
+              "jerubbaal",
+              "morning_done"
+            ],
+            "goto_zone": {
+              "to": "g2",
+              "at": [
+                2,
+                8
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
