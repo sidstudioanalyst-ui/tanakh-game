@@ -40,9 +40,23 @@ function validateContent(cache, uiStrings) {
       if (!cache.dialogue(n.dialogue)) warn(`${where}: не загружен диалог "${n.dialogue}"`);
       floor(n.x, n.y, `NPC ${n.id}`);
     });
-    (zone.triggers || []).forEach((t) => {
-      if (t.dialogue && !cache.dialogue(t.dialogue)) warn(`${where}: триггер — не загружен диалог "${t.dialogue}"`);
-    });
+    zoneDialogueIds(zone).forEach((id) => cache.dialogue(id) || warn(`${where}: не загружен диалог "${id}"`));
+    if (zone.night) {
+      zone.night.tasks.forEach((t) => {
+        floor(t.x, t.y, `место действия ${t.id}`);
+        if (uiStrings && !uiStrings[t.label]) warn(`${where}: нет строки "${t.label}"`);
+      });
+      zone.night.sleepers.forEach((sl) => floor(sl.x, sl.y, 'спящий'));
+    }
+    if (zone.selection) {
+      zone.selection.locations.forEach((loc) => {
+        let cells = 0;
+        for (let y = loc.y; y < loc.y + loc.h; y++) for (let x = loc.x; x < loc.x + loc.w; x++) if (isFloor(zone, x, y)) cells++;
+        if (cells < loc.count) warn(`${where}: в точке ${loc.id} пола на ${cells} воинов, а нужно ${loc.count}`);
+        if (loc.lappers > loc.count) warn(`${where}: в точке ${loc.id} «сторожевых» больше, чем воинов`);
+        if (uiStrings && !uiStrings[loc.label]) warn(`${where}: нет строки "${loc.label}"`);
+      });
+    }
     (zone.doors || []).forEach((d) => d.tiles.forEach(([x, y]) => floor(x, y, `дверь ${d.id}`)));
     (zone.guards || []).forEach((g, i) => {
       floor(g.x, g.y, `страж ${i + 1}`);

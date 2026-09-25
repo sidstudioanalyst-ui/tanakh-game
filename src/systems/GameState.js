@@ -21,6 +21,7 @@ const GameState = {
     this.gauges = {}; // id шкалы → число (например, warriors — собранные воины)
     this.zones = {}; // zoneId → { removed: ['enemy:0', 'item:1', ...], openDoors: ['gate'] }
     this.trialAnswers = {}; // mapId → ['for' | 'against', ...]
+    this.journal = []; // записи механик для Мерила и Суда (например, где игрок искал в Г3)
     this.hp = null; // null — полное здоровье
     this.currentZone = null;
     this.pendingZone = null; // переход, заказанный диалогом (goto_zone)
@@ -119,6 +120,11 @@ const GameState = {
     return Object.values(eq.slots).includes(id) || eq.bag.includes(id);
   },
 
+  // Запись в журнал: { zone, type, ... } — механики оставляют здесь итог (не оценку)
+  logEntry(entry) {
+    this.journal.push({ map: this.map.id, zone: this.currentZone, ...entry });
+  },
+
   // --- Зоны -----------------------------------------------------------------
 
   zoneState(zoneId) {
@@ -167,6 +173,7 @@ const GameState = {
       gauges: this.gauges,
       zones: this.zones,
       trialAnswers: this.trialAnswers,
+      journal: this.journal,
       hp: this.hp,
     });
   },
@@ -181,6 +188,7 @@ const GameState = {
     this.gauges = data.gauges || {};
     this.zones = data.zones;
     this.trialAnswers = data.trialAnswers;
+    this.journal = data.journal || [];
     this.hp = data.hp === undefined ? null : data.hp;
     this.pendingZone = null;
     this.pendingFail = null;

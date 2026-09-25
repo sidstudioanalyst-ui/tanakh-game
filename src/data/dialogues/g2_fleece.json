@@ -1,0 +1,177 @@
+{
+  "id": "g2_fleece",
+  "speakers": {
+    "gideon": {
+      "name_he": "גִּדְעוֹן",
+      "name_ru": "Гидон"
+    }
+  },
+  "start": "lay1",
+  "entry": [
+    {
+      "if_flag": "fleece_done",
+      "node": "done"
+    },
+    {
+      "if_flag": "laid_2",
+      "node": "check2"
+    },
+    {
+      "if_flag": "prayed",
+      "node": "lay2"
+    },
+    {
+      "if_flag": "checked_1",
+      "node": "pray"
+    },
+    {
+      "if_flag": "laid_1",
+      "node": "check1"
+    }
+  ],
+  "lines": [
+    {
+      "id": "lay1",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Если Ты спасёшь Израиль моей рукой, как сказал, — вот, я кладу шерсть на гумно. Если роса будет только на шерсти, а вся земля сухой, я буду знать.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Положить шерсть на гумно.",
+          "next": "night1",
+          "effects": {
+            "set_flag": "laid_1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "night1",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Ночь проходит над гумном. Потом — утро.",
+      "next": null
+    },
+    {
+      "id": "check1",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Утро. Шерсть тяжёлая от росы, а земля вокруг сухая.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Выжать шерсть.",
+          "next": "squeeze1",
+          "effects": {
+            "set_flag": "checked_1"
+          }
+        }
+      ]
+    },
+    {
+      "id": "squeeze1",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Гидон выжал шерсть — вышла полная чаша воды.",
+      "next": "pray"
+    },
+    {
+      "id": "pray",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Знак был. Можно ли просить ещё раз?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Не прогневайся на меня: я скажу лишь однажды. Пусть теперь шерсть будет сухой, а на всей земле — роса.",
+          "next": "pray_end",
+          "effects": {
+            "knowledge": 1,
+            "set_flag": "prayed"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Шерсть и сама впитывает влагу — роса на ней могла собраться без всякого чуда. Пусть будет наоборот: тогда ошибки не будет.",
+          "next": "pray_end",
+          "effects": {
+            "wisdom": 1,
+            "set_flag": "prayed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pray_end",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Я положу шерсть ещё раз.",
+      "next": null
+    },
+    {
+      "id": "lay2",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Шерсть снова на гумне.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Положить шерсть на гумно.",
+          "next": "night2",
+          "effects": {
+            "set_flag": "laid_2"
+          }
+        }
+      ]
+    },
+    {
+      "id": "night2",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И снова ночь. Потом — утро.",
+      "next": null
+    },
+    {
+      "id": "check2",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Утро. Вся земля мокрая от росы — а шерсть…",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Выжать шерсть.",
+          "next": "squeeze2",
+          "effects": {
+            "set_flag": "fleece_done"
+          }
+        }
+      ]
+    },
+    {
+      "id": "squeeze2",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Шерсть сухая. Роса — только на земле вокруг. Так сделал Б-г в ту ночь.",
+      "next": null
+    },
+    {
+      "id": "done",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Оба знака даны. Пора к войску.",
+      "next": null
+    }
+  ]
+}

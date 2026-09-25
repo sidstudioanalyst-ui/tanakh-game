@@ -8,13 +8,29 @@ function defineZone(zone) {
   ZONES[zone.id] = zone;
 }
 
+// Все id диалогов, упомянутые в зоне (любое поле dialogue на любой глубине, кроме тайлов)
+function zoneDialogueIds(zone) {
+  const ids = [];
+  const walk = (v) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (v && typeof v === 'object') {
+      Object.entries(v).forEach(([k, x]) => {
+        if (k === 'dialogue' && typeof x === 'string') ids.push(x);
+        else if (k !== 'tiles') walk(x);
+      });
+    }
+  };
+  walk(zone);
+  return ids;
+}
+
 // Кампании — упорядоченные списки карт. Мерило, экипировка и флаги переходят с карты на карту
 // внутри кампании. По умолчанию играется 'saviors', тестовые карты — по ?map=demo.
 //
 // Поля карты:
 //   zones / startZone — зоны карты и стартовая
 //   trial             — id суда (src/data/trials/<id>.json) или null, если Суд ещё не написан
-//   hero              — за кого играет игрок (имя в HUD, цвет квадрата)
+//   hero              — за кого играет игрок (имя в HUD, цвет квадрата; alias — прозвище по флагу)
 //   gauges            — шкалы карты (растут через effects: { gauge: { <id>: n } })
 //   restartOnDeath    — 'zone' (начать зону заново) или 'map' (всю карту; по умолчанию)
 const CAMPAIGNS = {
@@ -29,6 +45,22 @@ const CAMPAIGNS = {
       hero: { name_ru: 'Эхуд, сын Геры', name_he: 'אֵהוּד בֶּן גֵּרָא', color: 0xe5c07b },
       gauges: {
         warriors: { label: 'gauge_warriors', max: 300 },
+      },
+      restartOnDeath: 'zone',
+    },
+    {
+      id: 'power_a',
+      name_ru: 'Власть · А: Гидон',
+      name_he: 'הַשִּׁלְטוֹן · א: גִּדְעוֹן',
+      zones: ['g1', 'g2', 'g3'], // Г4 — следующая задача; пока Г3 ведёт к выходу к Суду
+      startZone: 'g1',
+      trial: null,
+      hero: {
+        name_ru: 'Гидон, сын Иоаша',
+        name_he: 'גִּדְעוֹן בֶּן יוֹאָשׁ',
+        color: 0x9ccfa0,
+        // прозвище после утренней сцены в Г1 (Шофтим 6:32) — показывается рядом с именем в HUD
+        alias: { flag: 'jerubbaal', name_ru: 'Йеруббаал', name_he: 'יְרֻבַּעַל' },
       },
       restartOnDeath: 'zone',
     },

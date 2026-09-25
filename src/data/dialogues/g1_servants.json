@@ -1,0 +1,85 @@
+{
+  "id": "g1_servants",
+  "speakers": {
+    "servants": {
+      "name_he": "עַבְדֵי יוֹאָשׁ",
+      "name_ru": "Слуги Иоаша"
+    }
+  },
+  "start": "ask",
+  "entry": [
+    {
+      "if_flag": "night",
+      "node": "busy"
+    },
+    {
+      "if_not_flag": "angel_done",
+      "node": "wait"
+    }
+  ],
+  "lines": [
+    {
+      "id": "ask",
+      "speaker": "servants",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы слышали, о чём ты говорил у давильни. Нас десять — возьмёшь нас с собой? Одному тебе до рассвета будет трудно.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Я пойду один: так тише.",
+          "next": "night_alone",
+          "effects": {
+            "set_flag": [
+              "sortie_alone",
+              "night"
+            ]
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Идём вместе: так быстрее.",
+          "next": "night_servants",
+          "effects": {
+            "set_flag": [
+              "sortie_servants",
+              "night"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "night_alone",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Ночь. Офра спит. Гидон идёт один, от тени к тени. Работа займёт больше времени — зато его почти не слышно.",
+      "next": null
+    },
+    {
+      "id": "night_servants",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Ночь. Офра спит. С Гидоном десять слуг: вместе они справятся быстрее, но десять человек трудно заставить молчать.",
+      "next": null
+    },
+    {
+      "id": "wait",
+      "speaker": "servants",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Отец спит. Ты сегодня какой-то задумчивый — что случилось у давильни?",
+      "next": null
+    },
+    {
+      "id": "busy",
+      "speaker": "servants",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Тише… Мы рядом.",
+      "next": null
+    }
+  ]
+}

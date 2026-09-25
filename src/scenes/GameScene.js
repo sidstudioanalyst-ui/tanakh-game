@@ -47,6 +47,8 @@ class GameScene extends Phaser.Scene {
     if (this.zone.guards) this.mechanics.stealth = new StealthMechanic(this, this.zone.guards);
     if (this.zone.timer) this.mechanics.timer = new EscapeTimerMechanic(this, this.zone.timer, this.zone.hazards);
     if (this.zone.waves) this.mechanics.waves = new WavesMechanic(this, this.zone.waves);
+    if (this.zone.night) this.mechanics.night = new NightTasksMechanic(this, this.zone.night);
+    if (this.zone.selection) this.mechanics.selection = new SelectionMechanic(this, this.zone.selection);
 
     // Камера следует за игроком в пределах зоны
     // Зона меньше экрана — центрируем её, чтобы HUD не закрывал край карты
@@ -63,6 +65,12 @@ class GameScene extends Phaser.Scene {
 
     // Короткая пауза перед тем, как выходы и триггеры начнут срабатывать — чтобы не «отскочить» обратно
     this.armedAt = this.time.now + 300;
+
+    // Диалог при входе в зону (например, перекличка в Г3): один раз, пока не стоит флаг
+    const onEnter = this.zone.onEnter;
+    if (onEnter && !GameState.flags[onEnter.unless_flag]) {
+      this.time.delayedCall(350, () => !this.gameOver && !this.transitioning && this.openDialogue(onEnter.dialogue));
+    }
   }
 
   update(time, delta) {
@@ -284,11 +292,16 @@ class GameScene extends Phaser.Scene {
     this.npcs.getChildren().forEach((npc) => npc.setHintVisible(npc === near));
   }
 
+  // E: разговор с ближайшим NPC; если рядом никого — действие механики зоны
+  // (разрушить жертвенник, отметить воина…). Механика возвращает true, если действие было.
   talk() {
     if (this.gameOver || this.transitioning) return;
     const npc = this.nearestNpc();
-    if (!npc) return;
-    this.openDialogue(npc.dialogueId);
+    if (npc) {
+      this.openDialogue(npc.dialogueId);
+      return;
+    }
+    Object.values(this.mechanics).some((m) => m.interact && m.interact(this.time.now));
   }
 
   openDialogue(dialogueId) {
@@ -433,13 +446,15 @@ class GameScene extends Phaser.Scene {
 
     // Название карты и зоны — сверху по центру; под ним — строка механик и шкал
     const map = GameState.map;
-    addUiText(this, CONFIG.WIDTH / 2, 10, `${UI.pick(map, 'name')} · ${UI.pick(this.zone, 'name')}`, {
+    const title = addUiText(this, CONFIG.WIDTH / 2, 10, `${UI.pick(map, 'name')} · ${UI.pick(this.zone, 'name')}`, {
       center: true,
       size: UI.rtl ? 15 : 12, // моноширинный русский шире — иначе наезжает на подсказки
       color: '#e5e9f0',
     })
       .setScrollFactor(0)
       .setDepth(100);
+    // длинное «карта · зона» не помещается между полоской здоровья и подсказками — только зона
+    if (title.width > 360) title.setText(UI.pick(this.zone, 'name'));
     this.statusText = addUiText(this, CONFIG.WIDTH / 2, 36, '', { center: true, size: 14, color: '#ebcb8b' })
       .setScrollFactor(0)
       .setDepth(100);
@@ -530,7 +545,11 @@ class GameScene extends Phaser.Scene {
     const eq = GameState.equipment;
     const lines = [];
     const hero = GameState.map.hero;
-    if (hero) lines.push(UI.lang === 'he' ? hero.name_he : hero.name_ru);
+    if (hero) {
+      // прозвище (например, Йеруббаал у Гидона) появляется, когда стоит его флаг
+      const alias = hero.alias && GameState.flags[hero.alias.flag] ? ` · ${UI.pick(hero.alias, 'name')}` : '';
+      lines.push(UI.pick(hero, 'name') + alias);
+    }
     Object.entries(EQUIPMENT_SLOTS).forEach(([slot, labelKey]) =>
       lines.push(UI.t('slot_line', { slot: UI.t(labelKey), item: eq.slots[slot] ? itemName(eq.slots[slot]) : UI.t('slot_empty') }))
     );

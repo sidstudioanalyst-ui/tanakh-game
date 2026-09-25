@@ -30,11 +30,9 @@ class BootScene extends Phaser.Scene {
       .text(CONFIG.WIDTH / 2, CONFIG.HEIGHT / 2, 'טוֹעֵן… / Загрузка…', { fontFamily: CONFIG.HEBREW_FONT, fontSize: '18px', color: '#d8dee9' })
       .setOrigin(0.5);
 
+    // Все диалоги, на которые ссылаются зоны: у NPC, триггеров, onEnter, onDone механик…
     const dialogueIds = new Set();
-    Object.values(ZONES).forEach((zone) => {
-      (zone.npcs || []).forEach((npc) => dialogueIds.add(npc.dialogue));
-      (zone.triggers || []).forEach((t) => t.dialogue && dialogueIds.add(t.dialogue));
-    });
+    Object.values(ZONES).forEach((zone) => zoneDialogueIds(zone).forEach((id) => dialogueIds.add(id)));
     Content.dialogueIds = [...dialogueIds];
     Content.trialIds = [...new Set(ALL_MAPS.map((m) => m.trial).filter(Boolean))];
 
