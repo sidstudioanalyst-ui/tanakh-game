@@ -1,0 +1,110 @@
+{
+  "id": "a1_jediael",
+  "speakers": {
+    "jediael": {
+      "name_he": "יְדִיעֲאֵל הַזָּקֵן",
+      "name_ru": "Старейшина Иедиаил"
+    }
+  },
+  "start": "greet",
+  "entry": [
+    {
+      "if_flag": "jediael_done",
+      "node": "again"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet",
+      "speaker": "jediael",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Я Иедиаил. Авидан говорит о спасении, а я думаю о тех, кто останется здесь. Если Эглон узнает, чья рука поднялась на него, первыми заплатят наши дети.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Если молчать, наши дети будут платить всегда.",
+          "next": "brave",
+          "effects": {
+            "counsel": 1,
+            "justice": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Ты прав. Может, не стоит рисковать?",
+          "next": "doubt",
+          "effects": {
+            "counsel": -1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Что ты посоветуешь, отец?",
+          "next": "advice",
+          "effects": {
+            "wisdom": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "brave",
+      "speaker": "jediael",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Смелые слова. Тогда выслушай совет старика.",
+      "next": "advice"
+    },
+    {
+      "id": "doubt",
+      "speaker": "jediael",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Я не сказал «не рисковать». Я сказал — думать. Слушай.",
+      "next": "advice"
+    },
+    {
+      "id": "advice",
+      "speaker": "jediael",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "У ворот Эглона стражники обыскивают каждого. Меч ищут там, где его носит правша, — на левом бедре. Помни об этом, левша.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Я запомню. И буду молиться, чтобы никто в Биньямине не заплатил за мой шаг.",
+          "next": "bless",
+          "effects": {
+            "knowledge": 1,
+            "set_flag": "jediael_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Запомню.",
+          "next": "bless",
+          "effects": {
+            "set_flag": "jediael_done"
+          }
+        }
+      ]
+    },
+    {
+      "id": "bless",
+      "speaker": "jediael",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иди. И пусть Тот, Кто видит скрытое, скроет тебя от их глаз.",
+      "next": null
+    },
+    {
+      "id": "again",
+      "speaker": "jediael",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Левое бедро, сын Геры. Не забывай.",
+      "next": null
+    }
+  ]
+}
