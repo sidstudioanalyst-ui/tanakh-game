@@ -1,5 +1,6 @@
 // «Спасители», часть А (Эхуд). Зона А1 «Дом колена Биньямин».
-// Старейшины поручают Эхуду отнести дань Эглону. На верстаке Эхуд делает кинжал и решает,
+// Старейшина Авидан поручает Эхуду отнести дань Эглону; старейшина Иедиаил советует
+// (стража обыскивает левое бедро). На верстаке Эхуд делает кинжал и решает,
 // где его спрятать: правое бедро (верно — стража проверяет левое) открывает ворота в А2.
 defineZone({
   id: 'a1',
@@ -25,9 +26,10 @@ defineZone({
   enemies: [],
   items: [],
   npcs: [
-    { id: 'benjamin_elder', x: 4, y: 3, dialogue: 'a1_elders', color: 0xe5e9f0 },
-    { id: 'benjamin_elder2', x: 6, y: 3, dialogue: 'a1_elders', color: 0xd8dee9 },
-    { id: 'ehud_workbench', x: 20, y: 3, dialogue: 'a1_dagger', color: 0x8a6d3b },
+    // имя над головой берётся из name_he / name_ru (или из имени говорящего в диалоге)
+    { id: 'elder_avidan', x: 3, y: 3, dialogue: 'a1_avidan', color: 0xe5e9f0, name_he: 'אֲבִידָן', name_ru: 'Авидан' },
+    { id: 'elder_jediael', x: 7, y: 3, dialogue: 'a1_jediael', color: 0x8fbcbb, name_he: 'יְדִיעֲאֵל', name_ru: 'Иедиаил' },
+    { id: 'ehud_workbench', x: 20, y: 3, dialogue: 'a1_dagger', color: 0x8a6d3b, name_he: 'סַדְנָה', name_ru: 'Верстак' },
   ],
   exits: [
     {

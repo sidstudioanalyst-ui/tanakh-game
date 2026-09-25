@@ -193,7 +193,7 @@ class GameScene extends Phaser.Scene {
 
     (zone.npcs || []).forEach((data) => {
       const { x, y } = this.tileCenter(data.x, data.y);
-      this.npcs.add(new Npc(this, x, y, data));
+      this.npcs.add(new Npc(this, x, y, data, this.npcName(data)));
     });
 
     // Игрок: цвет — у героя карты (например, Эхуд), иначе стандартный
@@ -214,6 +214,15 @@ class GameScene extends Phaser.Scene {
       const EnemyClass = ENEMY_CLASSES[CONFIG.ENEMY_TYPES[data.type].class] || Enemy;
       this.enemies.add(new EnemyClass(this, x, y, data.type, key));
     });
+  }
+
+  // Имя NPC над головой: name_he / name_ru из зоны, иначе — имя говорящего в его диалоге
+  npcName(data) {
+    if (data.name_he || data.name_ru) return UI.pick(data, 'name');
+    const dlg = Content.dialogue(data.dialogue);
+    if (!dlg) return '';
+    const first = dlg.lines.find((l) => l.id === dlg.start) || dlg.lines[0];
+    return UI.pick(dlg.speakers[first.speaker], 'name');
   }
 
   // Закрывает ли взгляд точка (px, py): стена или закрытая дверь. Вода — прозрачна.
@@ -284,6 +293,12 @@ class GameScene extends Phaser.Scene {
 
   openDialogue(dialogueId) {
     this.openOverlay('DialogueScene', { dialogueId });
+  }
+
+  // Меню (Esc или кнопка в HUD): продолжить, начать карту заново, демо-карты. Игра на паузе.
+  openMenu() {
+    if (this.transitioning) return;
+    this.openOverlay('MenuScene', {});
   }
 
   openInventory() {
@@ -400,6 +415,10 @@ class GameScene extends Phaser.Scene {
     const toast = this.toastText && this.toastText.visible ? this.toastText.text : null;
     this.hudObjects.forEach((o) => o.destroy());
     this.createUI();
+    // имена NPC над головой — тоже на новом языке
+    const byId = {};
+    (this.zone.npcs || []).forEach((d) => (byId[d.id] = d));
+    this.npcs.getChildren().forEach((npc) => npc.setName(this.npcName(byId[npc.npcId])));
     if (toast) this.showToast(toast);
     if (this.messageKeys) this.showMessage(this.messageKeys);
   }
@@ -475,16 +494,16 @@ class GameScene extends Phaser.Scene {
       b.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
       return b;
     };
+    const menu = make(`${UI.t('menu_title')} · Esc`, false, () => this.openMenu());
     const lang = make(UI.lang === 'he' ? 'RU' : 'עב', false, () => UI.toggleLanguage());
     const both = make('עב+RU', UI.bilingual, () => UI.toggleBilingual());
-    // слева направо в русском, справа налево в иврите (в том же углу, что подсказки)
-    if (UI.rtl) {
-      lang.setPosition(16, y);
-      both.setPosition(16 + lang.width + 6, y);
-    } else {
-      lang.setOrigin(1, 0).setPosition(CONFIG.WIDTH - 16, y);
-      both.setOrigin(1, 0).setPosition(CONFIG.WIDTH - 16 - lang.width - 6, y);
-    }
+    // в углу со стороны подсказок: меню, язык, оба языка
+    let x = 16;
+    [menu, lang, both].forEach((b) => {
+      if (UI.rtl) b.setPosition(x, y);
+      else b.setOrigin(1, 0).setPosition(CONFIG.WIDTH - x, y);
+      x += b.width + 6;
+    });
   }
 
   bindKeys() {
@@ -496,6 +515,7 @@ class GameScene extends Phaser.Scene {
       this.scene.restart({ zoneId: entry.zoneId, at: entry.at });
     });
     kb.on('keydown-I', () => this.openInventory());
+    kb.on('keydown-ESC', () => this.openMenu());
     kb.on('keydown-E', () => this.talk());
     bindLanguageKeys(this, () => this.rebuildUI());
   }

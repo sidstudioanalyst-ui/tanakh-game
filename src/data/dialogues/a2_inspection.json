@@ -87,7 +87,8 @@
             "fail_zone": "fail_searched"
           }
         }
-      ]
+      ],
+      "no_escape": true
     },
     {
       "id": "retreat",

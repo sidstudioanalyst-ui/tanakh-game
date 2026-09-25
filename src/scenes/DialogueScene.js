@@ -3,6 +3,8 @@
 // Реплика: { id, speaker, text_he, text_ru, next } или { ..., choices: [...] }
 //   style: 'narration' — повествование: чёрный экран и строка текста по центру, без говорящего
 //                        (так показываются развязки — например, сцена с Эглоном)
+//   no_escape: true    — из этой реплики нельзя выйти по Esc (например, когда выбор
+//                        проваливает сцену — иначе Esc позволил бы обойти последствия)
 //   draft: true        — иврит ещё не написан: text_he — временный текст, под ним всегда
 //                        показывается русский (и у выборов этой реплики тоже)
 // Выбор:   { text_he, text_ru, next, effects }
@@ -40,6 +42,12 @@ class DialogueScene extends Phaser.Scene {
     });
     kb.on('keydown-SPACE', () => this.options.length === 1 && this.options[0]());
     kb.on('keydown-ENTER', () => this.options.length === 1 && this.options[0]());
+    // Esc — выйти из разговора. Уже выбранные эффекты остаются; следующий разговор начнётся
+    // по entry (как обычно). Реплики с no_escape так не закрываются.
+    kb.on('keydown-ESC', () => {
+      const line = this.lines[this.currentLineId];
+      if (line && !line.no_escape) this.close();
+    });
     bindLanguageKeys(this, () => this.show(this.currentLineId));
 
     this.show(this.entryNode());
@@ -118,6 +126,7 @@ class DialogueScene extends Phaser.Scene {
 
     const box = this.add.rectangle(margin, 0, CONFIG.WIDTH - margin * 2, y, 0x2e3440, 0.97).setOrigin(0).setStrokeStyle(2, 0x88c0d0);
     this.layer.addAt(box, 0);
+    this.addEscHint(line, 12);
     this.layer.y = CONFIG.HEIGHT - margin - y;
   }
 
@@ -143,6 +152,16 @@ class DialogueScene extends Phaser.Scene {
     this.layer.add(text.objects);
     y += text.height + 6;
     this.addButtons(line, right, y + 24, width);
+    this.addEscHint(line, 20);
+  }
+
+  // «Esc — выйти» мелко в верхнем углу со стороны конца строки (слева в иврите, справа в русском)
+  addEscHint(line, y) {
+    if (line.no_escape) return;
+    const x = UI.rtl ? 32 : CONFIG.WIDTH - 32;
+    const hint = addUiText(this, x, y, UI.t('dialogue_esc_hint'), { size: 11, color: '#8f9bb3' });
+    hint.setPosition(x, y).setOrigin(UI.rtl ? 0 : 1, 0);
+    this.layer.add(hint);
   }
 
   choose(choice) {

@@ -19,7 +19,7 @@ function startGame() {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [BootScene, GameScene, InventoryScene, DialogueScene, TrialScene],
+    scene: [BootScene, GameScene, InventoryScene, DialogueScene, TrialScene, MenuScene],
   });
 }
 

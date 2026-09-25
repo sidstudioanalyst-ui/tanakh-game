@@ -33,7 +33,7 @@ defineZone({
   triggers: [{ x: 4, y: 8, w: 2, h: 2, dialogue: 'a2_inspection' }],
   npcs: [
     { id: 'gate_guard', x: 5, y: 7, dialogue: 'a2_inspection', color: 0xb48ead },
-    { id: 'eglon', x: 25, y: 14, dialogue: 'a2_eglon', color: 0xd08770 },
+    { id: 'eglon', x: 25, y: 14, dialogue: 'a2_eglon', color: 0xd08770, name_he: 'עֶגְלוֹן', name_ru: 'Эглон' },
   ],
   guards: [
     // тронный зал: обход по кругу вдоль стен
