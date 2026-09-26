@@ -44,6 +44,8 @@ defineZone({
     markRange: 34,
     markMs: 450,
     searchedSeconds: 3,
+    // «взгляд по сторонам» у стоящих: горит 1,2 с, повтор раз в 2,2–3 с (у каждого своя фаза)
+    signal: { durationMs: 1200, periodMs: [2200, 3000] },
     locations: [
       { id: 'open', label: 'loc_open', x: 3, y: 12, w: 12, h: 4, count: 16, lappers: 2 },
       { id: 'shade', label: 'loc_shade', x: 37, y: 10, w: 4, h: 6, count: 10, lappers: 6, shade: true },

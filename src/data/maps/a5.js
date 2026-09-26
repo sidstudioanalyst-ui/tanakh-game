@@ -40,6 +40,8 @@ defineZone({
     pause: 4000,
     allowed: { base: 1, gauge: 'warriors', per: 100 },
     winFlag: 'fords_held',
+    // после победы: ~1 с сцены «Броды удержаны!» и сразу экран Суда (раньше надо было идти к выходу)
+    onWin: { trial: true, delay: 1100 },
   },
   enemies: [],
   items: [],

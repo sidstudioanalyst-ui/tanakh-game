@@ -8,7 +8,8 @@
 //     allowed: { base: 1, gauge: 'warriors', per: 100 },  // сколько можно пропустить:
 //                                        // base + (шкала / per), округление вниз
 //     winFlag: 'fords_held',             // флаг после победы (открывает выход)
-//   }
+//     onWin: { trial: true, delay: 1100 },  // после победы — короткая сцена и сразу к Суду
+//   }                                     // (без onWin игрок сам идёт к выходу)
 // Прорвалось больше, чем allowed, — сцена проваливается.
 class WavesMechanic {
   constructor(scene, cfg) {
@@ -94,8 +95,25 @@ class WavesMechanic {
 
   win() {
     this.done = true;
+    const scene = this.scene;
     GameState.flags[this.cfg.winFlag] = true;
-    this.scene.showToast(UI.t('toast_fords_held'));
+    scene.refreshExits();
+    const onWin = this.cfg.onWin;
+    if (!onWin) {
+      scene.showToast(UI.t('toast_fords_held'));
+      return;
+    }
+    // Короткая сцена победы: золотая вспышка и надпись, игрок замирает — и сразу переход
+    scene.gameOver = true; // остановить update: никто не двигается, выходы не срабатывают
+    scene.player.setVelocity(0, 0);
+    scene.cameras.main.flash(400, 235, 203, 139);
+    scene.showMessage(['toast_fords_held']);
+    scene.messageText.setScale(0.6).setAlpha(0);
+    scene.tweens.add({ targets: scene.messageText, scale: 1, alpha: 1, duration: 300, ease: 'Back.easeOut' });
+    scene.time.delayedCall(onWin.delay || 1100, () => {
+      if (onWin.trial) scene.goToTrial();
+      else if (onWin.to) scene.goToZone(onWin.to, onWin.at);
+    });
   }
 
   hudLine() {
