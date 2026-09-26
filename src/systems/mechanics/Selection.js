@@ -3,17 +3,22 @@
 //   selection: {
 //     activeFlag: 'fearful_left',     // после переклички (22 000 ушли) начинается отбор
 //     army: { start: 32000, afterFear: 10000, final: 300 },   // числа на экране
-//     seconds: 40, maxMarks: 30,      // время и сколько воинов можно отметить
+//     seconds: 30, maxMarks: 30,      // время и сколько воинов можно отметить
 //     markRange: 34,                  // как близко подойти, чтобы отметить (px)
 //     markMs: 450,                    // сколько длится отметка (нельзя отметить мгновенно всех)
 //     searchedSeconds: 3,             // сколько пробыть у точки, чтобы она считалась осмотренной
+//     signal: { durationMs: 1200, periodMs: [2200, 3000] },  // «взгляд по сторонам»
 //     locations: [{ id, label, x, y, w, h, count, lappers, shade? }, ...],
 //     doneFlag: 'army_300',
 //     onDone: { dialogue: 'g3_three_hundred' },
 //   }
 //
-// У каждой точки своё соотношение «сторожевых» (пьют из ладони стоя — у них время от времени
-// мелькает короткий сигнал «взгляд по сторонам») и «коленопреклонённых» (без сигнала).
+// У каждой точки своё соотношение «сторожевых» и «коленопреклонённых». Подписей нет —
+// различать нужно по виду:
+//   «сторожевые» (пьют из ладони стоя): выше, светлее, чуть наклонены и приподняты; время
+//     от времени над головой загорается крупный «глаз» с бегающим зрачком — «взгляд по
+//     сторонам» (signal.durationMs, повтор раз в signal.periodMs — у каждого своя фаза);
+//   «коленопреклонённые»: приплюснутые, темнее и ниже, сигнала нет.
 // Игрок подходит и отмечает воинов клавишей E. Дойти до всех точек за отведённое время нельзя —
 // нужно выбрать, где смотреть.
 //
@@ -69,17 +74,24 @@ class SelectionMechanic {
       const lapperSet = new Set(Phaser.Utils.Array.Shuffle([...picked.keys()]).slice(0, loc.lappers));
       picked.forEach(([tx, ty], i) => {
         const { x, y } = scene.tileCenter(tx, ty);
-        const body = scene.add.rectangle(x, y, 16, 16, 0xc7b89a).setDepth(6).setStrokeStyle(1, 0x2e3440);
+        const lapper = lapperSet.has(i);
+        const sig = cfg.signal || { durationMs: 1200, periodMs: [2200, 3000] };
+        // поза: стоящий — высокий, светлый, наклонён и приподнят; на коленях — приплюснут, темнее
+        const body = lapper
+          ? scene.add.rectangle(x, y - 4, 13, 22, 0xe6d3a3).setAngle(-9)
+          : scene.add.rectangle(x, y + 4, 21, 11, 0x9a8062);
+        body.setDepth(6).setStrokeStyle(1, 0x2e3440);
         this.warriors.push({
           x,
           y,
           body,
           loc: loc.id,
-          lapper: lapperSet.has(i),
+          lapper,
           marked: false,
-          // сигнал «взгляд по сторонам»: короткая вспышка раз в 2,5–4,5 с, у каждого своя фаза
-          period: Phaser.Math.Between(2500, 4500),
-          phase: Phaser.Math.Between(0, 4500),
+          // сигнал «взгляд по сторонам»: у каждого свой период и фаза, чтобы не мигали хором
+          signalMs: sig.durationMs,
+          period: Phaser.Math.Between(sig.periodMs[0], sig.periodMs[1]),
+          phase: Phaser.Math.Between(0, sig.periodMs[1]),
         });
       });
     });
@@ -183,12 +195,23 @@ class SelectionMechanic {
     g.clear();
     this.warriors.forEach((w) => {
       if (w.body.alpha === 0) return;
-      if (w.marked) g.lineStyle(2, 0xeceff4, 0.9).strokeCircle(w.x, w.y, 13);
-      // сигнал у «сторожевых»: короткий «взгляд» — светлая чёрточка над головой
-      if (w.lapper && this.state === 'select' && (time + w.phase) % w.period < 350) {
-        g.fillStyle(0xffffff, 1).fillRect(w.x - 7, w.y - 14, 14, 3);
+      if (w.marked) g.lineStyle(2, 0xeceff4, 0.9).strokeCircle(w.x, w.y, 15);
+      if (w.lapper && this.state === 'select') {
+        const t = (time + w.phase) % w.period;
+        if (t < w.signalMs) this.drawGlance(g, w.x, w.y - 26, t / w.signalMs);
       }
     });
+  }
+
+  // Крупный «глаз» над головой: ореол, белок и зрачок, который бегает влево-вправо
+  // (посмотрел по сторонам). k — доля прошедшего времени сигнала (0…1).
+  drawGlance(g, x, y, k) {
+    const fade = k < 0.15 ? k / 0.15 : k > 0.85 ? (1 - k) / 0.15 : 1; // мягкое появление/угасание
+    g.fillStyle(0xffe066, 0.35 * fade).fillCircle(x, y, 17);
+    g.fillStyle(0xffffff, fade).fillEllipse(x, y, 22, 13);
+    g.lineStyle(2, 0xf2b705, fade).strokeEllipse(x, y, 22, 13);
+    const look = Math.sin(k * Math.PI * 4) * 5; // два взгляда в каждую сторону
+    g.fillStyle(0x2e3440, fade).fillCircle(x + look, y, 3.5);
   }
 
   hudLine() {
