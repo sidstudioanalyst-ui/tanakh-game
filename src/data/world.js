@@ -45,7 +45,7 @@ const CAMPAIGNS = {
       name_he: 'הַמּוֹשִׁיעִים · א: אֵהוּד',
       zones: ['a1', 'a2', 'a3', 'a4', 'a5'],
       startZone: 'a1',
-      trial: null, // Суд части А ещё не написан — в А5 есть только выход к нему
+      trial: 'saviors', // src/data/trials/saviors.json — после победы в А5
       hero: { name_ru: 'Эхуд, сын Геры', name_he: 'אֵהוּד בֶּן גֵּרָא', color: 0xe5c07b },
       gauges: {
         warriors: { label: 'gauge_warriors', max: 300 },
@@ -60,7 +60,7 @@ const CAMPAIGNS = {
       // часть А (Гидон): Г1–Г6; часть Б (притча Йотама и итог Авимелеха): Б1–Б2, затем Суд
       zones: ['g1', 'g2', 'g3', 'g4', 'g5', 'g6', 'b1', 'b2'],
       startZone: 'g1',
-      trial: null, // Суд карты 2 — будущая задача: после Б2 открывается профиль Мерила
+      trial: 'power', // src/data/trials/power.json — после эпилога Б2
       hero: {
         name_ru: 'Гидон, сын Иоаша',
         name_he: 'גִּדְעוֹן בֶּן יוֹאָשׁ',

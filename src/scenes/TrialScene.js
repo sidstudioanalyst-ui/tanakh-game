@@ -1,8 +1,11 @@
 // Экран «Суд» в конце карты. Данные — src/data/trials/<id>.json.
 //   1) профиль по четырём величинам Мерила — сколько в каждой «света» и «тени» (не оценка);
-//   2) три вопроса, у каждого два аргумента: «за» (for) и «против» (against);
+//   2) вопросы (обычно три), у каждого два аргумента: «за» (for) и «против» (against);
+//      if_flag у вопроса — показать, только если флаг стоит (жёсткий ответ Эфраиму в Суде карты 2);
 //   3) итог и переход на следующую карту (или начало заново, если карта последняя).
 // Аргументы могут иметь effects — как выборы в диалогах.
+// draft: true (у суда — для вступления и итога, у вопроса — для него и его аргументов): иврита
+// ещё нет, под заглушкой всегда виден русский — как у реплик-черновиков.
 class TrialScene extends Phaser.Scene {
   constructor() {
     super('TrialScene');
@@ -11,6 +14,8 @@ class TrialScene extends Phaser.Scene {
   init(data) {
     // trial: null у карты — Суд ещё не написан: показываем только профиль Мерила
     this.trial = (data.trialId && Content.trial(data.trialId)) || this.stubTrial();
+    // вопросы с if_flag — только если флаг стоит; нумерация «1 из N» — по тем, что показываются
+    this.questions = (this.trial.questions || []).filter((q) => !q.if_flag || GameState.flags[q.if_flag]);
     this.answers = [];
   }
 
@@ -82,8 +87,8 @@ class TrialScene extends Phaser.Scene {
     return y + this.putText(addContentText(this, this.right, y, t.title_he, t.title_ru, { size: 26, bold: true, color: '#ebcb8b', noHint: true })) + 6;
   }
 
-  paragraph(y, he, ru, size = 18) {
-    return y + this.putText(addContentText(this, this.right, y, he, ru, { size, width: this.contentWidth, lineSpacing: 6 })) + 8;
+  paragraph(y, he, ru, size = 18, draft = false) {
+    return y + this.putText(addContentText(this, this.right, y, he, ru, { size, width: this.contentWidth, lineSpacing: 6, draft })) + 8;
   }
 
   // Подпись интерфейса (ui-strings) у одного из краёв: 'start' — начало строки, 'end' — конец
@@ -112,7 +117,7 @@ class TrialScene extends Phaser.Scene {
   showProfile() {
     this.clear();
     let y = this.heading(24);
-    y = this.paragraph(y, this.trial.intro_he, this.trial.intro_ru, 17);
+    y = this.paragraph(y, this.trial.intro_he, this.trial.intro_ru, 17, !!this.trial.draft);
     y += 4;
 
     Object.entries(MEASURES).forEach(([key, m]) => {
@@ -171,28 +176,28 @@ class TrialScene extends Phaser.Scene {
   // --- 2. вопросы ------------------------------------------------------------
 
   showQuestion(index) {
-    const q = this.trial.questions[index];
+    const q = this.questions[index];
     if (!q) {
       this.showOutro();
       return;
     }
     this.clear();
     let y = this.heading(24);
-    const counter = this.label(y, UI.t('trial_question_counter', { n: index + 1, total: this.trial.questions.length }), 'start', {
+    const counter = this.label(y, UI.t('trial_question_counter', { n: index + 1, total: this.questions.length }), 'start', {
       size: 15,
       color: '#a0a8b8',
     });
     y += counter.height + 6;
-    y = this.paragraph(y, q.text_he, q.text_ru, 20) + 10;
+    y = this.paragraph(y, q.text_he, q.text_ru, 20, !!q.draft) + 10;
 
     const pick = (side) => () => {
       GameState.applyEffects(q[side].effects);
-      this.answers.push(side);
+      this.answers.push(q.if_flag ? `${side}:${q.if_flag}` : side); // условный вопрос — с флагом
       this.show(() => this.showQuestion(index + 1));
     };
     this.buttons(y, [
-      { text_he: q.for.text_he, text_ru: q.for.text_ru, onSelect: pick('for') },
-      { text_he: q.against.text_he, text_ru: q.against.text_ru, onSelect: pick('against') },
+      { text_he: q.for.text_he, text_ru: q.for.text_ru, onSelect: pick('for'), draft: !!q.draft },
+      { text_he: q.against.text_he, text_ru: q.against.text_ru, onSelect: pick('against'), draft: !!q.draft },
     ]);
   }
 
@@ -202,7 +207,7 @@ class TrialScene extends Phaser.Scene {
     GameState.trialAnswers[GameState.map.id] = [...this.answers];
     this.clear();
     let y = this.heading(24);
-    y = this.paragraph(y, this.trial.outro_he, this.trial.outro_ru, 19);
+    y = this.paragraph(y, this.trial.outro_he, this.trial.outro_ru, 19, !!this.trial.draft);
 
     const last = !GameState.hasNextMap();
     const label = UI.both(last ? 'trial_restart' : 'trial_next_map');
