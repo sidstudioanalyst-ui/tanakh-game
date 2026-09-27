@@ -110,6 +110,14 @@ class NightTasksMechanic {
     return CONFIG.TILE_SIZE * 1.2;
   }
 
+  // Можно ли сейчас начать действие по E (на тач по этому видна кнопка действия)
+  canInteract() {
+    if (!this.active || this.done || this.working) return false;
+    const site = this.sites[this.taskIndex];
+    const p = this.scene.player;
+    return Phaser.Math.Distance.Between(p.x, p.y, site.x, site.y) <= this.siteRadius;
+  }
+
   // E у места действия
   interact() {
     if (!this.active || this.done) return false;

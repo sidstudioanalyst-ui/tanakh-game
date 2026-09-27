@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Мешок-сумка с завязкой -->
+  <path d="M23 13 Q32 7 41 13 L37 21 Q53 29 53 44 Q53 57 32 57 Q11 57 11 44 Q11 29 27 21 Z" fill="#c9a26b" stroke="#2e3440" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M25 21 Q32 24 39 21" fill="none" stroke="#6b4f2a" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M39 21 Q46 17 45 11" fill="none" stroke="#6b4f2a" stroke-width="2.5" stroke-linecap="round"/>
+  <path d="M20 44 Q32 49 44 44" fill="none" stroke="#a3824f" stroke-width="2" stroke-linecap="round"/>
+</svg>

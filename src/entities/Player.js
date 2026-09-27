@@ -1,4 +1,4 @@
-// Игрок: движение на WASD/стрелках, атака по пробелу, здоровье.
+// Игрок: движение на WASD/стрелках (на тач — джойстиком), атака по пробелу, здоровье.
 // Экипировка и здоровье хранятся в GameState, чтобы переживать переходы между зонами.
 class Player extends Phaser.Physics.Arcade.Sprite {
   constructor(scene, x, y, texture = 'player') {
@@ -46,9 +46,17 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     const down = this.keys.down.isDown || this.cursors.down.isDown;
 
     const dir = new Phaser.Math.Vector2((right ? 1 : 0) - (left ? 1 : 0), (down ? 1 : 0) - (up ? 1 : 0));
-    // Нормализуем, чтобы по диагонали не бегать быстрее
     // speedFactor задают механики зоны (например, вылазка со слугами в Г1 — медленнее)
-    dir.normalize().scale(this.stats.speed * (this.speedFactor || 1));
+    const speed = this.stats.speed * (this.speedFactor || 1);
+    // Джойстик (тач): направление и сила смещения стика — плавно, от 0 до полной скорости.
+    // Клавиши, если нажаты, важнее.
+    const touch = this.scene.touch;
+    if (dir.lengthSq() === 0 && touch && touch.moving) {
+      this.setVelocity(touch.vector.x * speed, touch.vector.y * speed);
+      return;
+    }
+    // Нормализуем, чтобы по диагонали не бегать быстрее
+    dir.normalize().scale(speed);
     this.setVelocity(dir.x, dir.y);
   }
 

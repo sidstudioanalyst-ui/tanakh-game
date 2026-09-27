@@ -12,6 +12,7 @@
 // загрузке всё равно имеет приоритет.
 //
 //   UI.t('hud_stats', { damage: 2, defense: 4 })  → строка на текущем языке
+//                                                  (на тач — вариант hud_stats_touch, если есть)
 //   UI.both('dialogue_continue')                   → { he, ru } — пара для кнопок выбора
 const LANG_STORAGE_KEY = 'tanakh-game.lang';
 const BILINGUAL_STORAGE_KEY = 'tanakh-game.bilingual';
@@ -115,7 +116,10 @@ const UI = {
     return this.format(template, params, lang);
   },
 
+  // На тач-устройствах берётся вариант <ключ>_touch, если он есть: «Коснись экрана» вместо
+  // «R — …», «Нажми на предмет» вместо стрелок и Enter и т. п.
   t(key, params) {
+    if (CONFIG.TOUCH && this.strings[`${key}_touch`]) key = `${key}_touch`;
     return this.get(key, this.lang, params);
   },
 

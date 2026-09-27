@@ -38,6 +38,10 @@ class BootScene extends Phaser.Scene {
     Content.trialIds = [...new Set(ALL_MAPS.map((m) => m.trial).filter(Boolean))];
 
     this.load.json('ui-strings', 'src/data/ui-strings.json');
+    // Иконки тач-интерфейса (SVG): меч на кнопке атаки, ладонь — действие, сумка, меню
+    if (CONFIG.TOUCH) {
+      ['sword', 'hand', 'bag', 'menu'].forEach((name) => this.load.svg(`icon-${name}`, `assets/ui/${name}.svg`, { width: 96, height: 96 }));
+    }
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
     Content.trialIds.forEach((id) => this.load.json(`trial:${id}`, `src/data/trials/${id}.json`));
 

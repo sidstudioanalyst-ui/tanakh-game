@@ -14,6 +14,7 @@ class GameScene extends Phaser.Scene {
     this.zone = ZONES[this.zoneId];
     this.gameOver = false;
     this.transitioning = false;
+    this.touch = null; // TouchControls — создаётся в HUD на тач-устройствах
     GameState.enterZone(this.zoneId, this.spawnAt);
   }
 
@@ -84,6 +85,7 @@ class GameScene extends Phaser.Scene {
     Object.values(this.mechanics).forEach((m) => !this.gameOver && m.update(time, delta));
     if (this.gameOver || this.transitioning) return;
     this.updateNpcHints();
+    if (this.touch) this.touch.update();
     this.checkTriggers(time);
     this.checkExits(time);
     this.updateStatusHud();
@@ -308,6 +310,20 @@ class GameScene extends Phaser.Scene {
     Object.values(this.mechanics).some((m) => m.interact && m.interact(this.time.now));
   }
 
+  // Можно ли сейчас что-то сделать по E: рядом NPC или место действия механики.
+  // По этому на тач появляется кнопка действия.
+  canInteract() {
+    if (this.transitioning) return false;
+    if (this.nearestNpc()) return true;
+    return Object.values(this.mechanics).some((m) => m.canInteract && m.canInteract(this.time.now));
+  }
+
+  // Касание мира на тач (x, y — мировые координаты): механика зоны может его забрать
+  // (например, отметить воина в Г3). true — касание использовано.
+  tapWorld(x, y) {
+    return Object.values(this.mechanics).some((m) => m.tapAt && m.tapAt(x, y, this.time.now));
+  }
+
   openDialogue(dialogueId) {
     this.openOverlay('DialogueScene', { dialogueId });
   }
@@ -437,6 +453,7 @@ class GameScene extends Phaser.Scene {
   rebuildUI() {
     // всплывающее сообщение живёт 2,5 с — переносим его текст как есть
     const toast = this.toastText && this.toastText.visible ? this.toastText.text : null;
+    if (this.touch) this.touch.destroy(); // снять подписки на касания; объекты — в hudObjects
     this.hudObjects.forEach((o) => o.destroy());
     this.createUI();
     // имена NPC над головой — тоже на новом языке
@@ -448,51 +465,66 @@ class GameScene extends Phaser.Scene {
   }
 
   buildHud() {
+    const W = CONFIG.WIDTH;
+    const H = CONFIG.HEIGHT;
     this.healthBar = new HealthBar(this, 16, 16, 200, 18);
     this.healthBar.draw(this.player.hp, this.player.maxHp);
+
+    // Тач: джойстик, кнопки атаки/действия, иконки сумки и меню (часть HUD — зеркалятся с ним)
+    if (CONFIG.TOUCH) this.touch = new TouchControls(this);
 
     // Раскладка HUD задаётся для русского; в иврите UI.x() зеркалит её слева направо
     this.equipmentText = addUiText(this, 16, 42, '').setScrollFactor(0).setDepth(100);
     this.updateEquipmentHud();
 
-    // Название карты и зоны — сверху по центру; под ним — строка механик и шкал
+    // Название карты и зоны — сверху по центру; под ним — строка механик и шкал.
+    // На узком экране (портретный телефон) — под колонкой с вещами, на всю ширину.
+    const narrow = CONFIG.PORTRAIT;
+    const titleY = narrow ? this.equipmentText.y + this.equipmentText.height + 10 : 10;
     const map = GameState.map;
-    const title = addUiText(this, CONFIG.WIDTH / 2, 10, `${UI.pick(map, 'name')} · ${UI.pick(this.zone, 'name')}`, {
+    const title = addUiText(this, W / 2, titleY, `${UI.pick(map, 'name')} · ${UI.pick(this.zone, 'name')}`, {
       center: true,
       size: UI.rtl ? 15 : 12, // моноширинный русский шире — иначе наезжает на подсказки
       color: '#e5e9f0',
     })
       .setScrollFactor(0)
       .setDepth(100);
-    // длинное «карта · зона» не помещается между полоской здоровья и подсказками — только зона
-    if (title.width > 360) title.setText(UI.pick(this.zone, 'name'));
-    this.statusText = addUiText(this, CONFIG.WIDTH / 2, 36, '', { center: true, size: 14, color: '#ebcb8b' })
+    // длинное «карта · зона» не помещается (между полоской здоровья и подсказками,
+    // а на телефоне — в ширину экрана) — только зона
+    const titleRoom = narrow ? W - 32 : 360;
+    if (title.width > titleRoom) title.setText(UI.pick(this.zone, 'name'));
+    const statusY = narrow ? titleY + title.height + 2 : 36;
+    this.statusText = addUiText(this, W / 2, statusY, '', { center: true, size: 14, color: '#ebcb8b' })
       .setScrollFactor(0)
       .setDepth(100);
     this.updateStatusHud();
 
-    // Подсказка по управлению — в противоположном от полоски здоровья углу
-    addUiText(this, CONFIG.WIDTH - 16, 16, UI.t('hud_controls'))
-      .setOrigin(UI.rtl ? 0 : 1, 0)
-      .setScrollFactor(0)
-      .setDepth(100);
+    // Подсказка по клавишам — в противоположном от полоски здоровья углу (на тач там иконки)
+    if (!CONFIG.TOUCH) {
+      addUiText(this, W - 16, 16, UI.t('hud_controls'))
+        .setOrigin(UI.rtl ? 0 : 1, 0)
+        .setScrollFactor(0)
+        .setDepth(100);
+    }
 
-    // Всплывающее сообщение (подобранный предмет и т. п.)
-    this.toastText = addUiText(this, CONFIG.WIDTH / 2, CONFIG.HEIGHT - 58, '', {
+    // Всплывающее сообщение (подобранный предмет и т. п.); на тач — над кнопками
+    const toastY = this.touch ? this.touch.buttonsTop - 56 : H - 58;
+    this.toastText = addUiText(this, W / 2, toastY, '', {
       center: true,
       size: 16,
       color: '#ebcb8b',
       background: '#000000aa',
       padding: { x: 10, y: 6 },
+      width: narrow ? W - 60 : undefined,
     })
       .setScrollFactor(0)
       .setDepth(150)
       .setVisible(false);
 
     // Выше центра: камера держит игрока по центру, текст не должен его закрывать
-    this.messageText = addUiText(this, CONFIG.WIDTH / 2, CONFIG.HEIGHT * 0.22 - 40, '', {
+    this.messageText = addUiText(this, W / 2, narrow ? H * 0.3 : H * 0.22 - 40, '', {
       center: true,
-      size: 28,
+      size: narrow ? 24 : 28,
       color: '#ffffff',
       background: '#000000aa',
       padding: { x: 16, y: 12 },
@@ -514,18 +546,19 @@ class GameScene extends Phaser.Scene {
       backgroundColor: active ? '#ebcb8b' : '#3b4252',
       padding: { x: 7, y: 4 },
     });
-    const y = CONFIG.HEIGHT - 30;
+    // на тач низ экрана занят джойстиком и кнопками — кнопки языка под иконками сумки и меню
+    const y = this.touch ? this.touch.iconsBottom + 10 : CONFIG.HEIGHT - 30;
     const make = (label, active, onClick) => {
       const b = this.add.text(0, y, label, style(active)).setScrollFactor(0).setDepth(160);
       b.setInteractive({ useHandCursor: true }).on('pointerdown', onClick);
       return b;
     };
-    const menu = make(`${UI.t('menu_title')} · Esc`, false, () => this.openMenu());
+    const menu = this.touch ? null : make(`${UI.t('menu_title')} · Esc`, false, () => this.openMenu()); // на тач — иконка
     const lang = make(UI.lang === 'he' ? 'RU' : 'עב', false, () => UI.toggleLanguage());
     const both = make('עב+RU', UI.bilingual, () => UI.toggleBilingual());
     // в углу со стороны подсказок: меню, язык, оба языка
-    let x = 16;
-    [menu, lang, both].forEach((b) => {
+    let x = this.touch ? 12 : 16;
+    [menu, lang, both].filter(Boolean).forEach((b) => {
       if (UI.rtl) b.setPosition(x, y);
       else b.setOrigin(1, 0).setPosition(CONFIG.WIDTH - x, y);
       x += b.width + 6;
@@ -534,16 +567,19 @@ class GameScene extends Phaser.Scene {
 
   bindKeys() {
     const kb = this.input.keyboard;
-    kb.on('keydown-R', () => {
-      if (!this.deadWaitingRestart) return;
-      // Смерть: начать заново зону или всю карту — как задано у карты (restartOnDeath)
-      const entry = GameState.map.restartOnDeath === 'zone' ? GameState.restartZone() : GameState.restartMap();
-      this.scene.restart({ zoneId: entry.zoneId, at: entry.at });
-    });
+    kb.on('keydown-R', () => this.restartAfterDeath());
     kb.on('keydown-I', () => this.openInventory());
     kb.on('keydown-ESC', () => this.openMenu());
     kb.on('keydown-E', () => this.talk());
     bindLanguageKeys(this, () => this.rebuildUI());
+  }
+
+  // Смерть: R (на тач — касание экрана) начинает заново зону или всю карту — как задано
+  // у карты (restartOnDeath)
+  restartAfterDeath() {
+    if (!this.deadWaitingRestart) return;
+    const entry = GameState.map.restartOnDeath === 'zone' ? GameState.restartZone() : GameState.restartMap();
+    this.scene.restart({ zoneId: entry.zoneId, at: entry.at });
   }
 
   // Большое сообщение над игроком (провал, смерть) — по ключам строк, чтобы переводилось

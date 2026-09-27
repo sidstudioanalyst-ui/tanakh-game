@@ -25,7 +25,7 @@ class TrialScene extends Phaser.Scene {
     this.cameras.main.fadeIn(250);
     this.layer = this.add.container(0, 0);
 
-    this.margin = 40;
+    this.margin = CONFIG.PORTRAIT ? 20 : 40; // узкий экран — поля меньше
     this.right = CONFIG.WIDTH - this.margin;
     this.contentWidth = CONFIG.WIDTH - this.margin * 2;
 
