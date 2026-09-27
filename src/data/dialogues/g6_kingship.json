@@ -1,0 +1,99 @@
+{
+  "id": "g6_kingship",
+  "speakers": {
+    "people": {
+      "name_he": "אִישׁ יִשְׂרָאֵל",
+      "name_ru": "Народ Израиля"
+    },
+    "gideon": {
+      "name_he": "גִּדְעוֹן",
+      "name_ru": "Гидон"
+    }
+  },
+  "start": "k1",
+  "lines": [
+    {
+      "id": "k1",
+      "speaker": "people",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Властвуй над нами — и ты, и сын твой, и сын сына твоего: ведь ты спас нас от руки Мидьяна.",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Не я буду властвовать над вами, и не сын мой будет властвовать над вами. Г-сподь будет властвовать над вами.",
+          "next": "k_refused",
+          "effects": {
+            "knowledge": 1,
+            "set_flag": [
+              "kingship_refused",
+              "kingship_done"
+            ]
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Хорошо. Я буду властвовать над вами — я, а после меня мой сын.",
+          "next": "w1",
+          "effects": {
+            "set_flag": [
+              "kingship_whatif",
+              "kingship_done"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "w1",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Так не было. Гидон этого не сказал. Это — только «что, если».",
+      "no_escape": true,
+      "title_he": "וּמָה אִם…",
+      "title_ru": "Что, если…",
+      "next": "w2"
+    },
+    {
+      "id": "w2",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Если бы он принял власть для себя и для сыновей, дорога вела бы к сыну, который захочет её любой ценой, — к сыну по имени Авимелех, «мой отец — царь». К Шхему. К башне.",
+      "no_escape": true,
+      "vision": "burning_tower",
+      "title_he": "וּמָה אִם…",
+      "title_ru": "Что, если…",
+      "next": "w3"
+    },
+    {
+      "id": "w3",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Но Гидон отказался.",
+      "no_escape": true,
+      "next": "k_refusal"
+    },
+    {
+      "id": "k_refusal",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Не я буду властвовать над вами, и не сын мой будет властвовать над вами. Г-сподь будет властвовать над вами.",
+      "no_escape": true,
+      "next": "k_refused"
+    },
+    {
+      "id": "k_refused",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Народ не спорил. У ног Гидона — добыча, взятая у Мидьяна: у мидьянитян были золотые серьги, ведь они были измаильтяне. Рядом расстелен плащ.",
+      "no_escape": true,
+      "next": null
+    }
+  ]
+}

@@ -111,6 +111,16 @@ const CONFIG = {
       damage: 12,
       aggroRange: 260,
     },
+    // Бегущий мидьянитянин в Г5: как воин Моава, но медленнее и слабее — погоня легче А5
+    midianite: {
+      class: 'Runner',
+      size: 20,
+      color: 0xb07d62,
+      speed: 72,
+      hp: 2,
+      damage: 7,
+      aggroRange: 56,
+    },
     // Воин Моава в А5: бежит к бродам на другой берег; нападает, только если Эхуд рядом
     moabite: {
       class: 'Runner',

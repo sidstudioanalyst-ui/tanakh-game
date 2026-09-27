@@ -8,7 +8,10 @@
 //     allowed: { base: 1, gauge: 'warriors', per: 100 },  // сколько можно пропустить:
 //                                        // base + (шкала / per), округление вниз
 //     winFlag: 'fords_held',             // флаг после победы (открывает выход)
+//     winToast: 'toast_fords_held',      // строка победы (необязательно)
+//     failKey: 'fail_fords',             // строка провала (необязательно)
 //     onWin: { trial: true, delay: 1100 },  // после победы — короткая сцена и сразу к Суду
+//     // или onWin: { dialogue: 'g5_ephraim', delay: 1200 } — после победы сразу разговор
 //   }                                     // (без onWin игрок сам идёт к выходу)
 // Прорвалось больше, чем allowed, — сцена проваливается.
 class WavesMechanic {
@@ -46,7 +49,7 @@ class WavesMechanic {
       if (this.goalRect.contains(e.x, e.y)) {
         this.escaped += 1;
         e.escape();
-        if (this.escaped > this.allowed) this.scene.failZone('fail_fords');
+        if (this.escaped > this.allowed) this.scene.failZone(this.cfg.failKey || 'fail_fords');
       }
     });
 
@@ -99,15 +102,22 @@ class WavesMechanic {
     GameState.flags[this.cfg.winFlag] = true;
     scene.refreshExits();
     const onWin = this.cfg.onWin;
+    const toast = this.cfg.winToast || 'toast_fords_held';
     if (!onWin) {
-      scene.showToast(UI.t('toast_fords_held'));
+      scene.showToast(UI.t(toast));
+      return;
+    }
+    if (onWin.dialogue) {
+      // разговор после победы (Г5: эфраимиты) — игра продолжается, диалог открывается сам
+      scene.showToast(UI.t(toast));
+      scene.time.delayedCall(onWin.delay || 1200, () => !scene.gameOver && !scene.transitioning && scene.openDialogue(onWin.dialogue));
       return;
     }
     // Короткая сцена победы: золотая вспышка и надпись, игрок замирает — и сразу переход
     scene.gameOver = true; // остановить update: никто не двигается, выходы не срабатывают
     scene.player.setVelocity(0, 0);
     scene.cameras.main.flash(400, 235, 203, 139);
-    scene.showMessage(['toast_fords_held']);
+    scene.showMessage([toast]);
     scene.messageText.setScale(0.6).setAlpha(0);
     scene.tweens.add({ targets: scene.messageText, scale: 1, alpha: 1, duration: 300, ease: 'Back.easeOut' });
     scene.time.delayedCall(onWin.delay || 1100, () => {
