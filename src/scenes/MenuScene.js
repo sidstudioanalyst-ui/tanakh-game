@@ -3,6 +3,7 @@
 //   Продолжить       — закрыть меню (так же Esc)
 //   Начать заново    — текущую карту с самого начала (Мерило, вещи, флаги — как на её старте)
 //   Демо-карты       — перейти в демо-кампанию; из демо этот пункт возвращает к «Спасителям»
+//   Список зон (dev) — только на dev.html: вернуться к меню выбора старта
 // Управление: ↑/↓ или W/S и Enter, цифры 1–3, мышь или палец; L / B — язык.
 class MenuScene extends Phaser.Scene {
   constructor() {
@@ -32,6 +33,8 @@ class MenuScene extends Phaser.Scene {
       { key: 'menu_restart', action: () => this.restartMap() },
       { key: demo ? 'menu_saviors' : 'menu_demo', action: () => this.switchCampaign(demo ? 'saviors' : 'demo') },
     ];
+    // dev.html: вернуться к списку зон
+    if (window.DEV_MODE) this.items.push({ key: 'menu_dev', action: () => window.location.assign('dev.html') });
     this.rows = this.add.container(0, 0);
     this.drawItems();
 

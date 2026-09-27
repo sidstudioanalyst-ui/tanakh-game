@@ -67,6 +67,12 @@ class BootScene extends Phaser.Scene {
     UI.load(this.cache.json.get('ui-strings'));
     validateContent(Content, UI.strings);
 
+    // dev.html: старт с выбранной в меню зоны или Суда, с подставленными флагами и вещами
+    if (window.DEV_MODE && window.devApplyStart) {
+      window.devApplyStart(this);
+      return;
+    }
+
     GameState.newGame(CONFIG.CAMPAIGN);
 
     // ?zone=<id> — начать с конкретной зоны (удобно для отладки). Кампания и карта
