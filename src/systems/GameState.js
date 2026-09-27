@@ -6,6 +6,8 @@
 // заметила стража, вышло время — и для смерти, если у карты restartOnDeath: 'zone').
 //
 // События (GameState.events): 'equipment-changed', 'measures-changed', 'gauge-changed'.
+const PROLOGUE_STORAGE_KEY = 'tanakh-game.prologueSeen';
+
 const GameState = {
   events: new Phaser.Events.EventEmitter(),
 
@@ -27,6 +29,11 @@ const GameState = {
     this.pendingZone = null; // переход, заказанный диалогом (goto_zone)
     this.pendingFail = null; // провал сцены, заказанный диалогом (fail_zone)
     this.startMap(0);
+    // Пролог кампании — перед заставкой первой карты, если ещё не пройден
+    const prologue = PROLOGUES[campaign] || [];
+    if (prologue.length && (CONFIG.FORCE_PROLOGUE || !this.prologueSeen)) {
+      this.introQueue.unshift(...prologue.map((id) => ({ id, prologue: true })));
+    }
   },
 
   get maps() {
@@ -40,11 +47,26 @@ const GameState = {
   startMap(index) {
     this.mapIndex = index;
     this.currentZone = this.map.startZone;
+    this.queueMapIntro();
     this.hp = null;
     Object.keys(this.map.gauges || {}).forEach((id) => {
       if (this.gauges[id] === undefined) this.gauges[id] = 0;
     });
     this.mapSnapshot = this.serialize();
+  },
+
+  // Очередь narration-сцен, которые покажет GameScene перед игрой: [{ id, prologue? }, ...]
+  queueMapIntro() {
+    this.introQueue = this.map.intro ? [{ id: this.map.intro }] : [];
+  },
+
+  // Пролог проходится один раз — память в браузере (как выбор языка)
+  get prologueSeen() {
+    return readStorage(PROLOGUE_STORAGE_KEY) === '1';
+  },
+
+  markPrologueSeen() {
+    writeStorage(PROLOGUE_STORAGE_KEY, '1');
   },
 
   hasNextMap() {
@@ -200,6 +222,7 @@ const GameState = {
     this.restore(this.mapSnapshot);
     this.hp = null;
     this.currentZone = this.map.startZone;
+    this.queueMapIntro(); // заставка карты — снова; пролог — нет
     return { zoneId: this.currentZone, at: null };
   },
 
