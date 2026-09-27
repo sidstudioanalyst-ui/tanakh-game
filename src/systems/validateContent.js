@@ -145,11 +145,18 @@ function validateContent(cache, uiStrings) {
   });
 
   cache.allTrials().forEach((trial) => {
-    if (!trial.questions || trial.questions.length !== 3) warn(`Суд ${trial.id}: должно быть 3 вопроса`);
+    // без условных (if_flag) вопросов должно остаться хотя бы три
+    const always = (trial.questions || []).filter((q) => !q.if_flag).length;
+    if (always < 3) warn(`Суд ${trial.id}: нужно не меньше 3 вопросов без if_flag (сейчас ${always})`);
+    if (trial.draft) checkText({ text_he: trial.intro_he, text_ru: trial.intro_ru }, true, `Суд ${trial.id}, вступление`);
     (trial.questions || []).forEach((q, i) => {
+      checkText(q, !!q.draft, `Суд ${trial.id}, вопрос ${i + 1}`);
       ['for', 'against'].forEach((side) => {
         if (!q[side] || !q[side].text_he) warn(`Суд ${trial.id}, вопрос ${i + 1}: нет аргумента "${side}"`);
-        else checkEffects(q[side].effects, `Суд ${trial.id}, вопрос ${i + 1}/${side}`);
+        else {
+          checkText(q[side], !!q.draft, `Суд ${trial.id}, вопрос ${i + 1}/${side}`);
+          checkEffects(q[side].effects, `Суд ${trial.id}, вопрос ${i + 1}/${side}`);
+        }
       });
     });
   });
