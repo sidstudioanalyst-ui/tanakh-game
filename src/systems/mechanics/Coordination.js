@@ -9,6 +9,7 @@
 //     terrain: { open: 1, rocks: 0.4, wadi: 0.6 },    // множители скорости по местности
 //     areas: [{ x, y, w, h, terrain: 'rocks' }, ...], // участки местности (видны на карте и мини-карте)
 //     squads: [{ id, label, color, path: [[x, y], ...] }, ...], // два других отряда; конец пути — позиция
+//     fight: { full: {...}, partial: {...}, early: {...} },  // бой после сигнала, см. ниже
 //     signalFlag: 'jars_broken', doneFlag: 'camp_routed',
 //     onDone: { dialogue: 'g4_panic' },
 //   }
@@ -19,8 +20,13 @@
 //   оба — signal_full: полная паника, мидьянитяне рубят друг друга по всему стану;
 //   один — signal_partial: часть стана успевает собраться и отходит строем;
 //   ни одного — signal_early: паника слабее, большая часть отходит в порядке.
-// Провала нет — только более или менее полная победа. Сцена паники идёт сама, без игрока.
-// В журнал пишется, сколько отрядов было на местах; при обоих — +1 свет «мудрости и разумению».
+// Провала нет — только более или менее полная победа.
+// После сигнала — бой в стане: фигуры становятся врагами (PanickedEnemy), Гидон ходит и бьёт.
+// fight[исход]: { hp, speed, fearRange, lunge?, organized (доля собранных), organizedHp/Speed/Damage,
+//   clashEvery, clashFall (стычки между своими), flee: [мин, макс] с — когда уцелевший бежит, shake }.
+// Чем лучше сигнал, тем враги растеряннее: не бьют, убегают, чаще рубят друг друга, раньше бегут.
+// Зона завершается, когда в стане никого не осталось (убиты, пали в стычках или бежали).
+// В журнал: сколько отрядов было на местах и итог боя; при обоих — +1 свет «мудрости и разумению».
 class CoordinationMechanic {
   constructor(scene, cfg) {
     const T = CONFIG.TILE_SIZE;
@@ -132,7 +138,7 @@ class CoordinationMechanic {
     if (!this.active && GameState.flags[this.cfg.activeFlag]) this.activate();
     if (this.active && !this.signaled) this.squads.forEach((s) => this.moveSquad(s, dt));
     this.updateLabels();
-    if (this.panic) this.updatePanic(time, dt);
+    if (this.fight) this.updateFight(time);
     this.drawMinimap();
   }
 
@@ -182,99 +188,82 @@ class CoordinationMechanic {
         this.torches.push(t);
       }
     });
-    this.startPanic(quality);
+    this.startFight(quality);
   }
 
-  // --- паника ---------------------------------------------------------------
-
-  // Сила сцены: доля мечущихся (остальные отходят строем), сколько падает, длительность
-  static PANIC = {
-    full: { chaos: 1, fall: 0.55, duration: 6500, shake: 0.006 },
-    partial: { chaos: 0.6, fall: 0.35, duration: 5500, shake: 0.003 },
-    early: { chaos: 0.35, fall: 0.2, duration: 4500, shake: 0.0015 },
-  };
-
-  startPanic(quality) {
-    const { scene } = this;
-    const p = CoordinationMechanic.PANIC[quality];
-    this.panic = { ...p, quality, until: scene.time.now + p.duration, nextClash: 0 };
-    scene.cutscene = true; // игрок смотрит: сцена идёт сама
-    scene.player.setVelocity(0, 0);
-    const cam = scene.cameras.main;
-    cam.stopFollow();
-    cam.pan(this.campRect.centerX, this.campRect.centerY, 900, 'Sine.easeInOut');
-    cam.shake(p.duration, p.shake);
-    const organizedCount = Math.round(this.figures.length * (1 - p.chaos));
-    Phaser.Utils.Array.Shuffle(this.figures).forEach((f, i) => {
-      f.organized = i < organizedCount;
-      if (f.organized) f.body.setFillStyle(0x7a5a4c); // собранные — темнее, идут строем на восток
-    });
-    this.organizedRow = 0;
-  }
-
-  updatePanic(time, dt) {
-    const { scene, panic } = this;
+  // --- бой в стане после сигнала -------------------------------------------
+  // Спящие фигуры превращаются во врагов (PanickedEnemy), игрок ходит по стану и бьёт.
+  // Насколько они растеряны — по исходу сигнала (cfg.fight[quality]). Между собой они тоже
+  // сходятся в стычках: «обратил Г-сподь меч одного на другого». Кто уцелел — со временем
+  // бежит на восток. Зона завершается, когда в стане никого не осталось.
+  startFight(quality) {
+    const { scene, cfg } = this;
+    const p = cfg.fight[quality];
     const T = CONFIG.TILE_SIZE;
-    this.fx.clear();
-    this.figures.forEach((f, i) => {
-      if (f.fallen) return;
-      if (f.organized) {
-        // отходят в порядке: колонной к восточному краю стана и дальше
-        f.x += 38 * dt;
-        f.y += (this.campRect.centerY - 40 + (i % 5) * 20 - f.y) * dt;
-      } else {
-        if (Math.random() < 4 * dt) {
-          const a = Math.random() * Math.PI * 2;
-          const s = Phaser.Math.Between(60, 130);
-          f.vx = Math.cos(a) * s;
-          f.vy = Math.sin(a) * s;
-        }
-        f.x = Phaser.Math.Clamp(f.x + f.vx * dt, this.campRect.x - T, this.campRect.right + T * 3);
-        f.y = Phaser.Math.Clamp(f.y + f.vy * dt, this.campRect.y, this.campRect.bottom);
-      }
-      f.body.setPosition(f.x, f.y);
+    scene.cameras.main.shake(700, p.shake);
+    const params = { ...p, camp: this.campRect, fleeX: this.campRect.right + 3 * T };
+    const organizedCount = Math.round(this.figures.length * p.organized);
+    this.fighters = Phaser.Utils.Array.Shuffle(this.figures).map((f, i) => {
+      f.body.destroy();
+      const e = new PanickedEnemy(scene, f.x, f.y, 'midianite_panic', null, { ...params, organized: i < organizedCount });
+      scene.enemies.add(e);
+      return e;
     });
-    // стычки: двое мечущихся рядом — вспышка, один падает
-    if (time >= panic.nextClash) {
-      panic.nextClash = time + Phaser.Math.Between(120, 260) / panic.chaos;
-      const wild = this.figures.filter((f) => !f.fallen && !f.organized);
+    this.figures = [];
+    this.fight = { quality, total: this.fighters.length, byGideon: 0, inClash: 0, fled: 0, nextClash: scene.time.now + 600 };
+    this.onDead = (e) => {
+      if (!e.isPanicked || !this.fight) return;
+      if (e.fellInClash) this.fight.inClash += 1;
+      else this.fight.byGideon += 1;
+    };
+    this.onFled = () => this.fight && (this.fight.fled += 1);
+    scene.events.on('enemy-dead', this.onDead);
+    scene.events.on('panicked-fled', this.onFled);
+    scene.events.once('shutdown', () => {
+      scene.events.off('enemy-dead', this.onDead);
+      scene.events.off('panicked-fled', this.onFled);
+    });
+  }
+
+  get remaining() {
+    return (this.fighters || []).filter((e) => !e.isDead).length;
+  }
+
+  updateFight(time) {
+    const { fight } = this;
+    const p = this.cfg.fight[fight.quality];
+    this.fx.clear();
+    // стычка: двое растерянных рядом — вспышка, один падает
+    if (time >= fight.nextClash) {
+      fight.nextClash = time + Phaser.Math.Between(p.clashEvery * 0.7, p.clashEvery * 1.3);
+      const wild = this.fighters.filter((e) => !e.isDead && !e.organized && time < e.fleeAt);
       const a = Phaser.Utils.Array.GetRandom(wild);
-      const b = a && wild.filter((f) => f !== a).sort((m, n) => Phaser.Math.Distance.Between(a.x, a.y, m.x, m.y) - Phaser.Math.Distance.Between(a.x, a.y, n.x, n.y))[0];
+      const b = a && wild.filter((e) => e !== a && Phaser.Math.Distance.Between(a.x, a.y, e.x, e.y) < 90)[0];
       if (a && b) {
-        this.clash = { a: { x: a.x, y: a.y }, b: { x: b.x, y: b.y }, until: time + 160 };
-        if (Math.random() < panic.fall) {
-          b.fallen = true;
-          b.body.setFillStyle(0x4c3a34).setAngle(90).setAlpha(0.7);
-        }
+        this.clash = { a: { x: a.x, y: a.y }, b: { x: b.x, y: b.y }, until: time + 180 };
+        if (Math.random() < p.clashFall) b.fallInClash();
       }
     }
     if (this.clash && time < this.clash.until) {
       this.fx.lineStyle(2, 0xff6b4a, 0.9).lineBetween(this.clash.a.x, this.clash.a.y, this.clash.b.x, this.clash.b.y);
       this.fx.fillStyle(0xffd28a, 0.9).fillCircle((this.clash.a.x + this.clash.b.x) / 2, (this.clash.a.y + this.clash.b.y) / 2, 5);
     }
-    if (time >= panic.until) this.finishPanic();
+    if (this.remaining === 0) this.finishFight();
   }
 
-  finishPanic() {
-    const { scene, cfg } = this;
-    const quality = this.panic.quality;
-    this.panic = null;
+  finishFight() {
+    const { scene, cfg, fight } = this;
+    this.fight = null;
     this.fx.clear();
-    // оставшиеся бегут прочь, стан пустеет; светает немного
-    this.figures.forEach((f) => scene.tweens.add({ targets: f.body, alpha: 0, x: f.x + (f.fallen ? 0 : 160), duration: 900 }));
-    scene.tweens.add({ targets: this.dark, fillAlpha: cfg.darkness * 0.4, duration: 900 });
-    const cam = scene.cameras.main;
-    cam.pan(scene.player.x, scene.player.y, 700, 'Sine.easeInOut', false, (c, progress) => {
-      if (progress === 1) cam.startFollow(scene.player, true, 0.15, 0.15);
-    });
-    scene.time.delayedCall(800, () => {
-      scene.cutscene = false;
+    GameState.logEntry({ type: 'camp_fight', quality: fight.quality, total: fight.total, byGideon: fight.byGideon, inClash: fight.inClash, fled: fight.fled });
+    scene.tweens.add({ targets: this.dark, fillAlpha: cfg.darkness * 0.4, duration: 900 }); // светает
+    scene.showToast(UI.t('toast_camp_empty'));
+    scene.time.delayedCall(900, () => {
       this.done = true;
       GameState.flags[cfg.doneFlag] = true;
       scene.refreshExits();
       if (cfg.onDone && cfg.onDone.dialogue) scene.openDialogue(cfg.onDone.dialogue);
     });
-    this.quality = quality;
   }
 
   // --- мини-карта -------------------------------------------------------------
@@ -284,7 +273,7 @@ class CoordinationMechanic {
   drawMinimap() {
     const g = this.map;
     g.clear();
-    if (!this.active || this.done) {
+    if (!this.active || this.done || this.signaled) { // после сигнала мини-карта не нужна
       if (this.mapTitle) this.mapTitle.setVisible(false);
       return;
     }
@@ -329,6 +318,7 @@ class CoordinationMechanic {
   hudLine() {
     if (this.done) return null;
     if (!this.active) return UI.t('hud_listen');
+    if (this.fight) return UI.t('hud_camp_fight', { n: this.remaining });
     if (this.signaled) return UI.t('hud_signal_given');
     return `${UI.t('hud_squads', { n: `${this.inPlace}/${this.squads.length}` })}\n${UI.t('hud_signal_hint')}`;
   }

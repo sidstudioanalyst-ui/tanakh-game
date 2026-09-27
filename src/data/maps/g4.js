@@ -5,7 +5,8 @@
 // Часть 2 — механика coordination: два других отряда сами идут к своим позициям (по камням и
 //   вади медленнее), это видно на мини-карте. Сигнал (E — разбить кувшин) игрок подаёт сам,
 //   когда решит; ждать можно сколько угодно. Чем больше отрядов на местах, тем полнее паника.
-// После паники (сцена идёт сама) — narration, открывается выход в Г5.
+// После сигнала — бой в стане: Гидон сам ходит и бьёт растерянных мидьянитян (fight).
+// Когда стан пуст (убиты, пали в стычках между собой или бежали) — narration, выход в Г5.
 defineZone({
   id: 'g4',
   name_ru: 'Ночной лагерь мидьянитян',
@@ -68,6 +69,23 @@ defineZone({
       { id: 'north', label: 'squad_north', color: 0x88c0d0, path: [[4, 9], [8, 4], [14, 2], [25, 2], [26, 3]] },
       { id: 'south', label: 'squad_south', color: 0xa3be8c, path: [[4, 13], [5, 17], [8, 19], [18, 19], [26, 19], [26, 18]] },
     ],
+    // бой после сигнала: чем лучше сигнал, тем растеряннее стан
+    //   full — никто не держит оружия: 1 удар, убегают от Гидона, не бьют; часто рубят друг друга
+    //   partial — 2 удара, изредка бросаются; примерно каждый седьмой собран и дерётся (урон 5)
+    //   early — треть собрана (3 удара, преследуют, урон 6); стычек мало, бегут позже
+    fight: {
+      full: { hp: 1, speed: 70, fearRange: 120, organized: 0, clashEvery: 650, clashFall: 0.6, flee: [16, 32], shake: 0.006 },
+      partial: {
+        hp: 2, speed: 80, fearRange: 80, lunge: { range: 70, every: [3000, 5000], damage: 4 },
+        organized: 0.15, organizedHp: 2, organizedSpeed: 78, organizedDamage: 5,
+        clashEvery: 1300, clashFall: 0.45, flee: [20, 38], shake: 0.003,
+      },
+      early: {
+        hp: 2, speed: 85, fearRange: 50, lunge: { range: 90, every: [2200, 3800], damage: 5 },
+        organized: 0.35, organizedHp: 3, organizedSpeed: 84, organizedDamage: 6,
+        clashEvery: 2600, clashFall: 0.3, flee: [26, 46], shake: 0.0015,
+      },
+    },
     signalFlag: 'jars_broken',
     doneFlag: 'camp_routed',
     onDone: { dialogue: 'g4_panic' },
