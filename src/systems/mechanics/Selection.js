@@ -6,6 +6,9 @@
 //     seconds: 30, maxMarks: 30,      // время и сколько воинов можно отметить
 //     markRange: 34,                  // как близко подойти, чтобы отметить (px)
 //     markMs: 450,                    // сколько длится отметка (нельзя отметить мгновенно всех)
+//     tapRadius: 28, tapReach: 72,    // тач: касание засчитывается по воину в tapRadius от пальца
+//                                     // (больше самого прямоугольника — чтобы попасть пальцем),
+//                                     // если воин не дальше tapReach от игрока
 //     searchedSeconds: 3,             // сколько пробыть у точки, чтобы она считалась осмотренной
 //     signal: { durationMs: 1200, periodMs: [2200, 3000] },  // «взгляд по сторонам»
 //     locations: [{ id, label, x, y, w, h, count, lappers, shade? }, ...],
@@ -19,7 +22,7 @@
 //     от времени над головой загорается крупный «глаз» с бегающим зрачком — «взгляд по
 //     сторонам» (signal.durationMs, повтор раз в signal.periodMs — у каждого своя фаза);
 //   «коленопреклонённые»: приплюснутые, темнее и ниже, сигнала нет.
-// Игрок подходит и отмечает воинов клавишей E. Дойти до всех точек за отведённое время нельзя —
+// Игрок подходит и отмечает воинов клавишей E (на тач — касанием воина или кнопкой действия). Дойти до всех точек за отведённое время нельзя —
 // нужно выбрать, где смотреть.
 //
 // Итог не оценивает точность. В журнал (GameState.journal) пишется, где игрок искал и сколько
@@ -136,28 +139,58 @@ class SelectionMechanic {
     if (this.remaining <= 0 || this.marks >= this.cfg.maxMarks) this.finish();
   }
 
-  // E рядом с воином — отметить его
-  interact(time) {
-    if (this.state !== 'select' || time < this.markBusyUntil) return false;
-    const p = this.scene.player;
+  // Ближайший неотмеченный воин к точке (x, y) не дальше range
+  nearestWarrior(x, y, range) {
     let best = null;
-    let bestD = this.cfg.markRange;
+    let bestD = range;
     this.warriors.forEach((w) => {
       if (w.marked) return;
-      const d = Phaser.Math.Distance.Between(p.x, p.y, w.x, w.y);
+      const d = Phaser.Math.Distance.Between(x, y, w.x, w.y);
       if (d <= bestD) {
         best = w;
         bestD = d;
       }
     });
+    return best;
+  }
+
+  canInteract() {
+    const p = this.scene.player;
+    return this.state === 'select' && !!this.nearestWarrior(p.x, p.y, this.cfg.markRange);
+  }
+
+  // E рядом с воином — отметить ближайшего
+  interact(time) {
+    if (this.state !== 'select' || time < this.markBusyUntil) return false;
+    const p = this.scene.player;
+    const best = this.nearestWarrior(p.x, p.y, this.cfg.markRange);
     if (!best) return false;
-    best.marked = true;
+    this.mark(best, time);
+    return true;
+  }
+
+  // Тач: касание воина (x, y — мировые координаты). Воин должен быть рядом с игроком —
+  // иначе касание не забирается (палец мог лечь сюда, чтобы идти) и появляется подсказка.
+  tapAt(x, y, time) {
+    if (this.state !== 'select') return false;
+    const w = this.nearestWarrior(x, y, this.cfg.tapRadius || 28);
+    if (!w) return false;
+    const p = this.scene.player;
+    if (Phaser.Math.Distance.Between(p.x, p.y, w.x, w.y) > (this.cfg.tapReach || 72)) {
+      this.scene.showToast(UI.t('toast_come_closer'));
+      return false;
+    }
+    if (time >= this.markBusyUntil) this.mark(w, time);
+    return true;
+  }
+
+  mark(w, time) {
+    w.marked = true;
     this.marks += 1;
     this.markBusyUntil = time + this.cfg.markMs;
-    const loc = this.locations.find((l) => l.id === best.loc);
+    const loc = this.locations.find((l) => l.id === w.loc);
     loc.marks += 1;
-    if (best.lapper) loc.lapperMarks += 1;
-    return true;
+    if (w.lapper) loc.lapperMarks += 1;
   }
 
   finish() {
@@ -193,6 +226,11 @@ class SelectionMechanic {
   draw(time) {
     const g = this.gfx;
     g.clear();
+    // тач: докуда можно дотянуться касанием
+    if (CONFIG.TOUCH && this.state === 'select') {
+      const p = this.scene.player;
+      g.lineStyle(1, 0xeceff4, 0.3).strokeCircle(p.x, p.y, this.cfg.tapReach || 72);
+    }
     this.warriors.forEach((w) => {
       if (w.body.alpha === 0) return;
       if (w.marked) g.lineStyle(2, 0xeceff4, 0.9).strokeCircle(w.x, w.y, 15);

@@ -161,6 +161,10 @@ function validateContent(cache, uiStrings) {
     } else if (params(entry.he) !== params(entry.ru)) {
       warn(`Строка ${key}: подстановки в he и ru не совпадают`);
     }
+    // вариант для тач-устройств (<ключ>_touch) подменяет основной — подстановки те же
+    const base = key.endsWith('_touch') && uiStrings[key.slice(0, -'_touch'.length)];
+    if (key.endsWith('_touch') && !base) warn(`Строка ${key}: нет основной строки без _touch`);
+    else if (base && params(base.ru) !== params(entry.ru)) warn(`Строка ${key}: подстановки не совпадают с основной строкой`);
   });
   Object.values(EQUIPMENT_SLOTS).forEach((k) => uiStrings && !uiStrings[k] && warn(`Слот: нет строки "${k}" в ui-strings.json`));
 

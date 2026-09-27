@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Действие (E): раскрытая ладонь -->
+  <g fill="#ebcb8b" stroke="#2e3440" stroke-width="2" stroke-linejoin="round">
+    <rect x="18" y="14" width="7" height="24" rx="3.5"/>
+    <rect x="26" y="8" width="7" height="30" rx="3.5"/>
+    <rect x="34" y="10" width="7" height="28" rx="3.5"/>
+    <rect x="42" y="16" width="7" height="22" rx="3.5"/>
+    <path d="M18 34 L49 34 L49 44 Q49 57 34 57 Q24 57 19 49 L10 38 Q8 33 13 32 Q16 32 18 35 Z"/>
+  </g>
+</svg>

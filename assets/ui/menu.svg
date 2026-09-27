@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Меню: три полоски -->
+  <g fill="#eceff4" stroke="#2e3440" stroke-width="1.5">
+    <rect x="12" y="15" width="40" height="7" rx="3.5"/>
+    <rect x="12" y="28.5" width="40" height="7" rx="3.5"/>
+    <rect x="12" y="42" width="40" height="7" rx="3.5"/>
+  </g>
+</svg>

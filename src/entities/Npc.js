@@ -15,7 +15,7 @@ class Npc extends Phaser.Physics.Arcade.Sprite {
     this.setName(name);
 
     this.hint = scene.add
-      .text(x, y - 42, 'E', {
+      .text(x, y - 42, CONFIG.TOUCH ? '•••' : 'E', { // на тач — кнопка действия, не клавиша
         fontFamily: CONFIG.UI_FONT,
         fontSize: '13px',
         color: '#2e3440',

@@ -3,7 +3,7 @@
 //   Продолжить       — закрыть меню (так же Esc)
 //   Начать заново    — текущую карту с самого начала (Мерило, вещи, флаги — как на её старте)
 //   Демо-карты       — перейти в демо-кампанию; из демо этот пункт возвращает к «Спасителям»
-// Управление: ↑/↓ или W/S и Enter, цифры 1–3, мышь; L / B — язык.
+// Управление: ↑/↓ или W/S и Enter, цифры 1–3, мышь или палец; L / B — язык.
 class MenuScene extends Phaser.Scene {
   constructor() {
     super('MenuScene');
@@ -17,7 +17,7 @@ class MenuScene extends Phaser.Scene {
     const W = CONFIG.WIDTH;
     const H = CONFIG.HEIGHT;
     this.add.rectangle(0, 0, W, H, 0x000000, 0.6).setOrigin(0);
-    const panelW = 420;
+    const panelW = Math.min(420, W - 32); // на узком экране — почти во всю ширину
     const panelH = 300;
     this.panelX = (W - panelW) / 2;
     this.panelY = (H - panelH) / 2;

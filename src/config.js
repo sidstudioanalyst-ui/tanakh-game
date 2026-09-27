@@ -2,9 +2,36 @@
 // Игровые данные (зоны, предметы, диалоги, суд) лежат в src/data/.
 const URL_PARAMS = new URLSearchParams(window.location.search);
 
+// Тач-устройство: основной указатель «грубый» (палец) или есть сенсор при небольшом экране.
+// Ноутбук с сенсорным экраном и мышью сюда не попадает — там всё как на компьютере.
+// ?touch / ?notouch — включить или выключить тач-интерфейс вручную (для проверки).
+function detectTouch() {
+  if (URL_PARAMS.has('notouch')) return false;
+  if (URL_PARAMS.has('touch')) return true;
+  const coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+  const smallTouch = navigator.maxTouchPoints > 0 && Math.min(window.screen.width, window.screen.height) < 820;
+  return !!(coarse || smallTouch);
+}
+const IS_TOUCH = detectTouch();
+// Портретный телефон: логическая ширина 480, высота — по пропорциям экрана. Так текст и кнопки
+// остаются крупными (800×600 в узком экране сжались бы вдвое). Размер выбирается при загрузке.
+const IS_PORTRAIT = IS_TOUCH && window.innerHeight > window.innerWidth;
+const PORTRAIT_WIDTH = 480;
+
 const CONFIG = {
-  WIDTH: 800,
-  HEIGHT: 600,
+  WIDTH: IS_PORTRAIT ? PORTRAIT_WIDTH : 800,
+  HEIGHT: IS_PORTRAIT ? Math.round(Phaser.Math.Clamp((PORTRAIT_WIDTH * window.innerHeight) / window.innerWidth, 640, 1100)) : 600,
+  TOUCH: IS_TOUCH, // джойстик, кнопки атаки/действия, иконки сумки и меню (src/ui/TouchControls.js)
+  PORTRAIT: IS_PORTRAIT, // компактная раскладка HUD и окон
+
+  // Тач-управление (только при CONFIG.TOUCH)
+  TOUCH_UI: {
+    stickRadius: 56,     // база джойстика; стик ходит в её пределах
+    stickDeadZone: 0.12, // доля радиуса, где движения ещё нет
+    attackRadius: 46,    // кнопка атаки (справа внизу, на месте)
+    actionRadius: 32,    // кнопка действия (E) — рядом, меньше
+    iconSize: 44,        // иконки сумки и меню в углу
+  },
   TILE_SIZE: 32,
   BACKGROUND: '#111111',
   DEBUG: URL_PARAMS.has('debug'), // ?debug — показать хитбоксы Arcade Physics

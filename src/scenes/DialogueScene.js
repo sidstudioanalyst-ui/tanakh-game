@@ -54,12 +54,7 @@ class DialogueScene extends Phaser.Scene {
     kb.on('keydown-ENTER', () => !this.closing && this.options.length === 1 && this.options[0]());
     // Esc — выйти из разговора. Уже выбранные эффекты остаются; следующий разговор начнётся
     // по entry (как обычно). Реплики с no_escape так не закрываются.
-    kb.on('keydown-ESC', () => {
-      const line = this.lines[this.currentLineId];
-      if (this.closing || !line || line.no_escape) return;
-      if (this.intro && this.intro.prologue) this.skipPrologue();
-      else this.close();
-    });
+    kb.on('keydown-ESC', () => this.escape());
     bindLanguageKeys(this, () => this.show(this.currentLineId));
 
     this.show(this.entryNode());
@@ -120,9 +115,11 @@ class DialogueScene extends Phaser.Scene {
 
   showLine(line) {
     this.dim.setFillStyle(0x000000, 0.35);
-    const margin = 20;
-    const innerRight = CONFIG.WIDTH - margin - 20;
-    const innerWidth = CONFIG.WIDTH - margin * 2 - 40;
+    // на узком экране — меньше полей, чтобы тексту и кнопкам хватало ширины
+    const margin = CONFIG.PORTRAIT ? 10 : 20;
+    const pad = CONFIG.PORTRAIT ? 14 : 20;
+    const innerRight = CONFIG.WIDTH - margin - pad;
+    const innerWidth = CONFIG.WIDTH - (margin + pad) * 2;
     const put = (block) => {
       this.layer.add(block.objects);
       return block.height;
@@ -138,7 +135,8 @@ class DialogueScene extends Phaser.Scene {
 
     const box = this.add.rectangle(margin, 0, CONFIG.WIDTH - margin * 2, y, 0x2e3440, 0.97).setOrigin(0).setStrokeStyle(2, 0x88c0d0);
     this.layer.addAt(box, 0);
-    this.addEscHint(line, 12);
+    // на тач подсказка-кнопка «Выйти ✕» крупная — над окном, чтобы не закрывать текст
+    this.addEscHint(line, CONFIG.TOUCH ? -44 : 12);
     this.layer.y = CONFIG.HEIGHT - margin - y;
   }
 
@@ -160,7 +158,7 @@ class DialogueScene extends Phaser.Scene {
     }
 
     // Раскладка от y = 0, затем блок целиком встаёт по центру экрана по вертикали
-    const width = 600;
+    const width = Math.min(600, CONFIG.WIDTH - 48); // на узком экране — почти во всю ширину
     const right = CONFIG.WIDTH / 2 + width / 2;
     let y = 0;
     const dlg = this.dialogue;
@@ -178,12 +176,26 @@ class DialogueScene extends Phaser.Scene {
     this.addEscHint(line, 20, this.intro && this.intro.prologue ? 'dialogue_skip_prologue' : 'dialogue_esc_hint');
   }
 
+  // Esc (на тач — касание подсказки «Выйти ✕»): выйти из разговора, на прологе — пропустить его
+  escape() {
+    const line = this.lines[this.currentLineId];
+    if (this.closing || !line || line.no_escape) return;
+    if (this.intro && this.intro.prologue) this.skipPrologue();
+    else this.close();
+  }
+
   // «Esc — выйти» мелко в верхнем углу со стороны конца строки (слева в иврите, справа в русском)
   addEscHint(line, y, key = 'dialogue_esc_hint') {
     if (line.no_escape) return;
     const x = UI.rtl ? 32 : CONFIG.WIDTH - 32;
-    const hint = addUiText(this, x, y, UI.t(key), { size: 11, color: '#8f9bb3' });
+    // на тач подсказка крупнее и нажимается пальцем (область нажатия шире текста)
+    const hint = addUiText(this, x, y, UI.t(key), { size: CONFIG.TOUCH ? 15 : 11, color: '#8f9bb3' });
     hint.setPosition(x, y).setOrigin(UI.rtl ? 0 : 1, 0);
+    if (CONFIG.TOUCH) {
+      hint.setPadding(8, 6, 8, 6).setBackgroundColor('#3b4252');
+      hint.setInteractive({ useHandCursor: true, hitArea: new Phaser.Geom.Rectangle(-12, -12, hint.width + 24, hint.height + 24), hitAreaCallback: Phaser.Geom.Rectangle.Contains });
+      hint.on('pointerdown', () => this.escape());
+    }
     this.layer.add(hint);
   }
 

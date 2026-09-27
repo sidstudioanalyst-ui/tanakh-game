@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- без масштабирования жестами: на телефоне касания идут в игру (джойстик, кнопки) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <!-- Шрифт с ивритом лежит в репозитории (assets/fonts), не на CDN -->
   <link rel="stylesheet" href="assets/fonts/fonts.css">
   <title>Tanakh Game — прототип</title>
@@ -16,6 +17,10 @@
     #game {
       width: 100%;
       height: 100%;
+      touch-action: none; /* не прокручивать и не масштабировать страницу пальцем */
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
     }
   </style>
 </head>
@@ -62,6 +67,7 @@
   <script src="src/ui/HebrewText.js"></script>
   <script src="src/ui/strings.js"></script>
   <script src="src/ui/ChoiceButton.js"></script>
+  <script src="src/ui/TouchControls.js"></script>
   <script src="src/entities/Player.js"></script>
   <script src="src/entities/Enemy.js"></script>
   <script src="src/entities/RunnerEnemy.js"></script>
