@@ -27,6 +27,7 @@ const GameState = {
     this.hp = null; // null — полное здоровье
     this.currentZone = null;
     this.pendingZone = null; // переход, заказанный диалогом (goto_zone)
+    this.pendingTrial = false; // переход к Суду, заказанный диалогом (goto_trial)
     this.pendingFail = null; // провал сцены, заказанный диалогом (fail_zone)
     this.startMap(0);
     // Пролог кампании — перед заставкой первой карты, если ещё не пройден
@@ -96,6 +97,7 @@ const GameState = {
   //   gauge:     { warriors: 100 }     — изменить шкалу карты
   //   open_door: 'id' | ['id', …]      — открыть дверь в текущей зоне
   //   goto_zone: 'a3' | { to, at }     — перейти в зону, когда диалог закроется
+  //   goto_trial: true                 — к экрану Суда карты, когда диалог закроется (итог в Б2)
   //   fail_zone: 'fail_searched'       — провалить сцену (ключ строки причины), когда диалог закроется
   applyEffects(effects) {
     const notes = [];
@@ -120,6 +122,8 @@ const GameState = {
         });
       } else if (key === 'open_door') {
         [].concat(value).forEach((door) => this.openDoor(this.currentZone, door));
+      } else if (key === 'goto_trial') {
+        this.pendingTrial = !!value;
       } else if (key === 'goto_zone') {
         this.pendingZone = typeof value === 'string' ? { to: value } : value;
       } else if (key === 'fail_zone') {
@@ -213,6 +217,7 @@ const GameState = {
     this.journal = data.journal || [];
     this.hp = data.hp === undefined ? null : data.hp;
     this.pendingZone = null;
+    this.pendingTrial = false;
     this.pendingFail = null;
     this.events.emit('measures-changed');
   },

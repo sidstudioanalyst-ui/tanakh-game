@@ -15,6 +15,7 @@ class GameScene extends Phaser.Scene {
     this.gameOver = false;
     this.transitioning = false;
     this.touch = null; // TouchControls — создаётся в HUD на тач-устройствах
+    this.cutscene = false; // сцена идёт сама (паника в Г4): игрок не двигается и не действует
     GameState.enterZone(this.zoneId, this.spawnAt);
   }
 
@@ -50,6 +51,7 @@ class GameScene extends Phaser.Scene {
     if (this.zone.waves) this.mechanics.waves = new WavesMechanic(this, this.zone.waves);
     if (this.zone.night) this.mechanics.night = new NightTasksMechanic(this, this.zone.night);
     if (this.zone.selection) this.mechanics.selection = new SelectionMechanic(this, this.zone.selection);
+    if (this.zone.coordination) this.mechanics.coordination = new CoordinationMechanic(this, this.zone.coordination);
 
     // Камера следует за игроком в пределах зоны
     // Зона меньше экрана — центрируем её, чтобы HUD не закрывал край карты
@@ -57,7 +59,13 @@ class GameScene extends Phaser.Scene {
     const padY = Math.max(0, (CONFIG.HEIGHT - this.mapHeight) / 2);
     this.cameras.main.setBounds(-padX, -padY, this.mapWidth + padX * 2, this.mapHeight + padY * 2);
     this.cameras.main.startFollow(this.player, true, 0.15, 0.15);
+    // zone.focus: [x, y] — камера стоит на месте (притча в Б1: видны все деревья над окном диалога)
+    if (this.zone.focus) {
+      this.cameras.main.stopFollow();
+      this.cameras.main.centerOn(this.zone.focus[0] * CONFIG.TILE_SIZE, this.zone.focus[1] * CONFIG.TILE_SIZE);
+    }
     this.cameras.main.setBackgroundColor('#242933'); // если зона ниже/уже экрана
+    if (this.zone.look === 'story') this.applyStoryLook();
     this.cameras.main.fadeIn(200);
 
     this.createUI();
@@ -72,15 +80,18 @@ class GameScene extends Phaser.Scene {
     if (GameState.introQueue.length) this.time.delayedCall(1, () => this.playIntro());
 
     // Диалог при входе в зону (например, перекличка в Г3): один раз, пока не стоит флаг
-    const onEnter = this.zone.onEnter;
-    if (onEnter && !GameState.flags[onEnter.unless_flag]) {
+    // unless_flag; if_flag — только если флаг уже стоит (например, после победы в Г5).
+    // Можно список: откроется первый подходящий.
+    const onEnter = [].concat(this.zone.onEnter || []).find((e) => !GameState.flags[e.unless_flag] && (!e.if_flag || GameState.flags[e.if_flag]));
+    if (onEnter) {
       this.time.delayedCall(350, () => !this.gameOver && !this.transitioning && this.openDialogue(onEnter.dialogue));
     }
   }
 
   update(time, delta) {
     if (this.gameOver || this.transitioning) return;
-    this.player.update(time);
+    if (this.cutscene) this.player.setVelocity(0, 0);
+    else this.player.update(time);
     this.enemies.getChildren().forEach((enemy) => enemy.update(time, this.player));
     Object.values(this.mechanics).forEach((m) => !this.gameOver && m.update(time, delta));
     if (this.gameOver || this.transitioning) return;
@@ -210,8 +221,10 @@ class GameScene extends Phaser.Scene {
       this.npcs.add(new Npc(this, x, y, data, this.npcName(data)));
     });
 
+    this.buildProps(zone.props || []);
+
     // Игрок: цвет — у героя карты (например, Эхуд), иначе стандартный
-    const hero = GameState.map.hero;
+    const hero = this.hero;
     let texture = 'player';
     if (hero && hero.color !== undefined) {
       texture = `player-${hero.color.toString(16)}`;
@@ -228,6 +241,68 @@ class GameScene extends Phaser.Scene {
       const EnemyClass = ENEMY_CLASSES[CONFIG.ENEMY_TYPES[data.type].class] || Enemy;
       this.enemies.add(new EnemyClass(this, x, y, data.type, key));
     });
+  }
+
+  // Герой и название — карты или её части (zone.part: 'b' → map.parts.b), см. world.js
+  get mapPart() {
+    const map = GameState.map;
+    return (this.zone.part && map.parts && map.parts[this.zone.part]) || null;
+  }
+
+  get hero() {
+    const part = this.mapPart;
+    return (part && part.hero) || GameState.map.hero;
+  }
+
+  // Декор зоны (props): шатры, костёр, деревья притчи, силуэт башни… Не мешает ходить.
+  //   { id?, x, y, w?, h?, shape: 'rect'|'circle'|'tri', color, alpha?, name_he?, name_ru?, speaker? }
+  // x, y, w, h — в тайлах (x, y — центр). speaker: когда в диалоге говорит этот speaker,
+  // фигура «оживает» (пульсирует) — так видно, какое дерево сейчас отвечает.
+  buildProps(list) {
+    const T = CONFIG.TILE_SIZE;
+    this.props = list.map((p) => {
+      const { x, y } = this.tileCenter(p.x, p.y);
+      const w = (p.w || 1) * T;
+      const h = (p.h || 1) * T;
+      let shape;
+      if (p.shape === 'circle') shape = this.add.ellipse(x, y, w, h, p.color);
+      else if (p.shape === 'tri') shape = this.add.triangle(x, y, 0, h, w / 2, 0, w, h, p.color);
+      else shape = this.add.rectangle(x, y, w, h, p.color);
+      shape.setAlpha(p.alpha !== undefined ? p.alpha : 1).setDepth(p.depth || 4);
+      let label = null;
+      if (p.name_he || p.name_ru) {
+        label = addUiText(this, x, y - h / 2 - 22, UI.pick(p, 'name'), { center: true, size: 11, color: '#e5e9f0', background: '#2e3440aa', padding: { x: 4, y: 1 } }).setDepth(20);
+      }
+      return { data: p, shape, label, baseAlpha: shape.alpha };
+    });
+  }
+
+  // Говорит speaker из диалога — его фигура (prop с тем же speaker) выделена: крупнее,
+  // ярче, с золотым контуром. Без анимации: пока открыт диалог, сцена стоит на паузе.
+  highlightSpeaker(speaker) {
+    (this.props || []).forEach((p) => {
+      const on = !!speaker && p.data.speaker === speaker;
+      p.shape.setScale(on ? 1.15 : 1).setAlpha(on ? 1 : p.baseAlpha);
+      if (on) p.shape.setStrokeStyle(3, 0xebcb8b, 1);
+      else p.shape.isStroked = false;
+      if (p.label) p.label.setColor(on ? '#ebcb8b' : '#e5e9f0');
+    });
+  }
+
+  // «Рассказ, а не место» (zone.look: 'story' — притча Йотама, итог Авимелеха): приглушённые
+  // тёплые тона и затемнённые края. В WebGL — фильтры камеры (сепия + виньетка),
+  // в Canvas — полупрозрачная тёплая пелена.
+  applyStoryLook() {
+    const cam = this.cameras.main;
+    cam.setBackgroundColor('#1c1712');
+    if (this.renderer.type === Phaser.WEBGL && cam.postFX) {
+      const cm = cam.postFX.addColorMatrix();
+      cm.sepia();
+      cm.brightness(0.8, true);
+      cam.postFX.addVignette(0.5, 0.5, 0.75, 0.45);
+    } else {
+      this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x3b2a16, 0.35).setOrigin(0).setScrollFactor(0).setDepth(55);
+    }
   }
 
   // Имя NPC над головой: name_he / name_ru из зоны, иначе — имя говорящего в его диалоге
@@ -301,7 +376,7 @@ class GameScene extends Phaser.Scene {
   // E: разговор с ближайшим NPC; если рядом никого — действие механики зоны
   // (разрушить жертвенник, отметить воина…). Механика возвращает true, если действие было.
   talk() {
-    if (this.gameOver || this.transitioning) return;
+    if (this.gameOver || this.transitioning || this.cutscene) return;
     const npc = this.nearestNpc();
     if (npc) {
       this.openDialogue(npc.dialogueId);
@@ -359,7 +434,7 @@ class GameScene extends Phaser.Scene {
       const inside = t.rect.contains(this.player.x, this.player.y);
       const entered = inside && !t.inside;
       t.inside = inside;
-      if (entered && t.dialogue) {
+      if (entered && t.dialogue && !GameState.flags[t.unless_flag]) {
         this.openDialogue(t.dialogue);
         return;
       }
@@ -438,6 +513,11 @@ class GameScene extends Phaser.Scene {
       const { to, at } = GameState.pendingZone;
       GameState.pendingZone = null;
       this.goToZone(to, at);
+      return;
+    }
+    if (GameState.pendingTrial) {
+      GameState.pendingTrial = false;
+      this.goToTrial();
     }
   }
 
@@ -469,12 +549,18 @@ class GameScene extends Phaser.Scene {
     const H = CONFIG.HEIGHT;
     this.healthBar = new HealthBar(this, 16, 16, 200, 18);
     this.healthBar.draw(this.player.hp, this.player.maxHp);
+    // «рассказ» (look: 'story'): без здоровья, вещей и подсказок — только название
+    const story = this.zone.look === 'story';
+    if (story) {
+      this.healthBar.graphics.setVisible(false);
+      this.healthBar.label.setVisible(false);
+    }
 
     // Тач: джойстик, кнопки атаки/действия, иконки сумки и меню (часть HUD — зеркалятся с ним)
     if (CONFIG.TOUCH) this.touch = new TouchControls(this);
 
     // Раскладка HUD задаётся для русского; в иврите UI.x() зеркалит её слева направо
-    this.equipmentText = addUiText(this, 16, 42, '').setScrollFactor(0).setDepth(100);
+    this.equipmentText = addUiText(this, 16, 42, '').setScrollFactor(0).setDepth(100).setVisible(!story);
     this.updateEquipmentHud();
 
     // Название карты и зоны — сверху по центру; под ним — строка механик и шкал.
@@ -482,7 +568,7 @@ class GameScene extends Phaser.Scene {
     const narrow = CONFIG.PORTRAIT;
     const titleY = narrow ? this.equipmentText.y + this.equipmentText.height + 10 : 10;
     const map = GameState.map;
-    const title = addUiText(this, W / 2, titleY, `${UI.pick(map, 'name')} · ${UI.pick(this.zone, 'name')}`, {
+    const title = addUiText(this, W / 2, titleY, `${UI.pick(this.mapPart || map, 'name')} · ${UI.pick(this.zone, 'name')}`, {
       center: true,
       size: UI.rtl ? 15 : 12, // моноширинный русский шире — иначе наезжает на подсказки
       color: '#e5e9f0',
@@ -500,7 +586,7 @@ class GameScene extends Phaser.Scene {
     this.updateStatusHud();
 
     // Подсказка по клавишам — в противоположном от полоски здоровья углу (на тач там иконки)
-    if (!CONFIG.TOUCH) {
+    if (!CONFIG.TOUCH && !story) {
       addUiText(this, W - 16, 16, UI.t('hud_controls'))
         .setOrigin(UI.rtl ? 0 : 1, 0)
         .setScrollFactor(0)
@@ -591,7 +677,7 @@ class GameScene extends Phaser.Scene {
   updateEquipmentHud() {
     const eq = GameState.equipment;
     const lines = [];
-    const hero = GameState.map.hero;
+    const hero = this.hero;
     if (hero) {
       // прозвище (например, Йеруббаал у Гидона) появляется, когда стоит его флаг
       const alias = hero.alias && GameState.flags[hero.alias.flag] ? ` · ${UI.pick(hero.alias, 'name')}` : '';

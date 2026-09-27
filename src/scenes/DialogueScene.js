@@ -9,7 +9,12 @@
 //                        показывается русский (и у выборов этой реплики тоже)
 // Выбор:   { text_he, text_ru, next, effects }
 // next: id следующей реплики или null — конец диалога.
-// title_he / title_ru (у всего диалога) — заголовок над narration-репликами («Мерило»).
+// title_he / title_ru (у всего диалога) — заголовок над narration-репликами («Мерило»);
+//   у реплики — свой заголовок вместо общего (например, «Что, если…» в Г6).
+// vision: 'burning_tower' — у narration-реплики: над текстом одна картинка-силуэт
+//   (флэшфорвард «что, если» в Г6). Рисуется процедурно, без деталей.
+// Говорящий (speaker) передаётся в GameScene: декор зоны с тем же speaker «оживает»
+//   (деревья в притче Йотама).
 //
 // Пролог и заставки карт (data.intro, см. PROLOGUES и поле карты intro в world.js):
 // экран сразу чёрный, а после последней реплики сцена сама открывает следующую из
@@ -83,6 +88,8 @@ class DialogueScene extends Phaser.Scene {
     this.layer.setAlpha(1);
     this.layer.removeAll(true);
     this.options = [];
+    const game = this.scene.get('GameScene');
+    if (game && game.highlightSpeaker) game.highlightSpeaker(line.speaker || null);
     if (line.style === 'narration') this.showNarration(line);
     else this.showLine(line);
   }
@@ -161,9 +168,10 @@ class DialogueScene extends Phaser.Scene {
     const width = Math.min(600, CONFIG.WIDTH - 48); // на узком экране — почти во всю ширину
     const right = CONFIG.WIDTH / 2 + width / 2;
     let y = 0;
-    const dlg = this.dialogue;
-    if (dlg.title_he || dlg.title_ru) {
-      const title = addContentText(this, right, y, dlg.title_he, dlg.title_ru, { size: 28, bold: true, width, color: '#ebcb8b', noHint: true });
+    if (line.vision) y += this.drawVision(line.vision, y, width) + 18;
+    const head = line.title_he || line.title_ru ? line : this.dialogue;
+    if (head.title_he || head.title_ru) {
+      const title = addContentText(this, right, y, head.title_he, head.title_ru, { size: 28, bold: true, width, color: '#ebcb8b', noHint: true });
       this.layer.add(title.objects);
       y += title.height + 18;
     }
@@ -174,6 +182,36 @@ class DialogueScene extends Phaser.Scene {
     const offset = Math.max(40, Math.round((CONFIG.HEIGHT - y) / 2 - 20));
     this.layer.each((obj) => (obj.y += offset));
     this.addEscHint(line, 20, this.intro && this.intro.prologue ? 'dialogue_skip_prologue' : 'dialogue_esc_hint');
+  }
+
+  // Картинка-видение над текстом narration. Возвращает высоту.
+  // burning_tower — силуэт башни на фоне зарева: только тень, без деталей; зарево
+  // медленно «дышит». Короткий и почти беззвучный кадр «что, если».
+  drawVision(kind, y, width) {
+    const h = 190;
+    const cx = CONFIG.WIDTH / 2;
+    if (kind !== 'burning_tower') return 0;
+    const g = this.add.graphics();
+    // зарево: несколько тёмно-красных кругов
+    const glow = this.add.graphics();
+    [[92, 0x3a0d06, 1], [70, 0x5c1a0a, 0.9], [48, 0x8a3412, 0.8], [28, 0xb5541a, 0.6]].forEach(([r, c, a]) => glow.fillStyle(c, a).fillCircle(cx, y + h - 92, r));
+    this.tweens.add({ targets: glow, alpha: 0.55, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    // земля и башня — сплошная тень
+    g.fillStyle(0x050505, 1);
+    g.fillRect(cx - width / 2, y + h - 18, width, 18);
+    g.fillRect(cx - 26, y + 40, 52, h - 58); // ствол башни
+    g.fillRect(cx - 34, y + 30, 68, 14); // верхняя площадка
+    for (let i = 0; i < 4; i++) g.fillRect(cx - 34 + i * 19, y + 18, 11, 14); // зубцы
+    g.fillStyle(0x3a0d06, 1).fillRect(cx - 6, y + 70, 12, 20); // тёмное окно-бойница
+    // языки огня над башней — тоже силуэты, чуть колышутся
+    const flames = this.add.graphics({ x: cx, y: y + 20 }); // основание огня — верх башни
+    flames.fillStyle(0x0b0b0b, 1);
+    flames.fillTriangle(-30, 0, -18, -36, -8, 0);
+    flames.fillTriangle(-10, 0, 2, -50, 14, 0);
+    flames.fillTriangle(10, 0, 22, -30, 32, 0);
+    this.tweens.add({ targets: flames, scaleY: 1.12, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    this.layer.add([glow, g, flames]);
+    return h;
   }
 
   // Esc (на тач — касание подсказки «Выйти ✕»): выйти из разговора, на прологе — пропустить его
@@ -231,6 +269,8 @@ class DialogueScene extends Phaser.Scene {
   }
 
   finishClose() {
+    const game = this.scene.get('GameScene');
+    if (game && game.highlightSpeaker && game.sys.settings.status !== Phaser.Scenes.SHUTDOWN) game.highlightSpeaker(null);
     this.scene.stop();
     this.scene.resume('GameScene');
   }

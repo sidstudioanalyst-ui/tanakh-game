@@ -99,6 +99,8 @@ function validateContent(cache, uiStrings) {
       } else if (key === 'goto_zone') {
         const to = typeof value === 'string' ? value : value.to;
         if (!ZONES[to]) warn(`${where}: goto_zone — нет зоны "${to}"`);
+      } else if (key === 'goto_trial') {
+        // к Суду карты — проверять нечего (без trial у карты откроется профиль Мерила)
       } else if (key === 'fail_zone') {
         if (uiStrings && !uiStrings[value]) warn(`${where}: fail_zone — нет строки "${value}"`);
       } else {

@@ -1,0 +1,86 @@
+{
+  "id": "g6_ephod",
+  "speakers": {
+    "people": {
+      "name_he": "אִישׁ יִשְׂרָאֵל",
+      "name_ru": "Народ Израиля"
+    },
+    "gideon": {
+      "name_he": "גִּדְעוֹן",
+      "name_ru": "Гидон"
+    }
+  },
+  "start": "r1",
+  "lines": [
+    {
+      "id": "r1",
+      "speaker": "gideon",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Об одном прошу вас: дайте мне каждый серьгу из своей добычи.",
+      "no_escape": true,
+      "next": "r2"
+    },
+    {
+      "id": "r2",
+      "speaker": "people",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Дадим охотно!",
+      "no_escape": true,
+      "next": "r3"
+    },
+    {
+      "id": "r3",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Расстелили плащ, и бросал туда каждый серьгу из своей добычи. Весу золотых серёг вышло тысяча семьсот шекелей золота — кроме лунниц, подвесок и пурпурных одежд царей Мидьяна.",
+      "no_escape": true,
+      "next": "r4"
+    },
+    {
+      "id": "r4",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И сделал из этого Гидон эфод, и поставил его в своём городе, в Офре.",
+      "no_escape": true,
+      "next": "r5"
+    },
+    {
+      "id": "r5",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И блудил весь Израиль за эфодом там, и стал он западнёй для Гидона и для дома его.",
+      "no_escape": true,
+      "next": "r6"
+    },
+    {
+      "id": "r6",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мидьян был смирён и больше не поднимал головы. Земля была спокойна сорок лет, во дни Гидона.",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "ephod_done",
+            "goto_zone": {
+              "to": "b1",
+              "at": [
+                13,
+                2
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
