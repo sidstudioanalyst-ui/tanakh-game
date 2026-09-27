@@ -14,8 +14,11 @@
 //   UI.t('hud_stats', { damage: 2, defense: 4 })  → строка на текущем языке
 //                                                  (на тач — вариант hud_stats_touch, если есть)
 //   UI.both('dialogue_continue')                   → { he, ru } — пара для кнопок выбора
-const LANG_STORAGE_KEY = 'tanakh-game.lang';
-const BILINGUAL_STORAGE_KEY = 'tanakh-game.bilingual';
+// dev.html (window.DEV_MODE) хранит язык отдельно и по умолчанию — русский: это инструмент
+// для проверки, выбор там не должен менять язык обычной игры
+const DEV_LANG = !!window.DEV_MODE;
+const LANG_STORAGE_KEY = DEV_LANG ? 'tanakh-game.dev.lang' : 'tanakh-game.lang';
+const BILINGUAL_STORAGE_KEY = DEV_LANG ? 'tanakh-game.dev.bilingual' : 'tanakh-game.bilingual';
 
 function readStorage(key) {
   try {
@@ -35,7 +38,7 @@ function writeStorage(key, value) {
 
 function initialLanguage() {
   const stored = readStorage(LANG_STORAGE_KEY);
-  let lang = stored === 'ru' || stored === 'he' ? stored : 'he';
+  let lang = stored === 'ru' || stored === 'he' ? stored : DEV_LANG ? 'ru' : 'he';
   let bilingual = readStorage(BILINGUAL_STORAGE_KEY) === '1';
   if (URL_PARAMS.has('ru')) lang = 'ru';
   if (URL_PARAMS.has('he')) lang = 'he';

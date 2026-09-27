@@ -31,6 +31,6 @@ const fontsReady = Promise.all([
 ]);
 const fontTimeout = new Promise((resolve) => setTimeout(resolve, 3000)); // не ждём вечно
 
-Promise.race([fontsReady, fontTimeout])
-  .catch((err) => console.warn('Шрифт с ивритом не загрузился:', err))
-  .then(startGame);
+window.gameStartReady = Promise.race([fontsReady, fontTimeout]).catch((err) => console.warn('Шрифт с ивритом не загрузился:', err));
+// на dev.html игра стартует не сама, а после выбора зоны в меню (src/dev/devStart.js)
+if (!window.DEV_MODE) window.gameStartReady.then(startGame);

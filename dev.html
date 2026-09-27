@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <link rel="stylesheet" href="assets/fonts/fonts.css">
+  <title>Tanakh Game — dev: выбор старта</title>
+  <!-- Страница для разработки: выбрать зону или Суд и сразу начать с неё.
+       Игроки её не видят: на index.html ссылки сюда нет. Движок и данные — те же:
+       список скриптов берётся из index.html (см. src/dev/devStart.js). -->
+  <style>
+    html, body { margin: 0; height: 100%; background: #111; color: #d8dee9; font-family: system-ui, sans-serif; }
+    #game { width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; }
+    #dev-menu { position: fixed; inset: 0; overflow-y: auto; background: #1d2129; padding: 16px; box-sizing: border-box; }
+    #dev-menu h1 { margin: 0 0 4px; font-size: 20px; color: #88c0d0; }
+    #dev-menu .hint { margin: 0 0 12px; font-size: 13px; color: #8f9bb3; }
+    #dev-menu .lang { margin-bottom: 14px; display: flex; gap: 6px; }
+    #dev-menu .lang button { padding: 6px 10px; }
+    #dev-menu .lang button.on { background: #ebcb8b; color: #2e3440; }
+    #dev-maps { display: flex; flex-wrap: wrap; gap: 16px; }
+    .dev-map { flex: 1 1 320px; background: #2e3440; border: 1px solid #4c566a; border-radius: 6px; padding: 12px; }
+    .dev-map h2 { margin: 0 0 8px; font-size: 17px; color: #ebcb8b; }
+    .dev-map h3 { margin: 12px 0 6px; font-size: 14px; color: #a3be8c; font-weight: 600; }
+    .dev-entry { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 4px 0; }
+    .dev-entry .name { flex: 1 1 180px; font-size: 14px; }
+    .dev-entry .name small { color: #8f9bb3; margin-left: 8px; display: inline-block; font-family: "Noto Sans Hebrew", sans-serif; }
+    button { font: inherit; font-size: 13px; background: #3b4252; color: #eceff4; border: 1px solid #4c566a; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+    button:hover { background: #4c566a; }
+    .dev-map .note { font-size: 12px; color: #8f9bb3; margin: 4px 0 0; }
+  </style>
+</head>
+<body>
+  <div id="game"></div>
+  <div id="dev-menu">
+    <h1>Tanakh Game — выбор старта (dev)</h1>
+    <p class="hint">Для проверки: игра начнётся сразу с выбранной зоны или Суда, без пролога и заставок.
+      Флаги, вещи и шкалы — как после обычного прохождения предыдущих зон. Вернуться сюда — Esc → «Список зон (dev)».</p>
+    <div class="lang" id="dev-lang"></div>
+    <div id="dev-maps">Загрузка…</div>
+  </div>
+  <script>window.DEV_MODE = true;</script>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+  <script src="src/dev/devLoader.js"></script>
+</body>
+</html>
