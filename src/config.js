@@ -121,6 +121,16 @@ const CONFIG = {
       damage: 7,
       aggroRange: 56,
     },
+    // Мидьянитянин в стане после сигнала (Г4): числа по исходу сигнала задаёт зона (fight)
+    midianite_panic: {
+      class: 'Panicked',
+      size: 18,
+      color: 0x9c6b5b,
+      speed: 70,
+      hp: 1,
+      damage: 0,
+      aggroRange: 170,
+    },
     // Воин Моава в А5: бежит к бродам на другой берег; нападает, только если Эхуд рядом
     moabite: {
       class: 'Runner',

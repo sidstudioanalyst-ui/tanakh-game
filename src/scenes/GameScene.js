@@ -40,7 +40,11 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.enemies, this.doors);
     this.physics.add.collider(this.enemies, this.enemies);
     this.physics.add.overlap(this.player, this.enemies, (player, enemy) => {
-      if (!enemy.isDead) player.takeDamage(enemy.stats.damage, enemy.x, enemy.y, this.time.now);
+      // растерянный враг (Г4) ранит, только когда бросается (canHurt)
+      if (!enemy.isDead && enemy.canHurt !== false && enemy.stats.damage > 0) {
+        player.takeDamage(enemy.stats.damage, enemy.x, enemy.y, this.time.now);
+        if (enemy.onHitPlayer) enemy.onHitPlayer(this.time.now);
+      }
     });
     this.physics.add.overlap(this.player, this.items, (player, item) => this.pickUpItem(item));
 

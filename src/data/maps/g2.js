@@ -30,5 +30,5 @@ defineZone({
   ],
   enemies: [],
   items: [],
-  exits: [{ x: 23, y: 7, h: 2, to: 'g3', at: [40, 3], requires_flag: 'fleece_done', locked: 'locked_g2' }],
+  exits: [{ x: 23, y: 7, h: 2, to: 'g3', at: [21, 3], requires_flag: 'fleece_done', locked: 'locked_g2' }],
 });
