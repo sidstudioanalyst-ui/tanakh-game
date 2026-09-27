@@ -33,6 +33,8 @@ function zoneDialogueIds(zone) {
 //   hero              — за кого играет игрок (имя в HUD, цвет квадрата; alias — прозвище по флагу)
 //   gauges            — шкалы карты (растут через effects: { gauge: { <id>: n } })
 //   restartOnDeath    — 'zone' (начать зону заново) или 'map' (всю карту; по умолчанию)
+//   intro             — заставка перед картой: id диалога из narration-реплик (контекст эпохи).
+//                       Показывается при каждом начале карты, в том числе после «Начать заново».
 const CAMPAIGNS = {
   saviors: [
     {
@@ -47,6 +49,7 @@ const CAMPAIGNS = {
         warriors: { label: 'gauge_warriors', max: 300 },
       },
       restartOnDeath: 'zone',
+      intro: 'intro_saviors',
     },
     {
       id: 'power_a',
@@ -63,6 +66,7 @@ const CAMPAIGNS = {
         alias: { flag: 'jerubbaal', name_ru: 'Йеруббаал', name_he: 'יְרֻבַּעַל' },
       },
       restartOnDeath: 'zone',
+      intro: 'intro_power',
     },
   ],
   demo: [
@@ -85,5 +89,17 @@ const CAMPAIGNS = {
   ],
 };
 
+// Пролог кампании — narration-сцены перед первой картой (перед её заставкой).
+// Показывается один раз: при первом запуске в этом браузере (память — localStorage).
+// Esc на прологе пропускает его целиком. ?prologue в адресе — показать пролог снова.
+const PROLOGUES = {
+  saviors: ['prologue_measure', 'prologue_shoftim'],
+};
+
 // Все карты всех кампаний — для загрузки и проверки данных
 const ALL_MAPS = Object.values(CAMPAIGNS).flat();
+
+// Диалоги, которые нужны не зонам, а картам и кампаниям: пролог и заставки
+function introDialogueIds() {
+  return [...Object.values(PROLOGUES).flat(), ...ALL_MAPS.map((m) => m.intro).filter(Boolean)];
+}

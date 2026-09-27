@@ -224,6 +224,10 @@
     "he": "יְצִיאָה — Esc",
     "ru": "Esc — выйти"
   },
+  "dialogue_skip_prologue": {
+    "he": "דִּלּוּג עַל הַפְּרוֹלוֹג — Esc",
+    "ru": "Esc — пропустить пролог"
+  },
   "task_prompt": {
     "he": "{task} — E",
     "ru": "E — {task}"

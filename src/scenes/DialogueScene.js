@@ -9,6 +9,12 @@
 //                        показывается русский (и у выборов этой реплики тоже)
 // Выбор:   { text_he, text_ru, next, effects }
 // next: id следующей реплики или null — конец диалога.
+// title_he / title_ru (у всего диалога) — заголовок над narration-репликами («Мерило»).
+//
+// Пролог и заставки карт (data.intro, см. PROLOGUES и поле карты intro в world.js):
+// экран сразу чёрный, а после последней реплики сцена сама открывает следующую из
+// GameState.introQueue — игра между ними не показывается. Esc на прологе пропускает
+// весь пролог (заставку карты — нет: у её реплик no_escape).
 //
 // entry: [{ node, if_flag, if_not_flag, if_item, if_missing_item }] — с какой реплики начать.
 //   Берётся первая запись, у которой выполнены все указанные условия (флаги — строка или массив).
@@ -24,6 +30,9 @@ class DialogueScene extends Phaser.Scene {
   }
 
   init(data) {
+    this.intro = data.intro || null; // { id, prologue? } — сцена из очереди пролога/заставок
+    this.closing = false;
+    this.narrationShown = null; // сцена перезапускается для следующей заставки — начать с затемнения
     this.dialogue = Content.dialogue(data.dialogueId);
     this.lines = {};
     this.dialogue.lines.forEach((line) => {
@@ -32,21 +41,24 @@ class DialogueScene extends Phaser.Scene {
   }
 
   create() {
-    this.dim = this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x000000, 0.35).setOrigin(0);
+    this.dim = this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x000000, this.intro ? 1 : 0.35).setOrigin(0);
     this.layer = this.add.container(0, 0);
 
     const kb = this.input.keyboard;
     kb.on('keydown', (event) => {
+      if (this.closing) return;
       const n = parseInt(event.key, 10);
       if (n >= 1 && n <= this.options.length) this.options[n - 1]();
     });
-    kb.on('keydown-SPACE', () => this.options.length === 1 && this.options[0]());
-    kb.on('keydown-ENTER', () => this.options.length === 1 && this.options[0]());
+    kb.on('keydown-SPACE', () => !this.closing && this.options.length === 1 && this.options[0]());
+    kb.on('keydown-ENTER', () => !this.closing && this.options.length === 1 && this.options[0]());
     // Esc — выйти из разговора. Уже выбранные эффекты остаются; следующий разговор начнётся
     // по entry (как обычно). Реплики с no_escape так не закрываются.
     kb.on('keydown-ESC', () => {
       const line = this.lines[this.currentLineId];
-      if (line && !line.no_escape) this.close();
+      if (this.closing || !line || line.no_escape) return;
+      if (this.intro && this.intro.prologue) this.skipPrologue();
+      else this.close();
     });
     bindLanguageKeys(this, () => this.show(this.currentLineId));
 
@@ -136,30 +148,41 @@ class DialogueScene extends Phaser.Scene {
     const first = this.narrationShown !== line.id;
     this.narrationShown = line.id;
     this.layer.y = 0;
-    if (first) {
+    if (first && !this.intro) {
       this.dim.setFillStyle(0x000000, 0);
       this.tweens.add({ targets: this.dim, fillAlpha: 1, duration: 600 });
-      this.layer.setAlpha(0);
-      this.tweens.add({ targets: this.layer, alpha: 1, delay: 400, duration: 500 });
     } else {
-      this.dim.setFillStyle(0x000000, 1);
+      this.dim.setFillStyle(0x000000, 1); // пролог и заставки — сразу на чёрном
+    }
+    if (first) {
+      this.layer.setAlpha(0);
+      this.tweens.add({ targets: this.layer, alpha: 1, delay: this.intro ? 150 : 400, duration: this.intro ? 350 : 500 });
     }
 
+    // Раскладка от y = 0, затем блок целиком встаёт по центру экрана по вертикали
     const width = 600;
     const right = CONFIG.WIDTH / 2 + width / 2;
-    let y = CONFIG.HEIGHT / 2 - 70;
+    let y = 0;
+    const dlg = this.dialogue;
+    if (dlg.title_he || dlg.title_ru) {
+      const title = addContentText(this, right, y, dlg.title_he, dlg.title_ru, { size: 28, bold: true, width, color: '#ebcb8b', noHint: true });
+      this.layer.add(title.objects);
+      y += title.height + 18;
+    }
     const text = addContentText(this, right, y, line.text_he, line.text_ru, { size: 22, width, lineSpacing: 8, draft: line.draft });
     this.layer.add(text.objects);
     y += text.height + 6;
-    this.addButtons(line, right, y + 24, width);
-    this.addEscHint(line, 20);
+    y = this.addButtons(line, right, y + 24, width);
+    const offset = Math.max(40, Math.round((CONFIG.HEIGHT - y) / 2 - 20));
+    this.layer.each((obj) => (obj.y += offset));
+    this.addEscHint(line, 20, this.intro && this.intro.prologue ? 'dialogue_skip_prologue' : 'dialogue_esc_hint');
   }
 
   // «Esc — выйти» мелко в верхнем углу со стороны конца строки (слева в иврите, справа в русском)
-  addEscHint(line, y) {
+  addEscHint(line, y, key = 'dialogue_esc_hint') {
     if (line.no_escape) return;
     const x = UI.rtl ? 32 : CONFIG.WIDTH - 32;
-    const hint = addUiText(this, x, y, UI.t('dialogue_esc_hint'), { size: 11, color: '#8f9bb3' });
+    const hint = addUiText(this, x, y, UI.t(key), { size: 11, color: '#8f9bb3' });
     hint.setPosition(x, y).setOrigin(UI.rtl ? 0 : 1, 0);
     this.layer.add(hint);
   }
@@ -171,6 +194,31 @@ class DialogueScene extends Phaser.Scene {
   }
 
   close() {
+    if (this.closing) return;
+    if (this.intro) {
+      if (this.intro.prologue && !(GameState.introQueue[0] || {}).prologue) GameState.markPrologueSeen();
+      const next = GameState.introQueue.shift();
+      if (next) {
+        this.scene.restart({ dialogueId: next.id, intro: next }); // следующая сцена, экран остаётся чёрным
+        return;
+      }
+      // последняя заставка: чёрный экран плавно открывает игру
+      this.closing = true;
+      this.tweens.killAll();
+      this.tweens.add({ targets: [this.layer, this.dim], alpha: 0, duration: 400, onComplete: () => this.finishClose() });
+      return;
+    }
+    this.finishClose();
+  }
+
+  // Esc на прологе — пропустить его целиком; заставка карты всё равно покажется
+  skipPrologue() {
+    GameState.introQueue = GameState.introQueue.filter((i) => !i.prologue);
+    GameState.markPrologueSeen();
+    this.close();
+  }
+
+  finishClose() {
     this.scene.stop();
     this.scene.resume('GameScene');
   }

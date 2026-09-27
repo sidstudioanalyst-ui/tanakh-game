@@ -66,6 +66,10 @@ class GameScene extends Phaser.Scene {
     // Короткая пауза перед тем, как выходы и триггеры начнут срабатывать — чтобы не «отскочить» обратно
     this.armedAt = this.time.now + 300;
 
+    // Пролог и заставка карты (GameState.introQueue): на чёрном экране, до начала игры.
+    // Через кадр — пока идёт create(), сцену нельзя поставить на паузу.
+    if (GameState.introQueue.length) this.time.delayedCall(1, () => this.playIntro());
+
     // Диалог при входе в зону (например, перекличка в Г3): один раз, пока не стоит флаг
     const onEnter = this.zone.onEnter;
     if (onEnter && !GameState.flags[onEnter.unless_flag]) {
@@ -306,6 +310,13 @@ class GameScene extends Phaser.Scene {
 
   openDialogue(dialogueId) {
     this.openOverlay('DialogueScene', { dialogueId });
+  }
+
+  // Следующая сцена из очереди пролога/заставок; остальные DialogueScene покажет сама,
+  // не возвращаясь в игру (экран между ними остаётся чёрным)
+  playIntro() {
+    const next = GameState.introQueue.shift();
+    if (next) this.openOverlay('DialogueScene', { dialogueId: next.id, intro: next });
   }
 
   // Меню (Esc или кнопка в HUD): продолжить, начать карту заново, демо-карты. Игра на паузе.

@@ -19,6 +19,12 @@ function validateContent(cache, uiStrings) {
     if (map.trial && !cache.trial(map.trial)) warn(`Карта ${map.id}: не загружен суд "${map.trial}"`);
     Object.values(map.gauges || {}).forEach((g) => uiStrings && !uiStrings[g.label] && warn(`Карта ${map.id}: нет строки шкалы "${g.label}"`));
   });
+  // Пролог и заставки — только narration-реплики (у них нет говорящего)
+  introDialogueIds().forEach((id) => {
+    const dlg = cache.dialogue(id);
+    if (!dlg) warn(`Не загружена заставка/пролог "${id}"`);
+    else dlg.lines.forEach((l) => l.style === 'narration' || warn(`Заставка ${id}/${l.id}: нужна style: 'narration'`));
+  });
 
   Object.values(ZONES).forEach((zone) => {
     const where = `Зона ${zone.id}`;

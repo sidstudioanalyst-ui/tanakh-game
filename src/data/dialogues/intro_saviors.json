@@ -1,0 +1,36 @@
+{
+  "id": "intro_saviors",
+  "title_he": "הַמּוֹשִׁיעִים",
+  "title_ru": "Спасители",
+  "speakers": {},
+  "start": "p1",
+  "lines": [
+    {
+      "id": "p1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Восемнадцать лет моавитяне держали Израиль в подчинении.",
+      "next": "p2"
+    },
+    {
+      "id": "p2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Народ взмолился о помощи — и Б-г избрал спасителя.",
+      "next": "p3"
+    },
+    {
+      "id": "p3",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Не воина с мечом на виду у всех, а человека с планом, который держал в секрете даже от самых близких.",
+      "next": null
+    }
+  ]
+}

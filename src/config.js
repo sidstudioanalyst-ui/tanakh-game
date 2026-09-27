@@ -12,6 +12,8 @@ const CONFIG = {
   // Язык: ?ru / ?he / ?both — см. src/ui/strings.js (там же память выбора в браузере)
   // ?zone=<id> — начать сразу с указанной зоны (для отладки)
   START_ZONE: URL_PARAMS.get('zone'),
+  // ?prologue — показать пролог, даже если он уже пройден (см. PROLOGUES в src/data/world.js)
+  FORCE_PROLOGUE: URL_PARAMS.has('prologue'),
   // ?map=demo — тестовые карты «Деревня у ворот» и «Город». По умолчанию — «Спасители».
   CAMPAIGN: URL_PARAMS.get('map') === 'demo' ? 'demo' : 'saviors',
 

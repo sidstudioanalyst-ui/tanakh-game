@@ -1,0 +1,36 @@
+{
+  "id": "intro_power",
+  "title_he": "הַשִּׁלְטוֹן",
+  "title_ru": "Власть",
+  "speakers": {},
+  "start": "p1",
+  "lines": [
+    {
+      "id": "p1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Семь лет мидьянитяне опустошали урожай Израиля, отнимая всё, что вырастало на полях.",
+      "next": "p2"
+    },
+    {
+      "id": "p2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Народ скрывался в горах и пещерах.",
+      "next": "p3"
+    },
+    {
+      "id": "p3",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И снова раздался вопль о помощи — а Б-г нашёл своего избранника не среди воинов, а в давильне для вина, где тот в страхе молотил пшеницу.",
+      "next": null
+    }
+  ]
+}

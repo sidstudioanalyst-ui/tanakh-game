@@ -33,6 +33,7 @@ class BootScene extends Phaser.Scene {
     // Все диалоги, на которые ссылаются зоны: у NPC, триггеров, onEnter, onDone механик…
     const dialogueIds = new Set();
     Object.values(ZONES).forEach((zone) => zoneDialogueIds(zone).forEach((id) => dialogueIds.add(id)));
+    introDialogueIds().forEach((id) => dialogueIds.add(id)); // пролог и заставки карт
     Content.dialogueIds = [...dialogueIds];
     Content.trialIds = [...new Set(ALL_MAPS.map((m) => m.trial).filter(Boolean))];
 
@@ -73,6 +74,8 @@ class BootScene extends Phaser.Scene {
         GameState.newGame(campaign);
         GameState.startMap(index);
         GameState.currentZone = CONFIG.START_ZONE;
+        // пролог — только при обычном старте; заставка — если зона стартовая для карты
+        GameState.introQueue = CONFIG.START_ZONE === GameState.map.startZone ? GameState.introQueue.filter((i) => !i.prologue) : [];
         return true;
       });
     }
