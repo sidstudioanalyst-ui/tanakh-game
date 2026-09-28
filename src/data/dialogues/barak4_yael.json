@@ -1,0 +1,55 @@
+{
+  "id": "barak4_yael",
+  "speakers": {
+    "yael": {
+      "name_he": "יָעֵל",
+      "name_ru": "Яэль"
+    }
+  },
+  "start": "y1",
+  "lines": [
+    {
+      "id": "y1",
+      "speaker": "yael",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иди, я покажу тебе человека, которого ты ищешь.",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Войти в шатёр.",
+          "next": "y2"
+        }
+      ]
+    },
+    {
+      "id": "y2",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Барак вошёл к ней — и вот, Сисра лежит мёртвый.",
+      "no_escape": true,
+      "next": "y3"
+    },
+    {
+      "id": "y3",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Так смирил Б-г в тот день Явина, царя Кнаана, перед сынами Израиля. И рука сынов Израиля становилась всё тяжелее над Явином, пока не истребили его.",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "К Суду",
+          "next": null,
+          "effects": {
+            "set_flag": "sisera_found",
+            "goto_trial": true
+          }
+        }
+      ]
+    }
+  ]
+}

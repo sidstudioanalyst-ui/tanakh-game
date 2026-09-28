@@ -12,6 +12,7 @@
 //     failKey: 'fail_fords',             // строка провала (необязательно)
 //     onWin: { trial: true, delay: 1100 },  // после победы — короткая сцена и сразу к Суду
 //     // или onWin: { dialogue: 'g5_ephraim', delay: 1200 } — после победы сразу разговор
+//     // или onWin: { to: 'barak_1', at, intro: 'barak_intro' } — в зону, перед ней заставка
 //   }                                     // (без onWin игрок сам идёт к выходу)
 // Прорвалось больше, чем allowed, — сцена проваливается.
 class WavesMechanic {
@@ -122,7 +123,11 @@ class WavesMechanic {
     scene.tweens.add({ targets: scene.messageText, scale: 1, alpha: 1, duration: 300, ease: 'Back.easeOut' });
     scene.time.delayedCall(onWin.delay || 1100, () => {
       if (onWin.trial) scene.goToTrial();
-      else if (onWin.to) scene.goToZone(onWin.to, onWin.at);
+      else if (onWin.to) {
+        // заставка на чёрном перед следующей зоной (А5 → «Прошло время…» → Бр1)
+        if (onWin.intro) GameState.introQueue = [{ id: onWin.intro }];
+        scene.goToZone(onWin.to, onWin.at);
+      }
     });
   }
 

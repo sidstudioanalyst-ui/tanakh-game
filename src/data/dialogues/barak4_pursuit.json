@@ -1,0 +1,34 @@
+{
+  "id": "barak4_pursuit",
+  "speakers": {},
+  "start": "p1",
+  "lines": [
+    {
+      "id": "p1",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Барак гнался за колесницами и за станом до Харошет-Гоима. И пал весь стан Сисры от острия меча — не осталось ни одного.",
+      "no_escape": true,
+      "next": "p2"
+    },
+    {
+      "id": "p2",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Но Сисры среди павших не было. Следы ведут на восток — к шатрам кенеев.",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "pursuit_seen"
+          }
+        }
+      ]
+    }
+  ]
+}

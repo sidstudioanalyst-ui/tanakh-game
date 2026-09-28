@@ -85,4 +85,13 @@ const ITEMS = {
     maxHp: 10,
     color: 0xc8a165,
   },
+
+  // --- «Спасители», часть Б (Барак) ---
+  barak_spear: {
+    name_ru: 'Копьё',
+    name_he: 'חֲנִית',
+    slot: 'weapon',
+    damage: 1,
+    color: 0xb8c4d0,
+  },
 };

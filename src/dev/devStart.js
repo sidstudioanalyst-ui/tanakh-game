@@ -15,6 +15,10 @@ const DEV_AFTER = {
   a2: { flags: ['gate_open', 'eglon_done'] },
   a4: { flags: ['young_done', 'farmers_done', 'veteran_done'], items: ['shofar'], gauges: { warriors: 280 } },
   a5: { flags: ['fords_held'] },
+  barak_1: { flags: ['barak_task', 'deborah_with'] },
+  barak_2: { flags: ['naphtali_done', 'zebulun_done', 'deborah_spoke'], items: ['barak_spear'], gauges: { barak_warriors: 10000 } },
+  barak_3: { flags: ['descent_signal', 'sisera_fled'] },
+  barak_4: { flags: ['pursuit_seen', 'sisera_found'] },
   g1: { flags: ['angel_done', 'night', 'sortie_alone', 'altar_done', 'morning_done', 'jerubbaal'] },
   g2: { flags: ['laid_1', 'checked_1', 'prayed', 'laid_2', 'fleece_done'] },
   g3: { flags: ['fearful_left', 'army_300'] },
@@ -34,6 +38,15 @@ const DEV_VARIANTS = {
     { label: '280 воинов (пропустить можно 3)' },
     { label: 'без воинов (пропустить можно 1)', gauges: { warriors: 0 } },
   ],
+  // Барак: пошла ли с ним Двора (в Бр1). Без неё воинов меньше и её реплик нет.
+  barak_2: [
+    { label: 'Двора идёт с Бараком' },
+    { label: 'Барак без Деворы', removeFlags: ['deborah_with'], addFlags: ['barak_alone'] },
+  ],
+  barak_3: [
+    { label: 'с Деворой, 10 000 воинов' },
+    { label: 'без Деворы, 7000 воинов', removeFlags: ['deborah_with', 'deborah_spoke'], addFlags: ['barak_alone'], gauges: { barak_warriors: 7000 } },
+  ],
   'trial:power_a': [
     { label: 'мягкий ответ Эфраиму — 3 вопроса' },
     { label: 'жёсткий ответ Эфраиму — 4 вопроса', addFlags: ['ephraim_harsh'], removeFlags: ['ephraim_soft'] },
@@ -43,8 +56,9 @@ const DEV_VARIANTS = {
 const DEV_CAMPAIGN = 'saviors';
 const DEV_LETTERS = { a: 'А', g: 'Г', b: 'Б' };
 
-// «А1», «Г4», «Б2» — из id зоны
+// «А1», «Г4», «Б2» — из id зоны; если у зоны задан code_ru (Бр1 у barak_1) — он
 function devZoneCode(id) {
+  if (ZONES[id] && ZONES[id].code_ru) return ZONES[id].code_ru;
   const m = /^([a-z]+)(\d+)$/.exec(id);
   return m ? (DEV_LETTERS[m[1]] || m[1].toUpperCase()) + m[2] : id;
 }
@@ -60,10 +74,23 @@ function devStateFor(mapIndex, zoneIndex, variant) {
     (after.items || []).forEach((i) => items.push(i));
     Object.assign(gauges, after.gauges || {});
   };
+  // часть карты с freshEquipment (Барак): вещи прежнего героя не переходят — как в игре
+  const enterPart = (map, zone) => {
+    const key = ZONES[zone].part;
+    const part = key && map.parts && map.parts[key];
+    const flag = `${map.id}_${key}_started`;
+    if (!part || !part.freshEquipment || flags.has(flag)) return;
+    flags.add(flag);
+    items.length = 0;
+  };
   CAMPAIGNS[DEV_CAMPAIGN].forEach((map, mi) => {
     if (mi > mapIndex) return;
     const upto = mi < mapIndex ? map.zones.length : zoneIndex;
-    map.zones.slice(0, upto).forEach((z) => add(DEV_AFTER[z]));
+    map.zones.slice(0, upto).forEach((z) => {
+      enterPart(map, z);
+      add(DEV_AFTER[z]);
+    });
+    if (mi === mapIndex && map.zones[zoneIndex]) enterPart(map, map.zones[zoneIndex]);
   });
   if (variant) {
     (variant.addFlags || []).forEach((f) => flags.add(f));
