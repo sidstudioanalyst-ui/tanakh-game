@@ -79,7 +79,9 @@ class ShibbolethMechanic {
   buildButtons() {
     const { scene } = this;
     const W = CONFIG.WIDTH;
-    const y = CONFIG.HEIGHT - (CONFIG.TOUCH ? 170 : 60);
+    // портрет на тач — над кнопкой атаки; альбом и компьютер — у нижнего края (по центру
+    // свободно: подсказка джойстика на переправе скрыта, атака — справа)
+    const y = CONFIG.HEIGHT - (CONFIG.TOUCH && CONFIG.PORTRAIT ? 170 : 60);
     const w = Math.min(170, (W - 60) / 2);
     const make = (dx, key, n, color, action) => {
       const x = W / 2 + dx;
