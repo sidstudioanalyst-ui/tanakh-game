@@ -5,6 +5,11 @@
 //     База и стик внутри; стик следует за пальцем в пределах базы. Направление и сила
 //     смещения — направление и скорость движения (как WASD, но плавно). Палец убран —
 //     стик возвращается в центр, движение останавливается.
+//   «Призрачный» джойстик — подсказка, где управление: полупрозрачная база со стиком и
+//     стрелками слева внизу (слева и в иврите — управление не зеркалится). Касаний не ловит.
+//     Гаснет, пока палец держит настоящий джойстик, и когда двигаться нельзя: окно поверх
+//     игры (диалог, инвентарь, меню, пролог и заставки), провал или смерть, переход,
+//     сцена-«рассказ» (look: 'story'), сцена идёт сама (cutscene).
 //   Атака — круглая кнопка с мечом справа внизу, на месте. Нажатие = Пробел.
 //   Действие (E) — круг поменьше рядом с атакой; виден и активен, только когда рядом есть
 //     NPC или место действия (как подсказка «E» над NPC).
@@ -24,6 +29,7 @@ class TouchControls {
     scene.input.addPointer(2); // джойстик + кнопка атаки одновременно
 
     this.buildJoystick();
+    this.buildGhost();
     this.buildButtons();
     this.buildIcons();
 
@@ -40,8 +46,12 @@ class TouchControls {
     this.onPause = () => {
       this.releaseStick();
       this.blockHeld = false;
+      this.ghost.setAlpha(0); // под окном (диалог, инвентарь, меню) подсказки нет
     };
     scene.events.on('pause', this.onPause);
+    // призрачный джойстик — каждый кадр, даже когда GameScene.update выходит рано (провал, переход)
+    this.onFrame = (time, delta) => this.updateGhost(delta);
+    scene.events.on('update', this.onFrame);
     scene.events.once('shutdown', () => this.destroy());
   }
 
@@ -56,6 +66,43 @@ class TouchControls {
     const R = this.cfg.stickRadius;
     this.base = this.fixed(this.scene.add.circle(0, 0, R, 0x2e3440, 0.45).setStrokeStyle(3, 0xd8dee9, 0.6).setVisible(false));
     this.stick = this.fixed(this.scene.add.circle(0, 0, R * 0.42, 0xd8dee9, 0.75).setStrokeStyle(2, 0x2e3440, 0.8).setVisible(false), 171);
+  }
+
+  // Призрачный джойстик: база, стик в центре и четыре стрелки. Только рисунок — без
+  // setInteractive, касания проходят сквозь него к обычной логике (джойстик под пальцем).
+  buildGhost() {
+    const R = this.cfg.stickRadius;
+    const inset = this.cfg.ghostInset;
+    this.ghostPos = { x: inset.left + R, y: CONFIG.HEIGHT - inset.bottom - R };
+    const g = this.scene.add.graphics();
+    g.fillStyle(0x2e3440, 0.8).fillCircle(0, 0, R);
+    g.lineStyle(3, 0xd8dee9, 1).strokeCircle(0, 0, R);
+    g.fillStyle(0xd8dee9, 0.9).fillCircle(0, 0, R * 0.42);
+    // стрелки направлений — у края базы, едва заметные
+    const a = R * 0.78;
+    const s = R * 0.13;
+    g.fillStyle(0xd8dee9, 0.55);
+    g.fillTriangle(0, -a - s, -s, -a + s * 0.6, s, -a + s * 0.6);
+    g.fillTriangle(0, a + s, -s, a - s * 0.6, s, a - s * 0.6);
+    g.fillTriangle(-a - s, 0, -a + s * 0.6, -s, -a + s * 0.6, s);
+    g.fillTriangle(a + s, 0, a - s * 0.6, -s, a - s * 0.6, s);
+    g.setPosition(this.ghostPos.x, this.ghostPos.y);
+    this.ghost = this.fixed(g, 165).setAlpha(0);
+  }
+
+  // Когда подсказка видна: палец не держит джойстик и игрок может двигаться
+  get ghostWanted() {
+    const sc = this.scene;
+    return !this.stickPointer && !sc.gameOver && !sc.transitioning && !sc.cutscene && !sc.deadWaitingRestart && sc.zone.look !== 'story';
+  }
+
+  // Плавно к нужной прозрачности: гаснет быстро (палец уже на экране), появляется мягче
+  updateGhost(delta) {
+    const target = this.ghostWanted ? this.cfg.ghostAlpha : 0;
+    const cur = this.ghost.alpha;
+    if (cur === target) return;
+    const step = (delta / (target > cur ? 300 : 120)) * this.cfg.ghostAlpha;
+    this.ghost.setAlpha(target > cur ? Math.min(target, cur + step) : Math.max(target, cur - step));
   }
 
   // Круглая кнопка с иконкой; hitPad — насколько область нажатия шире круга
@@ -228,5 +275,6 @@ class TouchControls {
     input.off('pointerup', this.onUp);
     input.off('pointerupoutside', this.onUp);
     this.scene.events.off('pause', this.onPause);
+    this.scene.events.off('update', this.onFrame);
   }
 }
