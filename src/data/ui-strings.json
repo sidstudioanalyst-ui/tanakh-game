@@ -439,5 +439,21 @@
   "label_sisera": {
     "he": "סִיסְרָא",
     "ru": "Сисра"
+  },
+  "hud_controls_defense": {
+    "he": "הִתְחַמְּקוּת — Shift · חֲסִימָה — Ctrl",
+    "ru": "Shift — уворот · Ctrl — блок"
+  },
+  "toast_defense_hint": {
+    "he": "Shift — הִתְחַמְּקוּת, Ctrl — חֲסִימָה",
+    "ru": "Shift — уворот, Ctrl — блок"
+  },
+  "touch_dodge": {
+    "he": "הִתְחַמְּקוּת",
+    "ru": "уворот"
+  },
+  "touch_block": {
+    "he": "חֲסִימָה",
+    "ru": "блок"
   }
 }

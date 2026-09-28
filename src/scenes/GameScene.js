@@ -16,6 +16,10 @@ class GameScene extends Phaser.Scene {
     this.transitioning = false;
     this.touch = null; // TouchControls — создаётся в HUD на тач-устройствах
     this.cutscene = false; // сцена идёт сама (паника в Г4): игрок не двигается и не действует
+    // Боевая зона: есть враги, волны или бой механики — там работают уворот и блок.
+    // В скрытности (стража, ночная вылазка) — нет: защита не должна помогать обходить стражу.
+    const z = this.zone;
+    this.combatZone = !!z && !z.guards && !z.night && !!(z.waves || z.descent || z.coordination || (z.enemies || []).length);
     this.startPartIfNeeded();
     GameState.enterZone(this.zoneId, this.spawnAt);
   }
@@ -54,8 +58,9 @@ class GameScene extends Phaser.Scene {
     this.physics.add.collider(this.enemies, this.doors);
     this.physics.add.collider(this.enemies, this.enemies);
     this.physics.add.overlap(this.player, this.enemies, (player, enemy) => {
-      // растерянный враг (Г4) ранит, только когда бросается (canHurt)
-      if (!enemy.isDead && enemy.canHurt !== false && enemy.stats.damage > 0) {
+      // касание ранит только врагов с contactDamage (колесницы; растерянный — в броске, canHurt).
+      // Остальные бьют ударом после замаха (Enemy.handleStrike).
+      if (!enemy.isDead && enemy.contactDamage && enemy.canHurt !== false && enemy.stats.damage > 0) {
         player.takeDamage(enemy.stats.damage, enemy.x, enemy.y, this.time.now);
         if (enemy.onHitPlayer) enemy.onHitPlayer(this.time.now);
       }
@@ -93,6 +98,22 @@ class GameScene extends Phaser.Scene {
 
     // Короткая пауза перед тем, как выходы и триггеры начнут срабатывать — чтобы не «отскочить» обратно
     this.armedAt = this.time.now + 300;
+
+    // Первый бой: подсказка про уворот и блок — своей строкой над всплывающими сообщениями,
+    // 6 с (чтобы её не перебило «Волна 1!»). На тач — подписи на кнопках, без подсказки.
+    if (this.combatZone && !CONFIG.TOUCH && readStorage('tanakh-game.defenseHint') !== '1') {
+      writeStorage('tanakh-game.defenseHint', '1');
+      this.defenseHint = addUiText(this, CONFIG.WIDTH / 2, this.toastText.y - 44, UI.t('toast_defense_hint'), {
+        center: true,
+        size: 15,
+        color: '#2e3440',
+        background: '#88c0d0',
+        padding: { x: 10, y: 5 },
+      })
+        .setScrollFactor(0)
+        .setDepth(150);
+      this.time.delayedCall(6000, () => this.tweens.add({ targets: this.defenseHint, alpha: 0, duration: 500, onComplete: () => this.defenseHint.destroy() }));
+    }
 
     // Пролог и заставка карты (GameState.introQueue): на чёрном экране, до начала игры.
     // Через кадр — пока идёт create(), сцену нельзя поставить на паузу.
@@ -608,7 +629,8 @@ class GameScene extends Phaser.Scene {
 
     // Подсказка по клавишам — в противоположном от полоски здоровья углу (на тач там иконки)
     if (!CONFIG.TOUCH && !story) {
-      addUiText(this, W - 16, 16, UI.t('hud_controls'))
+      // в боевой зоне — ещё строка про уворот и блок
+      addUiText(this, W - 16, 16, UI.t('hud_controls') + (this.combatZone ? `\n${UI.t('hud_controls_defense')}` : ''))
         .setOrigin(UI.rtl ? 0 : 1, 0)
         .setScrollFactor(0)
         .setDepth(100);

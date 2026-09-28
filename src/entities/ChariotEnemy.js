@@ -10,6 +10,8 @@ class ChariotEnemy extends Enemy {
     this.speed = opts.speed || this.stats.speed;
     this.isChariot = true;
     this.canHurt = true;
+    this.contactDamage = true; // колесница бьёт касанием, без замаха
+    this.noHpBar = true; // неуязвима — полоски здоровья нет
     this.stopped = false;
     this.body.setImmovable(true);
     this.body.pushable = false;

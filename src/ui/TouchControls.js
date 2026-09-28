@@ -8,6 +8,8 @@
 //   Атака — круглая кнопка с мечом справа внизу, на месте. Нажатие = Пробел.
 //   Действие (E) — круг поменьше рядом с атакой; виден и активен, только когда рядом есть
 //     NPC или место действия (как подсказка «E» над NPC).
+//   Уворот и блок — два круга со стрелкой и щитом (с подписями) над атакой и левее, только в
+//     боевых зонах. Уворот — нажатие (как Shift), блок — удержание (как Ctrl).
 //   Сумка и меню — иконки в верхнем углу (напротив полоски здоровья): инвентарь (I) и меню (Esc).
 //
 // Касание мира (не кнопки): сначала его получает механика зоны (например, отметить воина в Г3),
@@ -34,7 +36,11 @@ class TouchControls {
     input.on('pointerup', this.onUp);
     input.on('pointerupoutside', this.onUp);
     // Окно поверх игры (диалог, инвентарь) забирает палец — джойстик отпускаем
-    this.onPause = () => this.releaseStick();
+    // окно поверх игры забрало пальцы — отпускаем и джойстик, и блок
+    this.onPause = () => {
+      this.releaseStick();
+      this.blockHeld = false;
+    };
     scene.events.on('pause', this.onPause);
     scene.events.once('shutdown', () => this.destroy());
   }
@@ -85,6 +91,28 @@ class TouchControls {
     });
     this.actionBtn.bg.setStrokeStyle(2, 0xa3be8c, 0.9);
     this.actionBtn.setVisible(false);
+
+    // Защита — только в боевых зонах. Уворот — над атакой; блок (удерживать) — левее,
+    // выше кнопки действия. Обе — в правой половине, джойстику не мешают. Подписи — над кнопками.
+    const d = this.cfg.defenseRadius;
+    this.blockHeld = false;
+    if (!this.scene.combatZone) return;
+    this.dodgePos = { x: this.attackPos.x, y: this.attackPos.y - a - 16 - d };
+    this.dodgeBtn = this.roundButton(this.dodgePos.x, this.dodgePos.y, d, 'icon-dodge', 0.66, () => {
+      if (!this.scene.gameOver) this.scene.player.dodge(this.scene.time.now);
+    });
+    this.dodgeBtn.bg.setStrokeStyle(2, 0xa3be8c, 0.9);
+    this.blockPos = { x: this.attackPos.x - a - 46, y: this.attackPos.y - a - 16 };
+    this.blockBtn = this.roundButton(this.blockPos.x, this.blockPos.y, d, 'icon-shield', 0.66, () => (this.blockHeld = true));
+    this.blockBtn.bg.setStrokeStyle(2, 0x88c0d0, 0.9);
+    const release = () => (this.blockHeld = false);
+    this.blockBtn.bg.on('pointerup', release);
+    this.blockBtn.bg.on('pointerout', release);
+    this.blockBtn.bg.on('pointerupoutside', release);
+    const label = (pos, key) =>
+      this.fixed(addUiText(this.scene, pos.x, pos.y - d - 18, UI.t(key), { center: true, size: 10, color: '#d8dee9', background: '#2e3440cc', padding: { x: 3, y: 1 } }), 172);
+    this.dodgeLabel = label(this.dodgePos, 'touch_dodge');
+    this.blockLabel = label(this.blockPos, 'touch_block');
   }
 
   // Сумка и меню — в верхнем углу со стороны, противоположной полоске здоровья
@@ -114,8 +142,9 @@ class TouchControls {
     return CONFIG.WIDTH - 12 - this.cfg.iconSize * 2 - 10;
   }
 
-  // Верхний край кнопок атаки/действия — всплывающие сообщения ставятся выше
+  // Верхний край кнопок (атака, уворот и блок с подписями) — всплывающие сообщения ставятся выше
   get buttonsTop() {
+    if (this.dodgePos) return this.dodgePos.y - this.cfg.defenseRadius - 20;
     return this.attackPos.y - this.cfg.attackRadius;
   }
 
@@ -173,8 +202,14 @@ class TouchControls {
     return this.vector.x !== 0 || this.vector.y !== 0;
   }
 
-  // Каждый кадр: кнопка действия видна, только когда действие возможно
+  // Каждый кадр: кнопка действия видна, только когда действие возможно; уворот тускнеет,
+  // пока перезаряжается; блок подсвечен, пока его держат
   update() {
+    if (this.dodgeBtn) {
+      const ready = this.scene.time.now >= this.scene.player.nextDodgeAt;
+      this.dodgeBtn.img.setAlpha(ready ? 1 : 0.35);
+      this.blockBtn.bg.setFillStyle(this.blockHeld ? 0x4c566a : 0x2e3440, this.blockHeld ? 0.95 : 0.7);
+    }
     const can = !this.scene.gameOver && this.scene.canInteract();
     if (can !== this.actionVisible) {
       this.actionVisible = can;

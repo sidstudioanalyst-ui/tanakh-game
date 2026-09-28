@@ -28,6 +28,7 @@ class RunnerEnemy extends Enemy {
   // Добежал до другого берега — исчезает (это не смерть: в зоне не отмечается)
   escape() {
     this.isDead = true;
+    this.hideHpBar();
     this.body.enable = false;
     this.scene.tweens.add({ targets: this, alpha: 0, duration: 200, onComplete: () => this.destroy() });
   }
