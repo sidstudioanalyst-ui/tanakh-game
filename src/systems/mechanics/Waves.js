@@ -53,6 +53,8 @@ class WavesMechanic {
         if (this.escaped > this.allowed) this.scene.failZone(this.cfg.failKey || 'fail_fords');
       }
     });
+    // провал в этом же кадре: последний прорвавшийся не должен засчитать победу
+    if (this.scene.gameOver) return;
 
     if (this.toSpawn > 0 && time >= this.nextAt) {
       const spawns = this.cfg.spawns;
