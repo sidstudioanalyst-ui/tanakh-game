@@ -1,0 +1,120 @@
+{
+  "id": "yiftach5_return",
+  "title_he": "הַמִּצְפָּה",
+  "title_ru": "Мицпа",
+  "speakers": {},
+  "start": "r1",
+  "lines": [
+    {
+      "id": "r1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И пришёл Йифтах в Мицпу, к своему дому.",
+      "next": "r2"
+    },
+    {
+      "id": "r2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И вот — дочь его выходит ему навстречу с бубнами и плясками. Она была единственной: не было у него ни сына, ни дочери, кроме неё.",
+      "next": "r3"
+    },
+    {
+      "id": "r3",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И когда он увидел её, он разорвал свои одежды.",
+      "next": "r4"
+    },
+    {
+      "id": "r4",
+      "style": "narration",
+      "title_he": "יִפְתָּח",
+      "title_ru": "Йифтах",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Ах, дочь моя! Ты повергла меня… Я открыл уста мои пред Г-сподом и не могу отступить.",
+      "next": "r5"
+    },
+    {
+      "id": "r5",
+      "style": "narration",
+      "title_he": "בַּת יִפְתָּח",
+      "title_ru": "Дочь Йифтаха",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Отец мой, ты открыл уста твои пред Г-сподом — делай со мною, как вышло из уст твоих, раз Г-сподь дал тебе отмщение твоим врагам, сынам Аммона.",
+      "next": "r6"
+    },
+    {
+      "id": "r6",
+      "style": "narration",
+      "title_he": "בַּת יִפְתָּח",
+      "title_ru": "Дочь Йифтаха",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Сделай для меня вот что: отпусти меня на два месяца. Я пойду, взойду на горы и оплачу девство моё — я и подруги мои.",
+      "next": "r7"
+    },
+    {
+      "id": "r7",
+      "style": "narration",
+      "title_he": "יִפְתָּח",
+      "title_ru": "Йифтах",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иди.",
+      "next": "r8"
+    },
+    {
+      "id": "r8",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И отпустил он её на два месяца. И пошла она с подругами своими и оплакивала на горах девство своё.",
+      "next": "r9"
+    },
+    {
+      "id": "r9",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "По прошествии двух месяцев она вернулась к отцу своему, и он сделал с ней по обету своему, который дал. И она не знала мужа.",
+      "next": "r10"
+    },
+    {
+      "id": "r10",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И стало это обычаем в Израиле: из года в год дочери Израиля ходят на четыре дня в году ради дочери Йифтаха из Гилада.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": { "set_flag": "daughter_returned", "goto_zone": { "to": "yiftach_6", "at": [3, 9] } }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Комментаторы: как понимают это место",
+          "next": null,
+          "effects": { "set_flag": "daughter_returned", "open_commentary": "daughter", "goto_zone": { "to": "yiftach_6", "at": [3, 9] } }
+        }
+      ]
+    }
+  ]
+}

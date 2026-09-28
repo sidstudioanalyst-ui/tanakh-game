@@ -5,7 +5,7 @@
 //   потом, у Мицпе, обет (триггер, yiftach3_vow). Выбора «не давать обет» нет: текст однозначен.
 //   Флаг vow_made.
 // После обета — необязательная панель «Комментаторы» (COMMENTARY.vow, пока заглушки draft).
-// Выход на восток — к сынам Аммона: Й4 ещё не написана, выход ведёт на экран «Й4 в разработке».
+// Выход на восток — к сынам Аммона (Й4).
 defineZone({
   id: 'yiftach_3',
   code_ru: 'Й3',
@@ -43,6 +43,6 @@ defineZone({
   items: [],
   // у Мицпе Гилада — обет (после духа)
   triggers: [{ x: 21, y: 6, w: 3, h: 5, dialogue: 'yiftach3_vow', if_flag: 'yiftach_spirit', unless_flag: 'vow_made' }],
-  // к сынам Аммона — Й4 пока не написана
-  exits: [{ x: 29, y: 7, h: 2, wip: 'Й4', wip_he: 'י4', requires_flag: 'vow_made', locked: 'locked_yiftach_3' }],
+  // к сынам Аммона — Й4
+  exits: [{ x: 29, y: 7, h: 2, to: 'yiftach_4', at: [2, 12], requires_flag: 'vow_made', locked: 'locked_yiftach_3' }],
 });

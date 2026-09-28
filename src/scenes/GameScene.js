@@ -19,7 +19,7 @@ class GameScene extends Phaser.Scene {
     // Боевая зона: есть враги, волны или бой механики — там работают уворот и блок.
     // В скрытности (стража, ночная вылазка) — нет: защита не должна помогать обходить стражу.
     const z = this.zone;
-    this.combatZone = !!z && !z.guards && !z.night && !!(z.waves || z.descent || z.coordination || (z.enemies || []).length);
+    this.combatZone = !!z && !z.guards && !z.night && !!(z.waves || z.descent || z.coordination || z.liberation || (z.enemies || []).length);
     this.startPartIfNeeded();
     GameState.enterZone(this.zoneId, this.spawnAt);
   }
@@ -76,6 +76,8 @@ class GameScene extends Phaser.Scene {
     if (this.zone.selection) this.mechanics.selection = new SelectionMechanic(this, this.zone.selection);
     if (this.zone.coordination) this.mechanics.coordination = new CoordinationMechanic(this, this.zone.coordination);
     if (this.zone.descent) this.mechanics.descent = new DescentMechanic(this, this.zone.descent);
+    if (this.zone.liberation) this.mechanics.liberation = new LiberationMechanic(this, this.zone.liberation);
+    if (this.zone.shibboleth) this.mechanics.shibboleth = new ShibbolethMechanic(this, this.zone.shibboleth);
 
     // Камера следует за игроком в пределах зоны
     // Зона меньше экрана — центрируем её, чтобы HUD не закрывал край карты
@@ -572,6 +574,15 @@ class GameScene extends Phaser.Scene {
       this.failZone(key);
       return;
     }
+    // окно после диалога (диспут в Й2, «Комментаторы» в Й3 и Й5) — раньше перехода: переход
+    // (goto_zone из того же выбора) выполнится, когда окно закроют. Через кадр: сцена только что
+    // снята с паузы, а openOverlay снова ставит её на паузу
+    if (GameState.pendingOverlay) {
+      const { scene, data } = GameState.pendingOverlay;
+      GameState.pendingOverlay = null;
+      this.time.delayedCall(1, () => this.openOverlay(scene, data));
+      return;
+    }
     if (GameState.pendingZone) {
       const { to, at } = GameState.pendingZone;
       GameState.pendingZone = null;
@@ -581,14 +592,6 @@ class GameScene extends Phaser.Scene {
     if (GameState.pendingTrial) {
       GameState.pendingTrial = false;
       this.goToTrial();
-      return;
-    }
-    // окно после диалога (диспут в Й2, «Комментаторы» в Й3) — через кадр: сцена только что
-    // снята с паузы, а openOverlay снова ставит её на паузу
-    if (GameState.pendingOverlay) {
-      const { scene, data } = GameState.pendingOverlay;
-      GameState.pendingOverlay = null;
-      this.time.delayedCall(1, () => this.openOverlay(scene, data));
     }
   }
 

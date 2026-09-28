@@ -31,6 +31,9 @@ const DEV_AFTER = {
   yiftach_1: { flags: ['yiftach_exiled', 'elders_oath', 'mizpah_words'], values: { yiftach_terms: 'c' } },
   yiftach_2: { flags: ['envoys_sent', 'dispute_done', 'ammon_refused'], gauges: { gilead_warriors: 6000 } },
   yiftach_3: { flags: ['yiftach_spirit', 'vow_made'] },
+  yiftach_4: { flags: ['yiftach4_started', 'freed_aroer', 'freed_minnith', 'freed_abel', 'ammon_defeated'] },
+  yiftach_5: { flags: ['daughter_returned'] },
+  yiftach_6: { flags: ['ephraim_war', 'fords_taken', 'yiftach_judged'], values: { yiftach_ephraim_tone: 'defensive' } },
 };
 
 const DEV_VARIANTS = {
@@ -50,6 +53,17 @@ const DEV_VARIANTS = {
   barak_3: [
     { label: 'с Деворой, 10 000 воинов' },
     { label: 'без Деворы, 7000 воинов', removeFlags: ['deborah_with', 'deborah_spoke'], addFlags: ['barak_alone'], gauges: { barak_warriors: 7000 } },
+  ],
+  // Й4: сколько «Воинов Гилада» принёс диспут в Й2 — от этого зависит число врагов
+  yiftach_4: [
+    { label: '6000 воинов (средний диспут)' },
+    { label: '10 000 воинов (лучший диспут)', gauges: { gilead_warriors: 10000 } },
+    { label: '2000 воинов (худший диспут)', gauges: { gilead_warriors: 2000 } },
+  ],
+  // Й6: тон ответа Эфраиму выбирается в самой зоне; вариант — с какой части начать
+  yiftach_6: [
+    { label: 'с разговора с Эфраимом' },
+    { label: 'сразу переправа (тон — защитный)', addFlags: ['ephraim_war'], values: { yiftach_ephraim_tone: 'defensive' } },
   ],
   'trial:power_a': [
     { label: 'мягкий ответ Эфраиму — 3 вопроса' },
@@ -103,6 +117,7 @@ function devStateFor(mapIndex, zoneIndex, variant) {
     (variant.addFlags || []).forEach((f) => flags.add(f));
     (variant.removeFlags || []).forEach((f) => flags.delete(f));
     Object.assign(gauges, variant.gauges || {});
+    Object.assign(values, variant.values || {});
   }
   return { flags: [...flags], values, items, gauges };
 }

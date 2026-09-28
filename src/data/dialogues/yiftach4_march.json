@@ -1,0 +1,25 @@
+{
+  "id": "yiftach4_march",
+  "title_he": "מֵעֲרוֹעֵר וְעַד אָבֵל כְּרָמִים",
+  "title_ru": "От Ароэра до Авель-Керамим",
+  "speakers": {},
+  "start": "m1",
+  "lines": [
+    {
+      "id": "m1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И перешёл Йифтах к сынам Аммона воевать с ними, и Г-сподь отдал их в его руку.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "В бой",
+          "next": null,
+          "effects": { "set_flag": "yiftach4_started" }
+        }
+      ]
+    }
+  ]
+}

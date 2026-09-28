@@ -515,5 +515,77 @@
   "wip_back": {
     "he": "לַחֲזֹר",
     "ru": "Вернуться"
+  },
+  "locked_yiftach_4": {
+    "he": "קֹדֶם שַׁחְרֵר אֶת הֶעָרִים.",
+    "ru": "Сначала освободи города."
+  },
+  "locked_yiftach_6": {
+    "he": "הַדֶּרֶךְ תִּפָּתַח אַחֲרֵי הַמַּעְבָּרוֹת.",
+    "ru": "Путь откроется после переправы."
+  },
+  "hud_cities": {
+    "he": "עָרִים: {value}",
+    "ru": "Города: {value}"
+  },
+  "hud_liberation_waves": {
+    "he": "{name}: גַּל {wave}",
+    "ru": "{name}: волна {wave}"
+  },
+  "hud_liberation_enemies": {
+    "he": "{name}: אוֹיְבִים — {n}",
+    "ru": "{name}: врагов {n}"
+  },
+  "liberation_point": {
+    "he": "{name} · עָרִים: {n}",
+    "ru": "{name} · городов: {n}"
+  },
+  "liberation_freed": {
+    "he": "{name} — שֻׁחְרְרָה",
+    "ru": "{name} — освобождено"
+  },
+  "liberation_battle": {
+    "he": "קְרָב: {name}!",
+    "ru": "Бой: {name}!"
+  },
+  "liberation_freed_toast": {
+    "he": "{name}: שֻׁחְרְרוּ {n} עָרִים",
+    "ru": "{name}: освобождено городов — {n}"
+  },
+  "shibboleth_hint": {
+    "he": "1 — לְהַעֲבִיר · 2 — לְעַכֵּב",
+    "ru": "1 — пропустить · 2 — задержать"
+  },
+  "shibboleth_hint_touch": {
+    "he": "לְהַעֲבִיר אוֹ לְעַכֵּב — בַּכַּפְתּוֹרִים לְמַטָּה",
+    "ru": "Пропустить или задержать — кнопками внизу"
+  },
+  "shibboleth_pass": {
+    "he": "לְהַעֲבִיר",
+    "ru": "Пропустить"
+  },
+  "shibboleth_detain": {
+    "he": "לְעַכֵּב",
+    "ru": "Задержать"
+  },
+  "shibboleth_word_shibbolet": {
+    "he": "שִׁבֹּלֶת",
+    "ru": "«шибболет»"
+  },
+  "shibboleth_word_sibbolet": {
+    "he": "סִבֹּלֶת",
+    "ru": "«сибболет»"
+  },
+  "shibboleth_word_stammer": {
+    "he": "שׁ… שִׁבֹּלֶת",
+    "ru": "«ш… шибболет»"
+  },
+  "shibboleth_wrong": {
+    "he": "הוּא אָמַר נָכוֹן…",
+    "ru": "Он сказал верно…"
+  },
+  "hud_shibboleth": {
+    "he": "עֻכְּבוּ: {detained} · עָבְרוּ: {passed} · נוֹתְרוּ: {left}",
+    "ru": "Задержано: {detained} · Пропущено: {passed} · Осталось: {left}"
   }
 }
