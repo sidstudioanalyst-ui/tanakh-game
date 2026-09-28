@@ -13,16 +13,38 @@ function detectTouch() {
   return !!(coarse || smallTouch);
 }
 const IS_TOUCH = detectTouch();
-// Портретный телефон: логическая ширина 480, высота — по пропорциям экрана. Так текст и кнопки
-// остаются крупными (800×600 в узком экране сжались бы вдвое). Размер выбирается при загрузке.
-const IS_PORTRAIT = IS_TOUCH && window.innerHeight > window.innerWidth;
-const PORTRAIT_WIDTH = 480;
+// Логическое разрешение. На компьютере — всегда 800×600. На тач-устройстве — по пропорциям
+// экрана, чтобы игра занимала его целиком, без полос по бокам: короткая сторона — 480 (телефон)
+// или 600 (планшет 4:3…16:10), длинная — по пропорциям (не больше 1280). Портрет: ширина 480,
+// высота по экрану; альбом: высота 480, ширина по экрану. Так текст и кнопки остаются крупными.
+// При повороте и изменении окна размер пересчитывается на лету (src/ui/Layout.js).
+const PHONE_SHORT = 480;
+const TABLET_SHORT = 600;
+function touchLayout(w, h) {
+  const portrait = h > w;
+  const aspect = Math.max(w, h) / Math.max(1, Math.min(w, h));
+  const short = aspect < 1.6 ? TABLET_SHORT : PHONE_SHORT;
+  const long = Math.round(Phaser.Math.Clamp(short * aspect, short, 1280));
+  return portrait ? { width: short, height: long, portrait } : { width: long, height: short, portrait };
+}
+// Размер области игры: #game (на тач — весь экран без вырезов, см. index.html)
+function gameAreaSize() {
+  const el = document.getElementById('game');
+  const r = el ? el.getBoundingClientRect() : null;
+  return r && r.width && r.height ? { w: r.width, h: r.height } : { w: window.innerWidth, h: window.innerHeight };
+}
+const START_LAYOUT = IS_TOUCH ? touchLayout(gameAreaSize().w, gameAreaSize().h) : { width: 800, height: 600, portrait: false };
 
 const CONFIG = {
-  WIDTH: IS_PORTRAIT ? PORTRAIT_WIDTH : 800,
-  HEIGHT: IS_PORTRAIT ? Math.round(Phaser.Math.Clamp((PORTRAIT_WIDTH * window.innerHeight) / window.innerWidth, 640, 1100)) : 600,
+  // WIDTH / HEIGHT / PORTRAIT на тач меняются при повороте (Layout.apply) — читать их каждый раз,
+  // а не запоминать при загрузке
+  WIDTH: START_LAYOUT.width,
+  HEIGHT: START_LAYOUT.height,
   TOUCH: IS_TOUCH, // джойстик, кнопки атаки/действия, иконки сумки и меню (src/ui/TouchControls.js)
-  PORTRAIT: IS_PORTRAIT, // компактная раскладка HUD и окон
+  PORTRAIT: START_LAYOUT.portrait, // портрет: компактная раскладка HUD и окон
+  // «на весь экран»: сплошные затемнения (ночь в Г1/Г4, переправа) рисуются этим размером, чтобы
+  // накрывать экран при любой раскладке и после поворота
+  FULLSCREEN_RECT: 4096,
 
   // Тач-управление (только при CONFIG.TOUCH)
   TOUCH_UI: {

@@ -43,8 +43,8 @@ class ShibbolethMechanic {
       return;
     }
     const c = this.current;
-    // сменили язык: кнопки и пузырь — заново
-    if (this.langKey !== `${UI.lang}${UI.bilingual}`) {
+    // сменили язык или раскладку (поворот телефона): кнопки и пузырь — заново
+    if (this.langKey !== `${UI.lang}${UI.bilingual}${CONFIG.WIDTH}x${CONFIG.HEIGHT}`) {
       this.buttons.forEach((o) => o.destroy());
       this.buildButtons();
       this.setButtons(!!(c && c.waiting));
@@ -68,7 +68,7 @@ class ShibbolethMechanic {
     scene.player.body.reset(p.x, p.y);
     this.buildButtons();
     scene.showToast(UI.t(CONFIG.TOUCH ? 'shibboleth_hint_touch' : 'shibboleth_hint'));
-    this.dim = scene.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x000000, 0).setOrigin(0).setScrollFactor(0).setDepth(90);
+    this.dim = scene.add.rectangle(0, 0, CONFIG.FULLSCREEN_RECT, CONFIG.FULLSCREEN_RECT, 0x000000, 0).setOrigin(0).setScrollFactor(0).setDepth(90);
     const kb = scene.input.keyboard;
     kb.on('keydown-ONE', () => this.decide('pass'));
     kb.on('keydown-TWO', () => this.decide('detain'));
@@ -96,7 +96,7 @@ class ShibbolethMechanic {
       ...make(-s * (w / 2 + 8), 'shibboleth_detain', 2, 0xd08770, () => this.decide('detain')),
     ];
     this.setButtons(false);
-    this.langKey = `${UI.lang}${UI.bilingual}`;
+    this.langKey = `${UI.lang}${UI.bilingual}${CONFIG.WIDTH}x${CONFIG.HEIGHT}`;
   }
 
   setButtons(on) {

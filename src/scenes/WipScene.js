@@ -29,6 +29,11 @@ class WipScene extends Phaser.Scene {
     bindLanguageKeys(this, () => this.draw());
   }
 
+  // Поворот телефона (src/ui/Layout.js)
+  relayout() {
+    this.draw();
+  }
+
   draw() {
     this.layer.removeAll(true);
     this.options = [];

@@ -30,9 +30,7 @@ class TrialScene extends Phaser.Scene {
     this.cameras.main.fadeIn(250);
     this.layer = this.add.container(0, 0);
 
-    this.margin = CONFIG.PORTRAIT ? 20 : 40; // узкий экран — поля меньше
-    this.right = CONFIG.WIDTH - this.margin;
-    this.contentWidth = CONFIG.WIDTH - this.margin * 2;
+    this.measure();
 
     const kb = this.input.keyboard;
     kb.on('keydown', (event) => {
@@ -48,6 +46,21 @@ class TrialScene extends Phaser.Scene {
   }
 
   // --- раскладка ------------------------------------------------------------
+
+  // Поля и ширина текста — от текущего размера экрана (на тач он меняется при повороте)
+  measure() {
+    this.margin = CONFIG.PORTRAIT ? 20 : 40; // узкий экран — поля меньше
+    this.right = CONFIG.WIDTH - this.margin;
+    this.contentWidth = Math.min(CONFIG.WIDTH - this.margin * 2, 900); // на широком экране строки не тянутся
+    this.right = CONFIG.WIDTH / 2 + this.contentWidth / 2;
+    this.margin = CONFIG.WIDTH / 2 - this.contentWidth / 2;
+  }
+
+  // Поворот телефона (src/ui/Layout.js): та же страница Суда в новом размере
+  relayout() {
+    this.measure();
+    this.render();
+  }
   // Координаты задаются «по-ивритски» (справа налево); в русском всё отражается.
 
   show(render) {

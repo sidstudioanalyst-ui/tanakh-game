@@ -16,6 +16,7 @@
 //   Уворот и блок — два круга со стрелкой и щитом (с подписями) над атакой и левее, только в
 //     боевых зонах. Уворот — нажатие (как Shift), блок — удержание (как Ctrl).
 //   Сумка и меню — иконки в верхнем углу (напротив полоски здоровья): инвентарь (I) и меню (Esc).
+//   «На весь экран» — третья иконка, только если браузер умеет Fullscreen API (не iPhone Safari).
 //
 // Касание мира (не кнопки): сначала его получает механика зоны (например, отметить воина в Г3),
 // иначе в левой половине — джойстик. После смерти касание начинает зону заново (как R).
@@ -177,6 +178,11 @@ class TouchControls {
     };
     this.menuIcon = make(12, 'icon-menu', () => this.scene.openMenu());
     this.bagIcon = make(12 + s + 10, 'icon-bag', () => this.scene.openInventory());
+    this.iconCount = 2;
+    if (Layout.canFullscreen) {
+      this.fullscreenIcon = make(12 + (s + 10) * 2, 'icon-fullscreen', () => Layout.toggleFullscreen());
+      this.iconCount = 3;
+    }
   }
 
   // Нижняя граница иконок — HUD ставит под ними кнопки языка
@@ -186,7 +192,7 @@ class TouchControls {
 
   // Левый край иконок (в раскладке для русского) — текст HUD не должен заходить за него
   get iconsLeft() {
-    return CONFIG.WIDTH - 12 - this.cfg.iconSize * 2 - 10;
+    return CONFIG.WIDTH - 12 - (this.cfg.iconSize + 10) * this.iconCount + 10;
   }
 
   // Верхний край кнопок (атака, уворот и блок с подписями) — всплывающие сообщения ставятся выше

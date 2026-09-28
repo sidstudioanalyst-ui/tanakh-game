@@ -47,7 +47,7 @@ class NightTasksMechanic {
   activate() {
     this.active = true;
     const { scene, cfg } = this;
-    this.dark = scene.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x0b1020, cfg.darkness).setOrigin(0).setScrollFactor(0).setDepth(50);
+    this.dark = scene.add.rectangle(0, 0, CONFIG.FULLSCREEN_RECT, CONFIG.FULLSCREEN_RECT, 0x0b1020, cfg.darkness).setOrigin(0).setScrollFactor(0).setDepth(50);
     this.sleepers = cfg.sleepers.map((s) => {
       const { x, y } = scene.tileCenter(s.x, s.y);
       const body = scene.add.rectangle(x, y, 22, 14, 0x81a1c1).setDepth(6).setStrokeStyle(1, 0x2e3440);

@@ -21,6 +21,8 @@ function startGame() {
     },
     scene: [BootScene, GameScene, InventoryScene, DialogueScene, TrialScene, MenuScene, DisputeScene, CommentaryScene, WipScene],
   });
+  // тач: поворот и изменение окна — раскладка перестраивается на лету (src/ui/Layout.js)
+  Layout.watch(window.game);
 }
 
 // Образец содержит и иврит, и знаки препинания — так грузятся оба подмножества шрифта
