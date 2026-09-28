@@ -76,13 +76,13 @@ defineZone({
     fight: {
       full: { hp: 1, speed: 70, fearRange: 120, organized: 0, clashEvery: 650, clashFall: 0.6, flee: [16, 32], shake: 0.006 },
       partial: {
-        hp: 2, speed: 80, fearRange: 80, lunge: { range: 70, every: [3000, 5000], damage: 4 },
-        organized: 0.15, organizedHp: 2, organizedSpeed: 78, organizedDamage: 5,
+        hp: 2, speed: 80, fearRange: 80, lunge: { range: 70, every: [3000, 5000], damage: 5 },
+        organized: 0.15, organizedHp: 2, organizedSpeed: 78, organizedDamage: 7,
         clashEvery: 1300, clashFall: 0.45, flee: [20, 38], shake: 0.003,
       },
       early: {
-        hp: 2, speed: 85, fearRange: 50, lunge: { range: 90, every: [2200, 3800], damage: 5 },
-        organized: 0.35, organizedHp: 3, organizedSpeed: 84, organizedDamage: 6,
+        hp: 2, speed: 85, fearRange: 50, lunge: { range: 90, every: [2200, 3800], damage: 6 },
+        organized: 0.35, organizedHp: 3, organizedSpeed: 84, organizedDamage: 9,
         clashEvery: 2600, clashFall: 0.3, flee: [26, 46], shake: 0.0015,
       },
     },

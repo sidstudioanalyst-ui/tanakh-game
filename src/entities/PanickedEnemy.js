@@ -21,13 +21,19 @@ class PanickedEnemy extends Enemy {
     };
     this.hp = this.stats.hp;
     this.isPanicked = true;
-    this.canHurt = this.organized; // растерянный ранит только в броске
+    // собранный бьёт как обычный враг — с замахом; растерянный ранит касанием только в броске
+    this.contactDamage = !this.organized;
+    this.canHurt = false;
     this.fleeAt = scene.time.now + Phaser.Math.Between(p.flee[0], p.flee[1]) * 1000;
     this.nextTurn = 0;
     this.nextLunge = scene.time.now + Phaser.Math.Between(...(p.lunge ? p.lunge.every : [0, 0]));
     this.lungeUntil = 0;
+    this.lungeWindupUntil = 0;
     this.backOffUntil = 0;
-    if (this.organized) this.setTint(0x6b4a3e); // собранные — темнее
+    if (this.organized) {
+      this.baseTint = 0x6b4a3e; // собранные — темнее
+      this.setTint(this.baseTint);
+    }
   }
 
   update(time, player) {
@@ -54,17 +60,23 @@ class PanickedEnemy extends Enemy {
       return;
     }
     if (this.organized) {
-      this.canHurt = true;
       super.update(time, player);
       if (this.body.velocity.lengthSq() === 0) this.wander(time, camp);
       return;
     }
 
     const d = player && !player.isDead ? Phaser.Math.Distance.Between(this.x, this.y, player.x, player.y) : Infinity;
-    // бросок на Гидона — редко и коротко
+    // бросок на Гидона — редко и коротко; перед ним — замах 0,3 с (стоит и мигает)
     if (p.lunge && d <= p.lunge.range && time >= this.nextLunge) {
-      this.lungeUntil = time + 600;
+      this.lungeWindupUntil = time + 300;
+      this.lungeUntil = time + 300 + 600;
       this.nextLunge = time + Phaser.Math.Between(p.lunge.every[0], p.lunge.every[1]);
+    }
+    if (time < this.lungeWindupUntil) {
+      this.setVelocity(0, 0);
+      if (Math.floor(time / 90) % 2) this.setTint(0xffa040);
+      else this.setTintFill(0xffd28a);
+      return;
     }
     if (time < this.lungeUntil) {
       this.canHurt = true;
@@ -74,7 +86,7 @@ class PanickedEnemy extends Enemy {
     }
     if (this.canHurt) {
       this.canHurt = false;
-      this.clearTint();
+      this.restoreTint();
     }
     // Гидон близко — убегает от него
     if (d < p.fearRange) {
@@ -89,9 +101,9 @@ class PanickedEnemy extends Enemy {
   onHitPlayer(time) {
     this.canHurt = false;
     this.lungeUntil = 0;
+    this.lungeWindupUntil = 0;
     this.backOffUntil = time + 1800;
-    this.clearTint();
-    if (this.organized) this.setTint(0x6b4a3e);
+    this.restoreTint();
   }
 
   // мечется: новое направление каждые 0,4–1,1 с; за пределами стана — обратно внутрь
@@ -115,6 +127,7 @@ class PanickedEnemy extends Enemy {
   // убежал из стана: исчезает, это не смерть
   flee() {
     this.isDead = true;
+    this.hideHpBar();
     this.fled = true;
     this.body.enable = false;
     this.scene.events.emit('panicked-fled', this);

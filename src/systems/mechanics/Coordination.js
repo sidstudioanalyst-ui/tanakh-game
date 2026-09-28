@@ -290,7 +290,7 @@ class CoordinationMechanic {
       top = scene.statusText.y + scene.statusText.height + 22;
     } else {
       left = UI.rtl ? 16 : CONFIG.WIDTH - 16 - W;
-      top = CONFIG.TOUCH ? 104 : 118;
+      top = CONFIG.TOUCH ? 104 : 136; // под подсказками по клавишам (в боевой зоне их 6 строк)
     }
     const X = (x) => left + x * k;
     const Y = (y) => top + y * k;
