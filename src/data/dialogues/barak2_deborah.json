@@ -1,0 +1,54 @@
+{
+  "id": "barak2_deborah",
+  "speakers": {
+    "deborah": {
+      "name_he": "דְּבוֹרָה",
+      "name_ru": "Двора"
+    }
+  },
+  "start": "e1",
+  "entry": [
+    {
+      "if_flag": "deborah_spoke",
+      "node": "again"
+    }
+  ],
+  "lines": [
+    {
+      "id": "e1",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Сыны Нафтали и Звулуна! Не за Бараком вы идёте и не за мною — Г-сподь выходит перед вами. Вставайте!",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Слушать Двору.",
+          "next": "e2",
+          "effects": {
+            "gauge": {
+              "barak_warriors": 1000
+            },
+            "set_flag": "deborah_spoke"
+          }
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Слово Деворы обошло стан. Кто колебался — взял копьё.",
+      "next": null
+    },
+    {
+      "id": "again",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Собери их, Барак. Я пойду с тобою к Тавору.",
+      "next": null
+    }
+  ]
+}

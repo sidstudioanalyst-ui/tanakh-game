@@ -1,0 +1,161 @@
+{
+  "id": "barak1_deborah",
+  "speakers": {
+    "deborah": {
+      "name_he": "דְּבוֹרָה",
+      "name_ru": "Двора"
+    },
+    "barak": {
+      "name_he": "בָּרָק",
+      "name_ru": "Барак"
+    }
+  },
+  "start": "d1",
+  "entry": [
+    {
+      "if_flag": "barak_task",
+      "node": "done"
+    }
+  ],
+  "lines": [
+    {
+      "id": "d1",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Двора, пророчица, жена Лапидота, судила Израиль в то время. Она сидела под пальмой Деворы, между Рамой и Бейт-Элем, на горе Эфраима, и сыны Израиля приходили к ней на суд. Она послала и призвала Барака, сына Авиноама, из Кедеша Нафтали.",
+      "next": "d2"
+    },
+    {
+      "id": "d2",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Вот, повелел Г-сподь, Б-г Израиля: иди, двинься к горе Тавор и возьми с собою десять тысяч человек из сынов Нафтали и из сынов Звулуна.",
+      "next": "d3"
+    },
+    {
+      "id": "d3",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "А Я приведу к тебе, к потоку Кишон, Сисру, военачальника Явина, и его колесницы, и его толпу — и предам его в твою руку.",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Я пойду. Ты оставайся здесь — войско соберу я сам.",
+          "next": "deb_a",
+          "effects": {
+            "counsel": 1,
+            "set_flag": [
+              "barak_alone",
+              "barak_task"
+            ]
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Если пойдёшь со мною — пойду; а если не пойдёшь со мною — не пойду.",
+          "next": "deb_b",
+          "effects": {
+            "counsel": -1,
+            "knowledge": 1,
+            "set_flag": [
+              "deborah_with",
+              "barak_task"
+            ]
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Не поведу. Девятьсот железных колесниц — не для пеших пастухов с гор.",
+          "next": "deb_c",
+          "effects": {
+            "knowledge": -1,
+            "set_flag": "barak_refused"
+          }
+        }
+      ]
+    },
+    {
+      "id": "deb_a",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иди. Г-сподь с тобою. Я остаюсь здесь, под пальмой, и буду судить народ.",
+      "no_escape": true,
+      "next": "n_a"
+    },
+    {
+      "id": "n_a",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Барак ушёл в Кедеш один. Без Деворы старейшины будут слушать его осторожнее.",
+      "no_escape": true,
+      "next": null
+    },
+    {
+      "id": "deb_b",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Пойти — пойду с тобою. Только не твоя будет слава на пути, по которому ты идёшь: в руку женщины предаст Г-сподь Сисру.",
+      "no_escape": true,
+      "next": "n_b"
+    },
+    {
+      "id": "n_b",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И встала Двора, и пошла с Бараком в Кедеш.",
+      "no_escape": true,
+      "next": null
+    },
+    {
+      "id": "deb_c",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Разве не Г-сподь, Б-г Израиля, повелел? Не твоя сила выведет войско, а Его слово. Поручение остаётся за тобой, Барак. Итак — пойдёшь?",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Хорошо. Я пойду — но один, без тебя.",
+          "next": "deb_a",
+          "effects": {
+            "counsel": 1,
+            "set_flag": [
+              "barak_alone",
+              "barak_task"
+            ]
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Я пойду — если ты пойдёшь со мною.",
+          "next": "deb_b",
+          "effects": {
+            "counsel": -1,
+            "knowledge": 1,
+            "set_flag": [
+              "deborah_with",
+              "barak_task"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иди в Кедеш, Барак. Нафтали и Звулун ждут.",
+      "next": null
+    }
+  ]
+}

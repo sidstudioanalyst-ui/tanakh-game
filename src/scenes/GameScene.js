@@ -16,7 +16,21 @@ class GameScene extends Phaser.Scene {
     this.transitioning = false;
     this.touch = null; // TouchControls — создаётся в HUD на тач-устройствах
     this.cutscene = false; // сцена идёт сама (паника в Г4): игрок не двигается и не действует
+    this.startPartIfNeeded();
     GameState.enterZone(this.zoneId, this.spawnAt);
+  }
+
+  // Первая зона части карты с freshEquipment (Барак после Эхуда): новый герой приходит без
+  // вещей прежнего и со здоровьем полностью. Один раз на часть — флаг <карта>_<часть>_started.
+  startPartIfNeeded() {
+    const partKey = this.zone && this.zone.part;
+    const map = GameState.map;
+    const part = partKey && map.parts && map.parts[partKey];
+    const flag = `${map.id}_${partKey}_started`;
+    if (!part || !part.freshEquipment || GameState.flags[flag]) return;
+    GameState.flags[flag] = true;
+    GameState.equipment.load({ slots: { weapon: null, armor: null, special: null }, bag: [] });
+    GameState.hp = null;
   }
 
   create() {
@@ -56,6 +70,7 @@ class GameScene extends Phaser.Scene {
     if (this.zone.night) this.mechanics.night = new NightTasksMechanic(this, this.zone.night);
     if (this.zone.selection) this.mechanics.selection = new SelectionMechanic(this, this.zone.selection);
     if (this.zone.coordination) this.mechanics.coordination = new CoordinationMechanic(this, this.zone.coordination);
+    if (this.zone.descent) this.mechanics.descent = new DescentMechanic(this, this.zone.descent);
 
     // Камера следует за игроком в пределах зоны
     // Зона меньше экрана — центрируем её, чтобы HUD не закрывал край карты
@@ -220,12 +235,14 @@ class GameScene extends Phaser.Scene {
       this.items.add(new Item(this, x, y, data.id, key));
     });
 
-    (zone.npcs || []).forEach((data) => {
+    // if_flag у NPC или декора — только если флаг стоит (Двора — если пошла с Бараком)
+    const shown = (d) => !d.if_flag || GameState.flags[d.if_flag];
+    (zone.npcs || []).filter(shown).forEach((data) => {
       const { x, y } = this.tileCenter(data.x, data.y);
       this.npcs.add(new Npc(this, x, y, data, this.npcName(data)));
     });
 
-    this.buildProps(zone.props || []);
+    this.buildProps((zone.props || []).filter(shown));
 
     // Игрок: цвет — у героя карты (например, Эхуд), иначе стандартный
     const hero = this.hero;

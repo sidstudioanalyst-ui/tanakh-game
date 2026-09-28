@@ -1,0 +1,76 @@
+{
+  "id": "barak3_signal",
+  "speakers": {
+    "deborah": {
+      "name_he": "דְּבוֹרָה",
+      "name_ru": "Двора"
+    },
+    "barak": {
+      "name_he": "בָּרָק",
+      "name_ru": "Барак"
+    }
+  },
+  "start": "s0",
+  "entry": [
+    {
+      "if_not_flag": "deborah_with",
+      "node": "s0_a"
+    }
+  ],
+  "lines": [
+    {
+      "id": "s0",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Барак поднялся на гору Тавор, и десять тысяч за ним. Сисре донесли — и он собрал все свои колесницы, девятьсот железных, и весь народ свой, к потоку Кишон.",
+      "no_escape": true,
+      "next": "s1_d"
+    },
+    {
+      "id": "s1_d",
+      "speaker": "deborah",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Вставай! Вот день, в который Г-сподь предал Сисру в твою руку. Не Г-сподь ли вышел пред тобою?",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Спускаться с Тавора!",
+          "next": null,
+          "effects": {
+            "set_flag": "descent_signal"
+          }
+        }
+      ]
+    },
+    {
+      "id": "s0_a",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Барак поднялся на гору Тавор, и войско за ним. Сисре донесли — и он собрал все свои колесницы, девятьсот железных, и весь народ свой, к потоку Кишон.",
+      "no_escape": true,
+      "next": "s1_a"
+    },
+    {
+      "id": "s1_a",
+      "speaker": "barak",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Двора осталась под пальмой. Но слово её я помню: «Г-сподь предаст его в твою руку». Сегодня.",
+      "no_escape": true,
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Спускаться с Тавора!",
+          "next": null,
+          "effects": {
+            "set_flag": "descent_signal"
+          }
+        }
+      ]
+    }
+  ]
+}

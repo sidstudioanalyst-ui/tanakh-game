@@ -15,7 +15,7 @@ function zoneDialogueIds(zone) {
     if (Array.isArray(v)) v.forEach(walk);
     else if (v && typeof v === 'object') {
       Object.entries(v).forEach(([k, x]) => {
-        if (k === 'dialogue' && typeof x === 'string') ids.push(x);
+        if ((k === 'dialogue' || k === 'intro') && typeof x === 'string') ids.push(x); // intro — заставка перехода
         else if (k !== 'tiles') walk(x);
       });
     }
@@ -33,8 +33,9 @@ function zoneDialogueIds(zone) {
 //   hero              — за кого играет игрок (имя в HUD, цвет квадрата; alias — прозвище по флагу)
 //   gauges            — шкалы карты (растут через effects: { gauge: { <id>: n } })
 //   restartOnDeath    — 'zone' (начать зону заново) или 'map' (всю карту; по умолчанию)
-//   parts             — части карты со своим названием и героем: { b: { name_he, name_ru, hero } };
-//                       зона относится к части полем part: 'b' (в HUD — название части)
+//   parts             — части карты со своим названием и героем: { b: { name_he, name_ru, hero,
+//                       freshEquipment? } }; зона относится к части полем part: 'b' (в HUD — название
+//                       части). freshEquipment: в первой зоне части герой начинает без прежних вещей
 //   intro             — заставка перед картой: id диалога из narration-реплик (контекст эпохи).
 //                       Показывается при каждом начале карты, в том числе после «Начать заново».
 const CAMPAIGNS = {
@@ -43,15 +44,26 @@ const CAMPAIGNS = {
       id: 'saviors_a',
       name_ru: 'Спасители · А: Эхуд',
       name_he: 'הַמּוֹשִׁיעִים · א: אֵהוּד',
-      zones: ['a1', 'a2', 'a3', 'a4', 'a5'],
+      // часть А (Эхуд): А1–А5; часть Б (Барак, Шофтим 4): Бр1–Бр4 (id barak_1…barak_4 —
+      // не путать с Б1–Б2 карты 2), затем Суд карты 1
+      zones: ['a1', 'a2', 'a3', 'a4', 'a5', 'barak_1', 'barak_2', 'barak_3', 'barak_4'],
       startZone: 'a1',
-      trial: 'saviors', // src/data/trials/saviors.json — после победы в А5
+      trial: 'saviors', // src/data/trials/saviors.json — после Бр4
       hero: { name_ru: 'Эхуд, сын Геры', name_he: 'אֵהוּד בֶּן גֵּרָא', color: 0xe5c07b },
       gauges: {
         warriors: { label: 'gauge_warriors', max: 300 },
+        barak_warriors: { label: 'gauge_barak', max: 10000 }, // Нафтали и Звулун (Бр2)
       },
       restartOnDeath: 'zone',
       intro: 'intro_saviors',
+      parts: {
+        b: {
+          name_ru: 'Спасители · Б: Барак',
+          name_he: 'הַמּוֹשִׁיעִים · ב: בָּרָק',
+          hero: { name_ru: 'Барак, сын Авиноама', name_he: 'בָּרָק בֶּן אֲבִינֹעַם', color: 0x88c0d0 },
+          freshEquipment: true, // Барак начинает без вещей Эхуда
+        },
+      },
     },
     {
       id: 'power_a',

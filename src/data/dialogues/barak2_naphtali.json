@@ -1,0 +1,136 @@
+{
+  "id": "barak2_naphtali",
+  "speakers": {
+    "w": {
+      "name_he": "זִקְנֵי נַפְתָּלִי",
+      "name_ru": "Старейшины Нафтали"
+    }
+  },
+  "start": "greet",
+  "entry": [
+    {
+      "if_flag": "naphtali_done",
+      "node": "again"
+    },
+    {
+      "if_flag": "deborah_with",
+      "node": "greet_d"
+    }
+  ],
+  "lines": [
+    {
+      "id": "greet_d",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы слышали: Барак, сын Авиноама, зовёт на гору Тавор. Против Сисры — с его железными колесницами? С чем ты пришёл к нам?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Не я зову — Г-сподь, Б-г Израиля, повелел через Двору: идите к Тавору, и Он предаст Сисру в нашу руку.",
+          "next": "join",
+          "effects": {
+            "knowledge": 1,
+            "gauge": {
+              "barak_warriors": 4500
+            },
+            "set_flag": "naphtali_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Колесницы сильны на равнине, но не в горах. Мы спустимся с Тавора сами, когда придёт время.",
+          "next": "join",
+          "effects": {
+            "counsel": 1,
+            "gauge": {
+              "barak_warriors": 3500
+            },
+            "set_flag": "naphtali_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Кто не пойдёт — тому позор перед всем Израилем.",
+          "next": "cold",
+          "effects": {
+            "counsel": -1,
+            "gauge": {
+              "barak_warriors": 2000
+            },
+            "set_flag": "naphtali_done"
+          }
+        }
+      ]
+    },
+    {
+      "id": "greet",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы слышали: Барак, сын Авиноама, зовёт на гору Тавор. Против Сисры — с его железными колесницами? С чем ты пришёл к нам?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Не я зову — Г-сподь, Б-г Израиля, повелел через Двору: идите к Тавору, и Он предаст Сисру в нашу руку.",
+          "next": "join",
+          "effects": {
+            "knowledge": 1,
+            "gauge": {
+              "barak_warriors": 3500
+            },
+            "set_flag": "naphtali_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Колесницы сильны на равнине, но не в горах. Мы спустимся с Тавора сами, когда придёт время.",
+          "next": "join",
+          "effects": {
+            "counsel": 1,
+            "gauge": {
+              "barak_warriors": 2500
+            },
+            "set_flag": "naphtali_done"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Кто не пойдёт — тому позор перед всем Израилем.",
+          "next": "cold",
+          "effects": {
+            "counsel": -1,
+            "gauge": {
+              "barak_warriors": 1500
+            },
+            "set_flag": "naphtali_done"
+          }
+        }
+      ]
+    },
+    {
+      "id": "join",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Тогда мы с тобой. Идём к Тавору.",
+      "next": null
+    },
+    {
+      "id": "cold",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Пойдём — но не от сердца. Многие останутся дома.",
+      "next": null
+    },
+    {
+      "id": "again",
+      "speaker": "w",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы готовы. Веди к Тавору.",
+      "next": null
+    }
+  ]
+}

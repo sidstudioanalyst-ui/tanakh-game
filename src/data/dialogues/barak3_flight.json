@@ -1,0 +1,23 @@
+{
+  "id": "barak3_flight",
+  "speakers": {},
+  "start": "f1",
+  "lines": [
+    {
+      "id": "f1",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И привёл Г-сподь в смятение Сисру, и все его колесницы, и весь стан — от острия меча перед Бараком.",
+      "next": "f2"
+    },
+    {
+      "id": "f2",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "А Сисра сошёл с колесницы и бежал пешком.",
+      "next": null
+    }
+  ]
+}
