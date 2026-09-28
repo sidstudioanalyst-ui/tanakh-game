@@ -1,0 +1,34 @@
+{
+  "id": "yiftach1_mizpah",
+  "title_he": "הַמִּצְפָּה",
+  "title_ru": "Мицпе",
+  "speakers": {},
+  "start": "m1",
+  "lines": [
+    {
+      "id": "m1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И произнёс Йифтах все слова свои пред Г-сподом в Мицпе.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "mizpah_words",
+            "goto_zone": {
+              "to": "yiftach_2",
+              "at": [
+                2,
+                8
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

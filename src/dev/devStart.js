@@ -3,7 +3,8 @@
 // без пролога и заставок.
 //
 // Чтобы середина карты не ломалась, подставляется состояние «как после обычного прохождения»:
-// DEV_AFTER[зона] — что игрок обычно получает, пройдя эту зону (флаги, вещи, шкалы). Для старта
+// DEV_AFTER[зона] — что игрок обычно получает, пройдя эту зону (флаги, вещи, шкалы; values —
+// флаги со значением, например yiftach_terms: 'c'). Для старта
 // с зоны складывается всё, что даёт путь до неё — включая предыдущие карты (как в игре: флаги
 // и вещи переходят с карты на карту). Мерило — пустое.
 // DEV_VARIANTS[зона | 'trial:<id карты>'] — если на зону влияет выбор раньше, каждый вариант —
@@ -27,6 +28,9 @@ const DEV_AFTER = {
   g6: { flags: ['kingship_done', 'kingship_refused', 'ephod_done'] },
   b1: { flags: ['parable_done'] },
   b2: { flags: ['abimelech_done'] },
+  yiftach_1: { flags: ['yiftach_exiled', 'elders_oath', 'mizpah_words'], values: { yiftach_terms: 'c' } },
+  yiftach_2: { flags: ['envoys_sent', 'dispute_done', 'ammon_refused'], gauges: { gilead_warriors: 6000 } },
+  yiftach_3: { flags: ['yiftach_spirit', 'vow_made'] },
 };
 
 const DEV_VARIANTS = {
@@ -66,11 +70,13 @@ function devZoneCode(id) {
 // Состояние для старта: всё, что дают зоны до этой точки (и все предыдущие карты), + вариант
 function devStateFor(mapIndex, zoneIndex, variant) {
   const flags = new Set();
+  const values = {};
   const items = [];
   const gauges = {};
   const add = (after) => {
     if (!after) return;
     (after.flags || []).forEach((f) => flags.add(f));
+    Object.assign(values, after.values || {});
     (after.items || []).forEach((i) => items.push(i));
     Object.assign(gauges, after.gauges || {});
   };
@@ -85,6 +91,7 @@ function devStateFor(mapIndex, zoneIndex, variant) {
   };
   CAMPAIGNS[DEV_CAMPAIGN].forEach((map, mi) => {
     if (mi > mapIndex) return;
+    if (map.freshEquipment) items.length = 0; // карта с новым героем (Йифтах) — без прежних вещей
     const upto = mi < mapIndex ? map.zones.length : zoneIndex;
     map.zones.slice(0, upto).forEach((z) => {
       enterPart(map, z);
@@ -97,7 +104,7 @@ function devStateFor(mapIndex, zoneIndex, variant) {
     (variant.removeFlags || []).forEach((f) => flags.delete(f));
     Object.assign(gauges, variant.gauges || {});
   }
-  return { flags: [...flags], items, gauges };
+  return { flags: [...flags], values, items, gauges };
 }
 
 // Все пункты меню: { key, mapIndex, zone | null (Суд), label, variant }
@@ -132,6 +139,7 @@ window.devApplyStart = (boot) => {
   GameState.startMap(s.mapIndex);
   GameState.introQueue = []; // без пролога и заставок
   s.state.flags.forEach((f) => (GameState.flags[f] = true));
+  Object.assign(GameState.flags, s.state.values);
   s.state.items.forEach((id) => GameState.equipment.pickUp(id));
   Object.assign(GameState.gauges, s.state.gauges);
   if (!s.zone) {

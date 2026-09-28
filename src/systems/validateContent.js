@@ -74,7 +74,9 @@ function validateContent(cache, uiStrings) {
       zone.waves.list.forEach((w) => CONFIG.ENEMY_TYPES[w.type] || warn(`${where}: волна — неизвестный тип "${w.type}"`));
     }
     (zone.exits || []).forEach((ex) => {
-      if (!ex.trial) {
+      if (ex.wip) {
+        // заглушка «в разработке» (WipScene) — зоны-цели нет
+      } else if (!ex.trial) {
         const target = ZONES[ex.to];
         if (!target) warn(`${where}: выход ведёт в несуществующую зону "${ex.to}"`);
         else if (ex.at && !isFloor(target, ex.at[0], ex.at[1])) warn(`${where}: выход в ${ex.to} — точка at не на полу`);
@@ -103,6 +105,10 @@ function validateContent(cache, uiStrings) {
         // к Суду карты — проверять нечего (без trial у карты откроется профиль Мерила)
       } else if (key === 'fail_zone') {
         if (uiStrings && !uiStrings[value]) warn(`${where}: fail_zone — нет строки "${value}"`);
+      } else if (key === 'open_dispute') {
+        if (!DISPUTES[value]) warn(`${where}: open_dispute — нет диспута "${value}"`);
+      } else if (key === 'open_commentary') {
+        if (!COMMENTARY[value]) warn(`${where}: open_commentary — нет панели "${value}"`);
       } else {
         warn(`${where}: неизвестный эффект "${key}"`);
       }
@@ -142,6 +148,21 @@ function validateContent(cache, uiStrings) {
         warn(`${where}: next "${line.next}" не найден`);
       }
     });
+  });
+
+  // Диспуты: карточки, возражения, реакции, диалог после спора
+  Object.entries(DISPUTES).forEach(([id, d]) => {
+    const where = `Диспут ${id}`;
+    const cardIds = d.cards.map((c) => c.id);
+    if (d.cards.length !== d.objections.length + 1) warn(`${where}: карточек должно быть на одну больше, чем возражений (последняя — на финальную реплику)`);
+    d.cards.forEach((c) => checkText({ text_he: c.text_he, text_ru: c.text_ru }, d.draft, `${where}, карточка ${c.id}`));
+    d.objections.forEach((o, i) => {
+      checkText(o, d.draft, `${where}, возражение ${i + 1}`);
+      Object.keys(o.fit).forEach((k) => cardIds.includes(k) || warn(`${where}, возражение ${i + 1}: fit — нет карточки "${k}"`));
+    });
+    [0, 1, 2].forEach((f) => d.reactions[f] || warn(`${where}: нет реакции на fit ${f}`));
+    if (d.result.gauge && !allGauges.has(d.result.gauge)) warn(`${where}: нет шкалы "${d.result.gauge}"`);
+    if (d.onDone && d.onDone.dialogue && !cache.dialogue(d.onDone.dialogue)) warn(`${where}: не загружен диалог "${d.onDone.dialogue}"`);
   });
 
   cache.allTrials().forEach((trial) => {

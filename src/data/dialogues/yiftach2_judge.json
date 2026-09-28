@@ -1,0 +1,39 @@
+{
+  "id": "yiftach2_judge",
+  "speakers": {
+    "yiftach": {
+      "name_he": "יִפְתָּח",
+      "name_ru": "Йифтах"
+    }
+  },
+  "start": "j1",
+  "lines": [
+    {
+      "id": "j1",
+      "speaker": "yiftach",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Я не согрешил против тебя, а ты делаешь мне зло, воюя со мной. Пусть Г-сподь-Судья рассудит сегодня между сынами Израиля и сынами Аммона.",
+      "next": "j2"
+    },
+    {
+      "id": "j2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Но не послушал царь сынов Аммона слов Йифтаха, которые тот передал ему. Посол ушёл.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "ammon_refused"
+          }
+        }
+      ]
+    }
+  ]
+}

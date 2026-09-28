@@ -95,6 +95,7 @@ class GameScene extends Phaser.Scene {
     this.createUI();
     this.bindKeys();
     this.bindEvents();
+    this.updateAura(false);
 
     // Короткая пауза перед тем, как выходы и триггеры начнут срабатывать — чтобы не «отскочить» обратно
     this.armedAt = this.time.now + 300;
@@ -136,6 +137,7 @@ class GameScene extends Phaser.Scene {
     Object.values(this.mechanics).forEach((m) => !this.gameOver && m.update(time, delta));
     if (this.gameOver || this.transitioning) return;
     this.updateNpcHints();
+    if (this.aura) this.aura.setPosition(this.player.x, this.player.y);
     if (this.touch) this.touch.update();
     this.checkTriggers(time);
     this.checkExits(time);
@@ -331,6 +333,24 @@ class GameScene extends Phaser.Scene {
     });
   }
 
+  // Свечение героя (zone.aura: { flag }) — «дух Г-спода» на Йифтахе в Й3, как укрепление
+  // Гидона в Г4: золотые кольца расходятся от героя, дальше вокруг него остаётся мягкое
+  // золотое свечение. Без прибавки к силе. burst: false — флаг уже стоял (вход в зону заново).
+  updateAura(burst = true) {
+    const cfg = this.zone.aura;
+    if (!cfg || this.aura || !GameState.flags[cfg.flag]) return;
+    const p = this.player;
+    const color = cfg.color || 0xebcb8b;
+    this.aura = this.add.circle(p.x, p.y, 22, color, 0.28).setDepth(9);
+    this.tweens.add({ targets: this.aura, scale: 1.35, alpha: 0.12, duration: 1100, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    if (!burst) return;
+    for (let i = 0; i < 3; i++) {
+      const ring = this.add.circle(p.x, p.y, 16).setStrokeStyle(3, color, 0.9).setDepth(52);
+      this.tweens.add({ targets: ring, scale: 4, alpha: 0, duration: 1100, delay: i * 350, onComplete: () => ring.destroy() });
+    }
+    this.cameras.main.flash(300, 235, 203, 139);
+  }
+
   // «Рассказ, а не место» (zone.look: 'story' — притча Йотама, итог Авимелеха): приглушённые
   // тёплые тона и затемнённые края. В WebGL — фильтры камеры (сепия + виньетка),
   // в Canvas — полупрозрачная тёплая пелена.
@@ -476,7 +496,7 @@ class GameScene extends Phaser.Scene {
       const inside = t.rect.contains(this.player.x, this.player.y);
       const entered = inside && !t.inside;
       t.inside = inside;
-      if (entered && t.dialogue && !GameState.flags[t.unless_flag]) {
+      if (entered && t.dialogue && !GameState.flags[t.unless_flag] && (!t.if_flag || GameState.flags[t.if_flag])) {
         this.openDialogue(t.dialogue);
         return;
       }
@@ -506,6 +526,7 @@ class GameScene extends Phaser.Scene {
     }
     if (!exit || !this.exitOpen(exit)) return;
     if (exit.trial) this.goToTrial();
+    else if (exit.wip) this.transition(() => this.scene.start('WipScene', { label: exit.wip, label_he: exit.wip_he, back: this.zoneId }));
     else this.goToZone(exit.to, exit.at);
   }
 
@@ -560,6 +581,14 @@ class GameScene extends Phaser.Scene {
     if (GameState.pendingTrial) {
       GameState.pendingTrial = false;
       this.goToTrial();
+      return;
+    }
+    // окно после диалога (диспут в Й2, «Комментаторы» в Й3) — через кадр: сцена только что
+    // снята с паузы, а openOverlay снова ставит её на паузу
+    if (GameState.pendingOverlay) {
+      const { scene, data } = GameState.pendingOverlay;
+      GameState.pendingOverlay = null;
+      this.time.delayedCall(1, () => this.openOverlay(scene, data));
     }
   }
 
@@ -793,6 +822,7 @@ class GameScene extends Phaser.Scene {
       this.input.keyboard.resetKeys();
       this.refreshExits();
       this.triggers.forEach((t) => (t.inside = t.rect.contains(this.player.x, this.player.y)));
+      this.updateAura();
       this.applyPending();
     };
     this.events.on('resume', onResume);
