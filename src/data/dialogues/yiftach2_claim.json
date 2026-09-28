@@ -1,0 +1,56 @@
+{
+  "id": "yiftach2_claim",
+  "speakers": {
+    "envoys": {
+      "name_he": "הַמַּלְאָכִים",
+      "name_ru": "Послы"
+    },
+    "yiftach": {
+      "name_he": "יִפְתָּח",
+      "name_ru": "Йифтах"
+    }
+  },
+  "start": "k1",
+  "entry": [
+    {
+      "if_flag": "dispute_done",
+      "node": "after"
+    }
+  ],
+  "lines": [
+    {
+      "id": "k1",
+      "speaker": "envoys",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы вернулись от царя сынов Аммона. Вот его ответ.",
+      "next": "k2"
+    },
+    {
+      "id": "k2",
+      "speaker": "envoys",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "«Израиль, выходя из Египта, взял мою землю — от Арнона до Явока и до Иордана. Теперь верни её миром».",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Ответить царю",
+          "next": null,
+          "effects": {
+            "open_dispute": "ammon"
+          }
+        }
+      ]
+    },
+    {
+      "id": "after",
+      "speaker": "envoys",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы передали царю всё, что ты сказал.",
+      "next": null
+    }
+  ]
+}

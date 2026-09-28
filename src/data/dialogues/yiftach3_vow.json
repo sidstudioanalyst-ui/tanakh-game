@@ -1,0 +1,57 @@
+{
+  "id": "yiftach3_vow",
+  "speakers": {
+    "yiftach": {
+      "name_he": "יִפְתָּח",
+      "name_ru": "Йифтах"
+    }
+  },
+  "start": "v1",
+  "lines": [
+    {
+      "id": "v1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И прошёл Йифтах Гилад и Менаше, и пришёл в Мицпе Гилада. И дал Йифтах обет Г-споду и сказал:",
+      "next": "v2"
+    },
+    {
+      "id": "v2",
+      "speaker": "yiftach",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Если Ты отдашь сынов Аммона в мои руки, то что выйдет из дверей моего дома мне навстречу, когда я вернусь с миром от сынов Аммона, — будет Г-споду, и я вознесу это как «олу» — всесожжение.",
+      "next": "v3"
+    },
+    {
+      "id": "v3",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Йифтах идёт к сынам Аммона.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Идти дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "vow_made"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Комментаторы: как понимают этот обет",
+          "next": null,
+          "effects": {
+            "set_flag": "vow_made",
+            "open_commentary": "vow"
+          }
+        }
+      ]
+    }
+  ]
+}

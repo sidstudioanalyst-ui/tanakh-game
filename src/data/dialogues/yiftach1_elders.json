@@ -1,0 +1,137 @@
+{
+  "id": "yiftach1_elders",
+  "speakers": {
+    "elders": {
+      "name_he": "זִקְנֵי גִלְעָד",
+      "name_ru": "Старейшины Гилада"
+    },
+    "yiftach": {
+      "name_he": "יִפְתָּח",
+      "name_ru": "Йифтах"
+    }
+  },
+  "start": "e1",
+  "entry": [
+    {
+      "if_flag": "elders_oath",
+      "node": "done"
+    }
+  ],
+  "lines": [
+    {
+      "id": "e1",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Иди, будь нам военачальником — и будем воевать с сынами Аммона.",
+      "next": "e2"
+    },
+    {
+      "id": "e2",
+      "speaker": "yiftach",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Разве не вы возненавидели меня и изгнали из дома отца моего? Зачем пришли ко мне теперь, когда вам плохо?",
+      "next": "e3"
+    },
+    {
+      "id": "e3",
+      "speaker": "elders",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Потому мы и вернулись к тебе теперь. Пойди с нами и воюй с сынами Аммона. Чего ты хочешь за это?",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Ничего не прошу. Это мой народ, и ему плохо, — я пойду с вами.",
+          "next": "a1",
+          "effects": {
+            "justice": 1,
+            "knowledge": 1,
+            "set_flag": {
+              "yiftach_terms": "a"
+            }
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Поклянитесь, что не отвернётесь от меня снова, когда беда минует.",
+          "next": "b1",
+          "effects": {
+            "wisdom": 1,
+            "counsel": 1,
+            "set_flag": {
+              "yiftach_terms": "b"
+            }
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Если вы возвращаете меня воевать с сынами Аммона и Г-сподь отдаст их мне — я буду вам главой.",
+          "next": "c1",
+          "effects": {
+            "counsel": 1,
+            "justice": -1,
+            "set_flag": {
+              "yiftach_terms": "c"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "a1",
+      "speaker": "elders",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Ты не просишь ничего — тогда клятву дадим мы сами. Г-сподь будет свидетелем между нами: мы не отступим от твоего слова.",
+      "next": "oath"
+    },
+    {
+      "id": "b1",
+      "speaker": "elders",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Г-сподь будет свидетелем между нами: мы не отвернёмся от тебя снова. Сделаем по слову твоему.",
+      "next": "oath"
+    },
+    {
+      "id": "c1",
+      "speaker": "elders",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Г-сподь будет свидетелем между нами, если не сделаем по слову твоему: ты будешь главой над всеми жителями Гилада.",
+      "next": "oath"
+    },
+    {
+      "id": "oath",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И пошёл Йифтах со старейшинами Гилада, и народ поставил его над собой главой и начальником.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Идти в Мицпе",
+          "next": null,
+          "effects": {
+            "set_flag": "elders_oath"
+          }
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Идём в Мицпе. Народ ждёт тебя там.",
+      "next": null
+    }
+  ]
+}

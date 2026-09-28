@@ -1,0 +1,25 @@
+{
+  "id": "yiftach3_spirit",
+  "speakers": {},
+  "start": "r1",
+  "lines": [
+    {
+      "id": "r1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И был на Йифтахе дух Г-спода.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "yiftach_spirit"
+          }
+        }
+      ]
+    }
+  ]
+}

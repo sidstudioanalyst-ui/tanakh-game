@@ -1,0 +1,25 @@
+{
+  "id": "yiftach2_envoys",
+  "speakers": {},
+  "start": "s1",
+  "lines": [
+    {
+      "id": "s1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И послал Йифтах послов к царю сынов Аммона сказать: «Что тебе до меня, что ты пришёл ко мне воевать в моей земле?»",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Ждать ответа",
+          "next": null,
+          "effects": {
+            "set_flag": "envoys_sent"
+          }
+        }
+      ]
+    }
+  ]
+}

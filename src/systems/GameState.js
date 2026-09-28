@@ -29,6 +29,7 @@ const GameState = {
     this.pendingZone = null; // переход, заказанный диалогом (goto_zone)
     this.pendingTrial = false; // переход к Суду, заказанный диалогом (goto_trial)
     this.pendingFail = null; // провал сцены, заказанный диалогом (fail_zone)
+    this.pendingOverlay = null; // окно после диалога: диспут (open_dispute), комментаторы (open_commentary)
     this.startMap(0);
     // Пролог кампании — перед заставкой первой карты, если ещё не пройден
     const prologue = PROLOGUES[campaign] || [];
@@ -50,6 +51,8 @@ const GameState = {
     this.currentZone = this.map.startZone;
     this.queueMapIntro();
     this.hp = null;
+    // freshEquipment у карты: новый герой (Йифтах) приходит без вещей прежних героев
+    if (this.map.freshEquipment) this.equipment.load({ slots: { weapon: null, armor: null, special: null }, bag: [] });
     Object.keys(this.map.gauges || {}).forEach((id) => {
       if (this.gauges[id] === undefined) this.gauges[id] = 0;
     });
@@ -93,12 +96,15 @@ const GameState = {
   // Применить effects из диалога или Суда. Возвращает строки для всплывающего сообщения.
   //   { wisdom: 1, justice: -1 } — величины Мерила (+ свет, − тень)
   //   give_item: 'id' | ['id', ...]   — выдать предмет
-  //   set_flag:  'name' | ['name', …]  — поставить флаг
+  //   set_flag:  'name' | ['name', …]  — поставить флаг; { name: 'a' } — флаг со значением
+  //                                      (условие if_flag: name — просто «флаг стоит»)
   //   gauge:     { warriors: 100 }     — изменить шкалу карты
   //   open_door: 'id' | ['id', …]      — открыть дверь в текущей зоне
   //   goto_zone: 'a3' | { to, at }     — перейти в зону, когда диалог закроется
   //   goto_trial: true                 — к экрану Суда карты, когда диалог закроется (итог в Б2)
   //   fail_zone: 'fail_searched'       — провалить сцену (ключ строки причины), когда диалог закроется
+  //   open_dispute: 'ammon'            — диспут (DISPUTES, src/data/disputes.js), когда диалог закроется
+  //   open_commentary: 'vow'           — панель «Комментаторы» (COMMENTARY), когда диалог закроется
   applyEffects(effects) {
     const notes = [];
     if (!effects) return notes;
@@ -111,9 +117,11 @@ const GameState = {
           notes.push(UI.t(equipped ? 'toast_equipped' : 'toast_to_bag', { item: describeItem(id) }));
         });
       } else if (key === 'set_flag') {
-        [].concat(value).forEach((flag) => {
-          this.flags[flag] = true;
-        });
+        if (value && typeof value === 'object' && !Array.isArray(value)) Object.assign(this.flags, value);
+        else
+          [].concat(value).forEach((flag) => {
+            this.flags[flag] = true;
+          });
       } else if (key === 'gauge') {
         Object.entries(value).forEach(([id, amount]) => {
           this.addGauge(id, amount);
@@ -128,6 +136,10 @@ const GameState = {
         this.pendingZone = typeof value === 'string' ? { to: value } : value;
       } else if (key === 'fail_zone') {
         this.pendingFail = value; // ключ строки с причиной; зона начнётся заново после диалога
+      } else if (key === 'open_dispute') {
+        this.pendingOverlay = { scene: 'DisputeScene', data: { disputeId: value } };
+      } else if (key === 'open_commentary') {
+        this.pendingOverlay = { scene: 'CommentaryScene', data: { commentaryId: value } };
       } else {
         console.warn(`Неизвестный эффект "${key}"`);
       }
@@ -219,6 +231,7 @@ const GameState = {
     this.pendingZone = null;
     this.pendingTrial = false;
     this.pendingFail = null;
+    this.pendingOverlay = null;
     this.events.emit('measures-changed');
   },
 

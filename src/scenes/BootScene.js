@@ -34,6 +34,8 @@ class BootScene extends Phaser.Scene {
     const dialogueIds = new Set();
     Object.values(ZONES).forEach((zone) => zoneDialogueIds(zone).forEach((id) => dialogueIds.add(id)));
     introDialogueIds().forEach((id) => dialogueIds.add(id)); // пролог и заставки карт
+    // диалог после диспута (onDone.dialogue)
+    Object.values(DISPUTES).forEach((d) => d.onDone && d.onDone.dialogue && dialogueIds.add(d.onDone.dialogue));
     Content.dialogueIds = [...dialogueIds];
     Content.trialIds = [...new Set(ALL_MAPS.map((m) => m.trial).filter(Boolean))];
 
