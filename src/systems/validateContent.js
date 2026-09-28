@@ -63,6 +63,21 @@ function validateContent(cache, uiStrings) {
         if (uiStrings && !uiStrings[loc.label]) warn(`${where}: нет строки "${loc.label}"`);
       });
     }
+    if (zone.liberation) {
+      const lib = zone.liberation;
+      lib.points.forEach((p) => {
+        floor(p.x, p.y, `точка ${p.id}`);
+        p.spawns.forEach(([x, y]) => floor(x, y, `враг точки ${p.id}`));
+        if (!CONFIG.ENEMY_TYPES[p.type]) warn(`${where}: точка ${p.id} — неизвестный тип врага "${p.type}"`);
+      });
+      const sum = lib.points.reduce((n, p) => n + p.cities, 0);
+      if (sum !== lib.total) warn(`${where}: городов в точках ${sum}, а total — ${lib.total}`);
+    }
+    if (zone.shibboleth) {
+      const sh = zone.shibboleth;
+      ['at', 'from', 'stop'].forEach((k) => floor(sh[k][0], sh[k][1], `переправа: ${k}`));
+      sh.list.forEach((e, i) => ['shibbolet', 'sibbolet', 'stammer'].includes(e.word) || warn(`${where}: беглец ${i + 1} — неизвестное слово "${e.word}"`));
+    }
     (zone.doors || []).forEach((d) => d.tiles.forEach(([x, y]) => floor(x, y, `дверь ${d.id}`)));
     (zone.guards || []).forEach((g, i) => {
       floor(g.x, g.y, `страж ${i + 1}`);
