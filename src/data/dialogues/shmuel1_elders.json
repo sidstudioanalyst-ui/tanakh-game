@@ -1,0 +1,154 @@
+{
+  "id": "shmuel1_elders",
+  "speakers": {
+    "elders": {
+      "name_he": "זִקְנֵי יִשְׂרָאֵל",
+      "name_ru": "Старейшины Израиля"
+    },
+    "shmuel": {
+      "name_he": "שְׁמוּאֵל",
+      "name_ru": "Шмуэль"
+    }
+  },
+  "start": "e0",
+  "entry": [
+    {
+      "if_flag": "shmuel_prayed",
+      "node": "done"
+    }
+  ],
+  "lines": [
+    {
+      "id": "e0",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И собрались все старейшины Израиля и пришли к Шмуэлю в Раму.",
+      "next": "e1"
+    },
+    {
+      "id": "e1",
+      "speaker": "elders",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Вот, ты состарился, а сыновья твои не ходят твоими путями. Поставь же над нами царя, чтобы судил нас, как у всех народов.",
+      "next": "e2"
+    },
+    {
+      "id": "e2",
+      "speaker": "shmuel",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "…",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Разве я не судил вас все эти годы? Разве взял у кого-нибудь хоть что-то? А теперь — царя?",
+          "next": "ra",
+          "effects": {
+            "set_flag": {
+              "shmuel_tone": "defensive"
+            },
+            "counsel": -1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Скажите, чем вы недовольны? Что именно случилось в Беэр-Шеве?",
+          "next": "rb",
+          "effects": {
+            "set_flag": {
+              "shmuel_tone": "asks"
+            },
+            "wisdom": 1
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "(Шмуэль молчит и уходит помолиться.)",
+          "next": "pray",
+          "effects": {
+            "set_flag": {
+              "shmuel_tone": "silent"
+            },
+            "knowledge": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "ra",
+      "speaker": "elders",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Мы не о тебе говорим. Мы просим царя, чтобы судил нас.",
+      "next": "pray"
+    },
+    {
+      "id": "rb",
+      "speaker": "elders",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Сыновья твои не ходят твоими путями. Поставь над нами царя, чтобы судил нас.",
+      "next": "pray"
+    },
+    {
+      "id": "pray",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И было это дело злом в глазах Шмуэля, когда сказали: «Дай нам царя, чтобы судил нас». И молился Шмуэль Г-споду.",
+      "next": "g1"
+    },
+    {
+      "id": "g1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И сказал Г-сподь Шмуэлю: «Слушай голос народа во всём, что они говорят тебе: не тебя они отвергли, а Меня отвергли, чтобы Я не царствовал над ними.",
+      "next": "g2"
+    },
+    {
+      "id": "g2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Как они поступали от дня, когда Я вывел их из Египта, и до сего дня, — оставляли Меня и служили другим богам, — так поступают они и с тобой.",
+      "next": "g3"
+    },
+    {
+      "id": "g3",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "А теперь послушай их голоса; только предостереги их и объяви им право царя, который будет царствовать над ними».",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "shmuel_prayed"
+          }
+        }
+      ]
+    },
+    {
+      "id": "done",
+      "speaker": "elders",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Объяви народу право царя, как сказано тебе.",
+      "next": null
+    }
+  ]
+}

@@ -73,6 +73,16 @@ function validateContent(cache, uiStrings) {
       const sum = lib.points.reduce((n, p) => n + p.cities, 0);
       if (sum !== lib.total) warn(`${where}: городов в точках ${sum}, а total — ${lib.total}`);
     }
+    if (zone.village) {
+      zone.village.groups.forEach((g) => {
+        floor(g.x, g.y, `группа ${g.id}`);
+        g.members.forEach((m, i) => floor(m.x, m.y, `группа ${g.id}, фигура ${i + 1}`));
+        if (!cache.dialogue(g.dialogue)) warn(`${where}: группа ${g.id} — не загружен диалог "${g.dialogue}"`);
+        ((g.change && g.change.recolor) || []).forEach((id) => (zone.props || []).some((p) => p.id === id) || warn(`${where}: группа ${g.id} — нет декора "${id}"`));
+        if (g.journal && uiStrings && !uiStrings[g.journal.key]) warn(`${where}: нет строки "${g.journal.key}"`);
+      });
+    }
+    if (zone.calm && ((zone.enemies || []).length || zone.waves || zone.descent || zone.liberation)) warn(`${where}: «тихая» зона (calm) с врагами`);
     if (zone.shibboleth) {
       const sh = zone.shibboleth;
       ['at', 'from', 'stop'].forEach((k) => floor(sh[k][0], sh[k][1], `переправа: ${k}`));

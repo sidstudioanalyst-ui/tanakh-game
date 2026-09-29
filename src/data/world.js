@@ -97,9 +97,9 @@ const CAMPAIGNS = {
       name_ru: 'Слово и власть · А: Йифтах',
       name_he: 'הַדָּבָר וְהַשִּׁלְטוֹן · א: יִפְתָּח',
       // часть А (Йифтах, Шофтим 10:6–11:40, 12:1–7): Й1–Й6 (id yiftach_1…yiftach_6 — не путать
-      // с Б1–Б2 карты 2 и Бр1–Бр4 карты 1); после Й6 — заглушка «Часть Б в разработке».
-      // Часть Б (Шмуэль) и Суд карты 3 — отдельными задачами.
-      zones: ['yiftach_1', 'yiftach_2', 'yiftach_3', 'yiftach_4', 'yiftach_5', 'yiftach_6'],
+      // с Б1–Б2 карты 2 и Бр1–Бр4 карты 1); часть Б (Шмуэль, Шмуэль алеф 8): Ш1–Ш3
+      // (shmuel_1…shmuel_3), затем экран Суда карты 3 (пока только профиль Мерила).
+      zones: ['yiftach_1', 'yiftach_2', 'yiftach_3', 'yiftach_4', 'yiftach_5', 'yiftach_6', 'shmuel_1', 'shmuel_2', 'shmuel_3'],
       startZone: 'yiftach_1',
       trial: null, // Суд карты 3 ещё не написан
       hero: { name_ru: 'Йифтах из Гилада', name_he: 'יִפְתָּח הַגִּלְעָדִי', color: 0xb48ead },
@@ -109,6 +109,14 @@ const CAMPAIGNS = {
       restartOnDeath: 'zone',
       freshEquipment: true, // без вещей Эхуда, Барака и Гидона; Мерило и флаги — общие
       intro: 'intro_word',
+      parts: {
+        b: {
+          name_ru: 'Слово и власть · Б: Шмуэль',
+          name_he: 'הַדָּבָר וְהַשִּׁלְטוֹן · ב: שְׁמוּאֵל',
+          hero: { name_ru: 'Шмуэль', name_he: 'שְׁמוּאֵל', color: 0x8fbcbb },
+          freshEquipment: true, // Шмуэль — без вещей Йифтаха; боя в части Б нет (зоны calm)
+        },
+      },
     },
   ],
   demo: [
