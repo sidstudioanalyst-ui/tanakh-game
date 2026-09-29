@@ -8,7 +8,8 @@
 // с зоны складывается всё, что даёт путь до неё — включая предыдущие карты (как в игре: флаги
 // и вещи переходят с карты на карту). Мерило — пустое.
 // DEV_VARIANTS[зона | 'trial:<id карты>'] — если на зону влияет выбор раньше, каждый вариант —
-// отдельная кнопка (например, жёсткий или мягкий ответ Эфраиму для Суда карты 2).
+// отдельная кнопка (например, жёсткий или мягкий ответ Эфраиму для Суда карты 2). Поля варианта:
+// addFlags / removeFlags, gauges, values (флаги со значением) и removeValues (убрать такой флаг).
 //
 // Глубокая ссылка для проверок: dev.html?start=a5 · ?start=a5:1 (вариант 2) · ?start=trial:power_a:1
 const DEV_AFTER = {
@@ -82,6 +83,14 @@ const DEV_VARIANTS = {
     { label: 'мягкий ответ Эфраиму — 3 вопроса' },
     { label: 'жёсткий ответ Эфраиму — 4 вопроса', addFlags: ['ephraim_harsh'], removeFlags: ['ephraim_soft'] },
   ],
+  // Суд карты 3: условие Йифтаха (Й1) и тон ответа Эфраиму (Й6) меняют формулировки вопросов;
+  // без тона (например, старт с Й6 без разговора) вопрос об Эфраиме не показывается — 3 вопроса
+  'trial:word_a': [
+    { label: 'условие «главой» (c), тон защитный — 4 вопроса' },
+    { label: 'условие-клятва (b), тон жёсткий', values: { yiftach_terms: 'b', yiftach_ephraim_tone: 'harsh' } },
+    { label: 'без условий (a), тон примирительный', values: { yiftach_terms: 'a', yiftach_ephraim_tone: 'conciliatory' } },
+    { label: 'без тона Эфраиму — 3 вопроса', removeValues: ['yiftach_ephraim_tone'] },
+  ],
 };
 
 const DEV_CAMPAIGN = 'saviors';
@@ -131,6 +140,7 @@ function devStateFor(mapIndex, zoneIndex, variant) {
     (variant.removeFlags || []).forEach((f) => flags.delete(f));
     Object.assign(gauges, variant.gauges || {});
     Object.assign(values, variant.values || {});
+    (variant.removeValues || []).forEach((f) => delete values[f]);
   }
   return { flags: [...flags], values, items, gauges };
 }

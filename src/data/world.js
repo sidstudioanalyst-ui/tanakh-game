@@ -98,10 +98,10 @@ const CAMPAIGNS = {
       name_he: 'הַדָּבָר וְהַשִּׁלְטוֹן · א: יִפְתָּח',
       // часть А (Йифтах, Шофтим 10:6–11:40, 12:1–7): Й1–Й6 (id yiftach_1…yiftach_6 — не путать
       // с Б1–Б2 карты 2 и Бр1–Бр4 карты 1); часть Б (Шмуэль, Шмуэль алеф 8): Ш1–Ш3
-      // (shmuel_1…shmuel_3), затем экран Суда карты 3 (пока только профиль Мерила).
+      // (shmuel_1…shmuel_3), затем Суд карты 3 (src/data/trials/word.json).
       zones: ['yiftach_1', 'yiftach_2', 'yiftach_3', 'yiftach_4', 'yiftach_5', 'yiftach_6', 'shmuel_1', 'shmuel_2', 'shmuel_3'],
       startZone: 'yiftach_1',
-      trial: null, // Суд карты 3 ещё не написан
+      trial: 'word', // src/data/trials/word.json — после Ш3; карта последняя: «Начать заново»
       hero: { name_ru: 'Йифтах из Гилада', name_he: 'יִפְתָּח הַגִּלְעָדִי', color: 0xb48ead },
       gauges: {
         gilead_warriors: { label: 'gauge_gilead', max: 10000 }, // после диспута в Й2 — к бою Й4

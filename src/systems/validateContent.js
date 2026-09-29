@@ -191,9 +191,13 @@ function validateContent(cache, uiStrings) {
   });
 
   cache.allTrials().forEach((trial) => {
-    // без условных (if_flag) вопросов должно остаться хотя бы три
-    const always = (trial.questions || []).filter((q) => !q.if_flag).length;
-    if (always < 3) warn(`Суд ${trial.id}: нужно не меньше 3 вопросов без if_flag (сейчас ${always})`);
+    // всегда показывается не меньше трёх: вопросы без условий + группы вариантов, где есть
+    // вариант «по умолчанию» (unless_flag_is)
+    const qs = trial.questions || [];
+    const plain = qs.filter((q) => !q.if_flag && !q.if_flag_is && !q.unless_flag_is).length;
+    const groups = new Set(qs.filter((q) => q.group && q.unless_flag_is).map((q) => q.group)).size;
+    const always = plain + groups;
+    if (always < 3) warn(`Суд ${trial.id}: нужно не меньше 3 вопросов, которые показываются всегда (сейчас ${always})`);
     if (trial.draft) checkText({ text_he: trial.intro_he, text_ru: trial.intro_ru }, true, `Суд ${trial.id}, вступление`);
     (trial.questions || []).forEach((q, i) => {
       checkText(q, !!q.draft, `Суд ${trial.id}, вопрос ${i + 1}`);

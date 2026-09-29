@@ -2,6 +2,9 @@
 //   1) профиль по четырём величинам Мерила — сколько в каждой «света» и «тени» (не оценка);
 //   2) вопросы (обычно три), у каждого два аргумента: «за» (for) и «против» (against);
 //      if_flag у вопроса — показать, только если флаг стоит (жёсткий ответ Эфраиму в Суде карты 2);
+//      if_flag_is: { флаг: ['значение', ...] } — только если у флага одно из значений;
+//      unless_flag_is — наоборот (вариант «по умолчанию»). Варианты одного вопроса — с общим
+//      group (Суд карты 3: условие Йифтаха, тон ответа Эфраиму); в ответах — «сторона:id».
 //   3) итог и переход на следующую карту (или начало заново, если карта последняя).
 // Аргументы могут иметь effects — как выборы в диалогах.
 // draft: true (у суда — для вступления и итога, у вопроса — для него и его аргументов): иврита
@@ -15,7 +18,10 @@ class TrialScene extends Phaser.Scene {
     // trial: null у карты — Суд ещё не написан: показываем только профиль Мерила
     this.trial = (data.trialId && Content.trial(data.trialId)) || this.stubTrial();
     // вопросы с if_flag — только если флаг стоит; нумерация «1 из N» — по тем, что показываются
-    this.questions = (this.trial.questions || []).filter((q) => !q.if_flag || GameState.flags[q.if_flag]);
+    const is = (cond) => Object.entries(cond).every(([flag, values]) => [].concat(values).includes(GameState.flags[flag]));
+    this.questions = (this.trial.questions || []).filter(
+      (q) => (!q.if_flag || GameState.flags[q.if_flag]) && (!q.if_flag_is || is(q.if_flag_is)) && (!q.unless_flag_is || !is(q.unless_flag_is))
+    );
     this.answers = [];
   }
 
@@ -205,7 +211,8 @@ class TrialScene extends Phaser.Scene {
 
     const pick = (side) => () => {
       GameState.applyEffects(q[side].effects);
-      this.answers.push(q.if_flag ? `${side}:${q.if_flag}` : side); // условный вопрос — с флагом
+      // условный вопрос — с флагом; вариант (group) — с id варианта
+      this.answers.push(q.group ? `${side}:${q.id || q.group}` : q.if_flag ? `${side}:${q.if_flag}` : side);
       this.show(() => this.showQuestion(index + 1));
     };
     this.buttons(y, [
