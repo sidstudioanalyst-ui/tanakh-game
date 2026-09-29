@@ -190,7 +190,26 @@ function validateContent(cache, uiStrings) {
     if (d.onDone && d.onDone.dialogue && !cache.dialogue(d.onDone.dialogue)) warn(`${where}: не загружен диалог "${d.onDone.dialogue}"`);
   });
 
+  Object.entries(EPOCH_TRIALS).forEach(([campaign, id]) => {
+    const t = cache.trial(id);
+    if (!t) warn(`Кампания ${campaign}: не загружен Суд эпохи "${id}"`);
+    else if (!t.epoch) warn(`Суд эпохи ${id}: нужно поле epoch: true`);
+  });
+
   cache.allTrials().forEach((trial) => {
+    if (trial.epoch) {
+      // Суд эпохи: вместо вопросов — сводка выборов и открытый вопрос
+      checkText({ text_he: trial.intro_he, text_ru: trial.intro_ru }, !!trial.draft, `Суд ${trial.id}, вступление`);
+      checkText({ text_he: trial.reflection_he, text_ru: trial.reflection_ru }, !!trial.draft, `Суд ${trial.id}, вопрос`);
+      (trial.choices || []).forEach((c, i) =>
+        (c.variants || []).forEach((v, j) => {
+          const where = `Суд ${trial.id}, выбор ${c.id || i + 1}/${j + 1}`;
+          if (!v.if_flag && !v.if_flag_is) warn(`${where}: нужно условие if_flag или if_flag_is`);
+          checkText(v, !!trial.draft, where);
+        })
+      );
+      return;
+    }
     // всегда показывается не меньше трёх: вопросы без условий + группы вариантов, где есть
     // вариант «по умолчанию» (unless_flag_is)
     const qs = trial.questions || [];

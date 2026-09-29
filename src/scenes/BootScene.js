@@ -37,7 +37,7 @@ class BootScene extends Phaser.Scene {
     // диалог после диспута (onDone.dialogue)
     Object.values(DISPUTES).forEach((d) => d.onDone && d.onDone.dialogue && dialogueIds.add(d.onDone.dialogue));
     Content.dialogueIds = [...dialogueIds];
-    Content.trialIds = [...new Set(ALL_MAPS.map((m) => m.trial).filter(Boolean))];
+    Content.trialIds = [...new Set([...ALL_MAPS.map((m) => m.trial), ...Object.values(EPOCH_TRIALS)].filter(Boolean))];
 
     this.load.json('ui-strings', 'src/data/ui-strings.json');
     // Иконки тач-интерфейса (SVG): меч на кнопке атаки, ладонь — действие, сумка, меню
