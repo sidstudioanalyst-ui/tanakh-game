@@ -141,9 +141,13 @@ function validateContent(cache, uiStrings) {
   };
 
   // Иврит обязателен, кроме черновиков (draft: true) — у них обязателен русский
+  // Текст без букв (молчание «…») одинаков на обоих языках — переводить нечего
+  const noWords = (obj) => obj.text_he && obj.text_he.trim() === (obj.text_ru || '').trim() && !/\p{L}/u.test(obj.text_he);
   const checkText = (obj, draft, where) => {
     if (draft) {
       if (!obj.text_ru) warn(`${where}: черновик без text_ru`);
+    } else if (noWords(obj)) {
+      // «…» и т. п.
     } else if (!obj.text_he || !HEBREW.test(obj.text_he) || obj.text_he.trim() === CONFIG.DRAFT_TEXT) {
       warn(`${where}: нет иврита в text_he (если текст ещё не готов — поставьте реплике draft: true)`);
     }
@@ -217,7 +221,8 @@ function validateContent(cache, uiStrings) {
     const groups = new Set(qs.filter((q) => q.group && q.unless_flag_is).map((q) => q.group)).size;
     const always = plain + groups;
     if (always < 3) warn(`Суд ${trial.id}: нужно не меньше 3 вопросов, которые показываются всегда (сейчас ${always})`);
-    if (trial.draft) checkText({ text_he: trial.intro_he, text_ru: trial.intro_ru }, true, `Суд ${trial.id}, вступление`);
+    checkText({ text_he: trial.intro_he, text_ru: trial.intro_ru }, !!trial.draft, `Суд ${trial.id}, вступление`);
+    checkText({ text_he: trial.outro_he, text_ru: trial.outro_ru }, !!trial.draft, `Суд ${trial.id}, итог`);
     (trial.questions || []).forEach((q, i) => {
       checkText(q, !!q.draft, `Суд ${trial.id}, вопрос ${i + 1}`);
       ['for', 'against'].forEach((side) => {

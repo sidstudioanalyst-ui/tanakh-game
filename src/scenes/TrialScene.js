@@ -118,10 +118,17 @@ class TrialScene extends Phaser.Scene {
     return this.put(this.add.rectangle(x, y, w, h, color, alpha).setOrigin(0));
   }
 
-  // Мелкий русский перевод в той же строке, у противоположного края (для плотного профиля)
-  inlineHint(y, text) {
-    if (!UI.showHint || !text) return;
-    this.put(this.add.text(this.margin, y + 4, text, { fontFamily: 'sans-serif', fontSize: '11px', color: '#8f9bb3' }));
+  // Мелкий русский перевод в той же строке, у противоположного края (для плотного профиля).
+  // Если рядом с ивритом (ширина used) он не помещается — на узком экране телефона — то под ним,
+  // у того же края (lineH — высота строки на иврите). Возвращает, на сколько ниже сдвинулась строка.
+  inlineHint(y, text, used = 0, lineH = 0) {
+    if (!UI.showHint || !text) return 0;
+    const hint = this.put(this.add.text(this.margin, y + 4, text, { fontFamily: 'sans-serif', fontSize: '11px', color: '#8f9bb3' }));
+    const room = this.contentWidth - used - 24;
+    if (hint.width <= room) return 0;
+    hint.setWordWrapWidth(this.contentWidth - 18).setAlign('right');
+    hint.setPosition(this.right - 18 - hint.width, y + lineH - 4);
+    return hint.height;
   }
 
   heading(y) {
@@ -210,8 +217,8 @@ class TrialScene extends Phaser.Scene {
       block.objects.forEach((o) => o.setAlpha(alpha));
       const h = this.putText(block);
       this.rect(this.right - 12, y + h / 2 - 4, 8, 8, swatch).setAlpha(alpha);
-      this.inlineHint(y, ru);
-      y += h - 4;
+      const below = this.inlineHint(y, ru, block.objects[0].width, h);
+      y += h - 4 + below;
     };
     side(m.light_he, m.light_ru, '#ebcb8b', CONFIG.COLORS.light, lightAlpha);
     side(m.shadow_he, m.shadow_ru, '#b4a7e0', CONFIG.COLORS.shadow, shadowAlpha);
