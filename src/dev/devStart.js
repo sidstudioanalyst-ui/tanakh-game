@@ -11,7 +11,11 @@
 // отдельная кнопка (например, жёсткий или мягкий ответ Эфраиму для Суда карты 2). Поля варианта:
 // addFlags / removeFlags, gauges, values (флаги со значением) и removeValues (убрать такой флаг).
 //
+// DEV_VARIANTS.epoch — варианты Суда эпохи (пункт после Суда последней карты); у них ещё
+// measures — Мерило для общего профиля (в dev.html оно иначе пустое).
+//
 // Глубокая ссылка для проверок: dev.html?start=a5 · ?start=a5:1 (вариант 2) · ?start=trial:power_a:1
+// · ?start=epoch:1
 const DEV_AFTER = {
   a1: { flags: ['tribute_taken', 'jediael_done', 'dagger_hidden', 'dagger_right'], items: ['ehud_garment', 'tribute_bag', 'ehud_dagger'] },
   a2: { flags: ['gate_open', 'eglon_done'] },
@@ -91,6 +95,25 @@ const DEV_VARIANTS = {
     { label: 'без условий (a), тон примирительный', values: { yiftach_terms: 'a', yiftach_ephraim_tone: 'conciliatory' } },
     { label: 'без тона Эфраиму — 3 вопроса', removeValues: ['yiftach_ephraim_tone'] },
   ],
+  // Суд эпохи: сводка выборов берётся из флагов, Мерило — примерное (за три карты)
+  epoch: [
+    {
+      label: 'выборы dev-пути — 5 строк',
+      measures: { wisdom: { light: 5, shadow: 2 }, counsel: { light: 4, shadow: 4 }, knowledge: { light: 3, shadow: 0 }, justice: { light: 2, shadow: 5 } },
+    },
+    {
+      label: 'другие выборы — 5 строк',
+      addFlags: ['barak_alone', 'ephraim_harsh'],
+      removeFlags: ['deborah_with', 'ephraim_soft'],
+      values: { yiftach_terms: 'a', yiftach_ephraim_tone: 'conciliatory', shmuel_tone: 'silent' },
+      measures: { wisdom: { light: 1, shadow: 6 }, counsel: { light: 7, shadow: 1 }, knowledge: { light: 0, shadow: 0 }, justice: { light: 4, shadow: 3 } },
+    },
+    {
+      label: 'без ответов Эфраиму — 3 строки',
+      removeFlags: ['ephraim_soft'],
+      removeValues: ['yiftach_ephraim_tone'],
+    },
+  ],
 };
 
 const DEV_CAMPAIGN = 'saviors';
@@ -160,6 +183,14 @@ function devEntries() {
       list.push({ key: tv.length > 1 ? `trial:${map.id}:${vi}` : `trial:${map.id}`, mapIndex, zone: null, zoneIndex: map.zones.length, variant: v, part: 'trial' })
     );
   });
+  // Суд эпохи — после Суда последней карты
+  const last = CAMPAIGNS[DEV_CAMPAIGN].length - 1;
+  if (EPOCH_TRIALS[DEV_CAMPAIGN]) {
+    const ev = DEV_VARIANTS.epoch || [null];
+    ev.forEach((v, vi) =>
+      list.push({ key: ev.length > 1 ? `epoch:${vi}` : 'epoch', mapIndex: last, zone: null, zoneIndex: CAMPAIGNS[DEV_CAMPAIGN][last].zones.length, variant: v, part: 'epoch', epoch: true })
+    );
+  }
   return list;
 }
 
@@ -180,8 +211,9 @@ window.devApplyStart = (boot) => {
   Object.assign(GameState.flags, s.state.values);
   s.state.items.forEach((id) => GameState.equipment.pickUp(id));
   Object.assign(GameState.gauges, s.state.gauges);
+  Object.entries((s.variant && s.variant.measures) || {}).forEach(([k, m]) => Object.assign(GameState.measures[k], m));
   if (!s.zone) {
-    boot.scene.start('TrialScene', { trialId: GameState.map.trial });
+    boot.scene.start('TrialScene', { trialId: s.epoch ? EPOCH_TRIALS[DEV_CAMPAIGN] : GameState.map.trial });
     return;
   }
   GameState.currentZone = s.zone;
@@ -210,11 +242,11 @@ function devRenderMenu() {
         if (e.part !== part) {
           part = e.part;
           const partName =
-            part === 'trial' ? 'Суд' : part === 'a' ? `Часть А${map.hero ? ` — ${map.hero.name_ru}` : ''}` : (map.parts && map.parts[part] && map.parts[part].name_ru) || `Часть ${part}`;
+            part === 'trial' ? 'Суд' : part === 'epoch' ? 'Конец кампании' : part === 'a' ? `Часть А${map.hero ? ` — ${map.hero.name_ru}` : ''}` : (map.parts && map.parts[part] && map.parts[part].name_ru) || `Часть ${part}`;
           box.appendChild(el('h3', null, partName));
         }
         let row = box.lastElementChild;
-        const rowKey = e.zone || `trial:${map.id}`;
+        const rowKey = e.zone || (e.epoch ? 'epoch' : `trial:${map.id}`);
         if (!row || row.dataset.row !== rowKey) {
           row = el('div', 'dev-entry');
           row.dataset.row = rowKey;
@@ -224,6 +256,8 @@ function devRenderMenu() {
             const he = el('small', null, ZONES[e.zone].name_he);
             he.dir = 'rtl';
             name.appendChild(he);
+          } else if (e.epoch) {
+            name.textContent = `Суд эпохи (${EPOCH_TRIALS[DEV_CAMPAIGN]})`;
           } else {
             name.textContent = `Суд карты ${mapIndex + 1}${map.trial ? ` (${map.trial})` : ' — заглушка'}`;
           }

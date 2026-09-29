@@ -5,7 +5,12 @@
 //      if_flag_is: { флаг: ['значение', ...] } — только если у флага одно из значений;
 //      unless_flag_is — наоборот (вариант «по умолчанию»). Варианты одного вопроса — с общим
 //      group (Суд карты 3: условие Йифтаха, тон ответа Эфраиму); в ответах — «сторона:id».
-//   3) итог и переход на следующую карту (или начало заново, если карта последняя).
+//   3) итог и переход на следующую карту; после последней — Суд эпохи (EPOCH_TRIALS в world.js)
+//      или, если его у кампании нет, начало заново.
+// Суд эпохи (epoch: true) — вместо вопросов: 1) общий профиль (Мерило копится с начала кампании,
+// так что это сумма за все карты); 2) сводка выборов — choices: [{ id, variants: [{ if_flag |
+// if_flag_is, text_he, text_ru }] }], строка — первый подходящий вариант, без него строки нет;
+// 3) открытый вопрос reflection_he/ru без кнопок «за» и «против» и «Начать заново».
 // Аргументы могут иметь effects — как выборы в диалогах.
 // draft: true (у суда — для вступления и итога, у вопроса — для него и его аргументов): иврита
 // ещё нет, под заглушкой всегда виден русский — как у реплик-черновиков.
@@ -18,11 +23,14 @@ class TrialScene extends Phaser.Scene {
     // trial: null у карты — Суд ещё не написан: показываем только профиль Мерила
     this.trial = (data.trialId && Content.trial(data.trialId)) || this.stubTrial();
     // вопросы с if_flag — только если флаг стоит; нумерация «1 из N» — по тем, что показываются
-    const is = (cond) => Object.entries(cond).every(([flag, values]) => [].concat(values).includes(GameState.flags[flag]));
-    this.questions = (this.trial.questions || []).filter(
-      (q) => (!q.if_flag || GameState.flags[q.if_flag]) && (!q.if_flag_is || is(q.if_flag_is)) && (!q.unless_flag_is || !is(q.unless_flag_is))
-    );
+    this.questions = (this.trial.questions || []).filter((q) => TrialScene.shown(q));
     this.answers = [];
+  }
+
+  // Условие показа вопроса или строки сводки: if_flag, if_flag_is, unless_flag_is
+  static shown(item) {
+    const is = (cond) => Object.entries(cond).every(([flag, values]) => [].concat(values).includes(GameState.flags[flag]));
+    return (!item.if_flag || GameState.flags[item.if_flag]) && (!item.if_flag_is || is(item.if_flag_is)) && (!item.unless_flag_is || !is(item.unless_flag_is));
   }
 
   stubTrial() {
@@ -70,8 +78,23 @@ class TrialScene extends Phaser.Scene {
   // Координаты задаются «по-ивритски» (справа налево); в русском всё отражается.
 
   show(render) {
-    this.render = render;
-    render();
+    this.render = () => {
+      render();
+      this.fit();
+    };
+    this.render();
+  }
+
+  // Страница выше экрана (профиль в режиме «оба языка» на телефоне в альбомной ориентации) —
+  // уменьшить её целиком, чтобы кнопка осталась на экране. Прокрутки нет: кнопки выбора
+  // срабатывают по касанию, и перетаскивание пальцем выбирало бы ответ.
+  fit() {
+    this.layer.setScale(1).setPosition(0, 0);
+    const room = CONFIG.HEIGHT - 12;
+    const bottom = this.layer.getBounds().bottom;
+    if (bottom <= room) return;
+    const k = room / bottom;
+    this.layer.setScale(k).setPosition((CONFIG.WIDTH * (1 - k)) / 2, 0);
   }
 
   clear() {
@@ -143,11 +166,14 @@ class TrialScene extends Phaser.Scene {
       y = this.measureRow(y, m, GameState.measures[key]);
     });
 
+    if (this.trial.epoch) {
+      const next = UI.both('dialogue_continue');
+      this.buttons(y + 4, [{ text_he: next.he, text_ru: next.ru, onSelect: () => this.show(() => this.showChoices()) }]);
+      return;
+    }
     if (this.trial.stub) {
-      // Вопросов нет — сразу дальше (следующая карта или начало заново)
-      const last = !GameState.hasNextMap();
-      const next = UI.both(last ? 'trial_restart' : 'trial_next_map');
-      this.buttons(y + 4, [{ text_he: next.he, text_ru: next.ru, onSelect: () => this.finish(last) }]);
+      // Вопросов нет — сразу дальше (следующая карта, Суд эпохи или начало заново)
+      this.endButton(y + 4);
       return;
     }
     const label = UI.both('trial_to_questions');
@@ -229,9 +255,46 @@ class TrialScene extends Phaser.Scene {
     let y = this.heading(24);
     y = this.paragraph(y, this.trial.outro_he, this.trial.outro_ru, 19, !!this.trial.draft);
 
+    this.endButton(y + 10);
+  }
+
+  // Кнопка в конце Суда карты: следующая карта; после последней — Суд эпохи, если он есть у
+  // кампании, иначе начало заново
+  endButton(y) {
     const last = !GameState.hasNextMap();
-    const label = UI.both(last ? 'trial_restart' : 'trial_next_map');
-    this.buttons(y + 10, [{ text_he: label.he, text_ru: label.ru, onSelect: () => this.finish(last) }]);
+    const epoch = last && EPOCH_TRIALS[GameState.campaign];
+    const label = UI.both(epoch ? 'trial_to_epoch' : last ? 'trial_restart' : 'trial_next_map');
+    const onSelect = epoch ? () => this.scene.restart({ trialId: epoch }) : () => this.finish(last);
+    this.buttons(y, [{ text_he: label.he, text_ru: label.ru, onSelect }]);
+  }
+
+  // --- Суд эпохи -------------------------------------------------------------
+
+  // Сводка выборов: по строке на развилку, которая в этой игре была (без оценки)
+  showChoices() {
+    const lines = (this.trial.choices || []).map((c) => (c.variants || []).find((v) => TrialScene.shown(v))).filter(Boolean);
+    if (!lines.length) {
+      this.show(() => this.showReflection());
+      return;
+    }
+    this.clear();
+    let y = this.heading(24);
+    y += this.label(y, UI.t('epoch_choices_title'), 'start', { size: 15, color: '#a0a8b8' }).height + 8;
+    lines.forEach((line) => {
+      y = this.paragraph(y, line.text_he, line.text_ru, 17, !!this.trial.draft);
+    });
+    const next = UI.both('dialogue_continue');
+    this.buttons(y + 6, [{ text_he: next.he, text_ru: next.ru, onSelect: () => this.show(() => this.showReflection()) }]);
+  }
+
+  // Открытый вопрос — только текст для размышления, без «за» и «против»
+  showReflection() {
+    this.clear();
+    let y = this.heading(24);
+    y += this.label(y, UI.t('epoch_reflection_title'), 'start', { size: 15, color: '#a0a8b8' }).height + 8;
+    y = this.paragraph(y, this.trial.reflection_he, this.trial.reflection_ru, 19, !!this.trial.draft);
+    const label = UI.both('trial_restart');
+    this.buttons(y + 10, [{ text_he: label.he, text_ru: label.ru, onSelect: () => this.finish(true) }]);
   }
 
   finish(last) {
