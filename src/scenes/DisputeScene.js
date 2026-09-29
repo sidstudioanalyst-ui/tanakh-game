@@ -21,13 +21,9 @@ class DisputeScene extends Phaser.Scene {
   }
 
   create() {
-    const W = CONFIG.WIDTH;
-    const H = CONFIG.HEIGHT;
-    this.add.rectangle(0, 0, W, H, 0x1d2129, 0.97).setOrigin(0);
+    this.bg = this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x1d2129, 0.97).setOrigin(0);
     this.layer = this.add.container(0, 0);
-    this.margin = CONFIG.PORTRAIT ? 18 : 40;
-    this.right = W - this.margin;
-    this.contentWidth = W - this.margin * 2;
+    this.measure();
 
     const kb = this.input.keyboard;
     kb.on('keydown', (event) => {
@@ -40,6 +36,21 @@ class DisputeScene extends Phaser.Scene {
     bindLanguageKeys(this, () => this.render());
 
     this.show(() => this.showObjection(0));
+  }
+
+  // Поля и ширина текста — от текущего размера экрана; на широком экране строки не тянутся
+  measure() {
+    const margin = CONFIG.PORTRAIT ? 18 : 40;
+    this.contentWidth = Math.min(CONFIG.WIDTH - margin * 2, 900);
+    this.right = CONFIG.WIDTH / 2 + this.contentWidth / 2;
+    this.margin = CONFIG.WIDTH / 2 - this.contentWidth / 2;
+  }
+
+  // Поворот телефона (src/ui/Layout.js): тот же шаг спора в новом размере
+  relayout() {
+    this.bg.setSize(CONFIG.WIDTH, CONFIG.HEIGHT);
+    this.measure();
+    this.render();
   }
 
   get draft() {

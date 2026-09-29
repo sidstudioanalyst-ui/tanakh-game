@@ -65,6 +65,13 @@ class DialogueScene extends Phaser.Scene {
     this.show(this.entryNode());
   }
 
+  // Поворот телефона (src/ui/Layout.js): затемнение — на новый размер, реплика — заново
+  // (с той же строки; эффекты не повторяются — как при смене языка)
+  relayout() {
+    this.dim.setSize(CONFIG.WIDTH, CONFIG.HEIGHT);
+    if (this.currentLineId !== null && this.currentLineId !== undefined && !this.closing) this.show(this.currentLineId);
+  }
+
   entryNode() {
     const all = (v, test) => [].concat(v || []).every(test);
     const entry = (this.dialogue.entry || []).find(

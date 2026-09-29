@@ -9,8 +9,9 @@
        Игроки её не видят: на index.html ссылки сюда нет. Движок и данные — те же:
        список скриптов берётся из index.html (см. src/dev/devStart.js). -->
   <style>
-    html, body { margin: 0; height: 100%; background: #111; color: #d8dee9; font-family: system-ui, sans-serif; }
-    #game { width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; }
+    html, body { margin: 0; height: 100%; height: 100dvh; background: #111; color: #d8dee9; font-family: system-ui, sans-serif; overflow: hidden; }
+    /* как в index.html: весь экран без вырезов (safe-area); на тач размер игры — по пропорциям */
+    #game { position: fixed; top: env(safe-area-inset-top, 0px); right: env(safe-area-inset-right, 0px); bottom: env(safe-area-inset-bottom, 0px); left: env(safe-area-inset-left, 0px); touch-action: none; user-select: none; -webkit-user-select: none; }
     #dev-menu { position: fixed; inset: 0; overflow-y: auto; background: #1d2129; padding: 16px; box-sizing: border-box; }
     #dev-menu h1 { margin: 0 0 4px; font-size: 20px; color: #88c0d0; }
     #dev-menu .hint { margin: 0 0 12px; font-size: 13px; color: #8f9bb3; }

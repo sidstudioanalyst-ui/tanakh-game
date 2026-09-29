@@ -69,7 +69,7 @@ class CoordinationMechanic {
       this.figures.push({ body, x, y, vx: 0, vy: 0, fallen: false, organized: false });
     }
 
-    this.dark = scene.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x0b1020, this.done ? cfg.darkness * 0.4 : cfg.darkness).setOrigin(0).setScrollFactor(0).setDepth(50);
+    this.dark = scene.add.rectangle(0, 0, CONFIG.FULLSCREEN_RECT, CONFIG.FULLSCREEN_RECT, 0x0b1020, this.done ? cfg.darkness * 0.4 : cfg.darkness).setOrigin(0).setScrollFactor(0).setDepth(50);
     this.fx = scene.add.graphics().setDepth(51); // вспышки ударов в панике
     this.map = scene.add.graphics().setScrollFactor(0).setDepth(110); // мини-карта
     this.mapTitle = null;
@@ -292,6 +292,7 @@ class CoordinationMechanic {
       left = UI.rtl ? 16 : CONFIG.WIDTH - 16 - W;
       top = CONFIG.TOUCH ? 104 : 136; // под подсказками по клавишам (в боевой зоне их 6 строк)
     }
+    this.mapRect = { x: left - 4, y: top - 4, w: W + 8, h: H + 8 }; // где мини-карта (для проверок раскладки)
     const X = (x) => left + x * k;
     const Y = (y) => top + y * k;
     g.fillStyle(0x0b1020, 0.85).fillRect(left - 4, top - 4, W + 8, H + 8);

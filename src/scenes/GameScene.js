@@ -79,17 +79,7 @@ class GameScene extends Phaser.Scene {
     if (this.zone.liberation) this.mechanics.liberation = new LiberationMechanic(this, this.zone.liberation);
     if (this.zone.shibboleth) this.mechanics.shibboleth = new ShibbolethMechanic(this, this.zone.shibboleth);
 
-    // Камера следует за игроком в пределах зоны
-    // Зона меньше экрана — центрируем её, чтобы HUD не закрывал край карты
-    const padX = Math.max(0, (CONFIG.WIDTH - this.mapWidth) / 2);
-    const padY = Math.max(0, (CONFIG.HEIGHT - this.mapHeight) / 2);
-    this.cameras.main.setBounds(-padX, -padY, this.mapWidth + padX * 2, this.mapHeight + padY * 2);
-    this.cameras.main.startFollow(this.player, true, 0.15, 0.15);
-    // zone.focus: [x, y] — камера стоит на месте (притча в Б1: видны все деревья над окном диалога)
-    if (this.zone.focus) {
-      this.cameras.main.stopFollow();
-      this.cameras.main.centerOn(this.zone.focus[0] * CONFIG.TILE_SIZE, this.zone.focus[1] * CONFIG.TILE_SIZE);
-    }
+    this.fitCamera();
     this.cameras.main.setBackgroundColor('#242933'); // если зона ниже/уже экрана
     if (this.zone.look === 'story') this.applyStoryLook();
     this.cameras.main.fadeIn(200);
@@ -365,7 +355,7 @@ class GameScene extends Phaser.Scene {
       cm.brightness(0.8, true);
       cam.postFX.addVignette(0.5, 0.5, 0.75, 0.45);
     } else {
-      this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x3b2a16, 0.35).setOrigin(0).setScrollFactor(0).setDepth(55);
+      this.add.rectangle(0, 0, CONFIG.FULLSCREEN_RECT, CONFIG.FULLSCREEN_RECT, 0x3b2a16, 0.35).setOrigin(0).setScrollFactor(0).setDepth(55);
     }
   }
 
@@ -593,6 +583,31 @@ class GameScene extends Phaser.Scene {
       GameState.pendingTrial = false;
       this.goToTrial();
     }
+  }
+
+  // Камера следует за игроком в пределах зоны. Зона меньше экрана — по центру (HUD не закрывает
+  // край карты); больше — камера показывает её часть и едет за игроком, ничего не растягивается.
+  // zone.focus: [x, y] — камера стоит на месте (притча в Б1: видны все деревья над окном диалога).
+  // Вызывается и при смене раскладки (поворот телефона).
+  fitCamera() {
+    const cam = this.cameras.main;
+    const padX = Math.max(0, (CONFIG.WIDTH - this.mapWidth) / 2);
+    const padY = Math.max(0, (CONFIG.HEIGHT - this.mapHeight) / 2);
+    cam.setBounds(-padX, -padY, this.mapWidth + padX * 2, this.mapHeight + padY * 2);
+    if (this.zone.focus) {
+      cam.stopFollow();
+      cam.centerOn(this.zone.focus[0] * CONFIG.TILE_SIZE, this.zone.focus[1] * CONFIG.TILE_SIZE);
+    } else {
+      cam.startFollow(this.player, true, 0.15, 0.15);
+      cam.centerOn(this.player.x, this.player.y); // сразу, без «доезда» после поворота
+    }
+  }
+
+  // Смена раскладки на тач (поворот телефона, другое окно — src/ui/Layout.js): камера и HUD
+  // заново под новый размер. Мир, враги и состояние зоны не трогаются.
+  relayout() {
+    this.fitCamera();
+    this.rebuildUI();
   }
 
   // --- UI и события ----------------------------------------------------------
