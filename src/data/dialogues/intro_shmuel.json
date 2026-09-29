@@ -1,0 +1,27 @@
+{
+  "id": "intro_shmuel",
+  "title_he": "שְׁמוּאֵל",
+  "title_ru": "Шмуэль",
+  "speakers": {},
+  "start": "p1",
+  "lines": [
+    {
+      "id": "p1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Йифтах судил Израиль шесть лет и умер. А потом Израилем правил Шмуэль.",
+      "next": "p2"
+    },
+    {
+      "id": "p2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Когда он состарился, ему пришлось решать, кто будет вести народ дальше.",
+      "next": null
+    }
+  ]
+}

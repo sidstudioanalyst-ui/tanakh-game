@@ -1,0 +1,55 @@
+{
+  "id": "shmuel2_maidens",
+  "speakers": {
+    "shmuel": {
+      "name_he": "שְׁמוּאֵל",
+      "name_ru": "Шмуэль"
+    }
+  },
+  "start": "k1",
+  "entry": [
+    {
+      "if_flag": "law_maidens",
+      "node": "after"
+    }
+  ],
+  "lines": [
+    {
+      "id": "k1",
+      "speaker": "shmuel",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И о дочерях ваших — вот право царя:",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "«А дочерей ваших возьмёт в составительницы масла, и в поварихи, и в хлебопёки».",
+          "next": null,
+          "effects": {
+            "set_flag": "law_maidens"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "«А дочерей ваших возьмёт в составительницы масла, и в поварихи, и в хлебопёки». Они будут работать не в своём доме, а в его.",
+          "next": null,
+          "effects": {
+            "set_flag": [
+              "law_maidens",
+              "law_maidens_sharp"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "after",
+      "style": "narration",
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "(Этот пункт уже объявлен.)",
+      "next": null
+    }
+  ]
+}

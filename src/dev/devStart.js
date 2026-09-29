@@ -34,6 +34,9 @@ const DEV_AFTER = {
   yiftach_4: { flags: ['yiftach4_started', 'freed_aroer', 'freed_minnith', 'freed_abel', 'ammon_defeated'] },
   yiftach_5: { flags: ['daughter_returned'] },
   yiftach_6: { flags: ['ephraim_war', 'fords_taken', 'yiftach_judged'], values: { yiftach_ephraim_tone: 'defensive' } },
+  shmuel_1: { flags: ['shmuel_sons_told', 'petition_widow', 'petition_shepherd', 'petitions_counted', 'shmuel_prayed'], values: { shmuel_tone: 'asks' } },
+  shmuel_2: { flags: ['law_youth', 'law_maidens', 'law_farmers', 'law_servants', 'law_herders', 'law_announced', 'law_people'] },
+  shmuel_3: { flags: ['shmuel_done'] },
 };
 
 const DEV_VARIANTS = {
@@ -64,6 +67,16 @@ const DEV_VARIANTS = {
   yiftach_6: [
     { label: 'с разговора с Эфраимом' },
     { label: 'сразу переправа (тон — защитный)', addFlags: ['ephraim_war'], values: { yiftach_ephraim_tone: 'defensive' } },
+  ],
+  // Ш1: с начала (Беэр-Шева) или сразу к старейшинам в Раме (двое просителей выслушаны)
+  shmuel_1: [
+    { label: 'с начала: Беэр-Шева' },
+    { label: 'сразу Рама (выслушаны двое)', addFlags: ['shmuel_sons_told', 'petition_widow', 'petition_shepherd'] },
+  ],
+  // Ш2: с начала или все пункты уже объявлены — сразу реакция народа
+  shmuel_2: [
+    { label: 'с начала: деревня' },
+    { label: 'всё объявлено — реакция народа', addFlags: ['law_youth', 'law_maidens', 'law_farmers', 'law_servants', 'law_herders', 'law_announced'] },
   ],
   'trial:power_a': [
     { label: 'мягкий ответ Эфраиму — 3 вопроса' },

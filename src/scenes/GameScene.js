@@ -78,6 +78,8 @@ class GameScene extends Phaser.Scene {
     if (this.zone.descent) this.mechanics.descent = new DescentMechanic(this, this.zone.descent);
     if (this.zone.liberation) this.mechanics.liberation = new LiberationMechanic(this, this.zone.liberation);
     if (this.zone.shibboleth) this.mechanics.shibboleth = new ShibbolethMechanic(this, this.zone.shibboleth);
+    if (this.zone.village) this.mechanics.village = new VillageMechanic(this, this.zone.village);
+    if (this.zone.tally) this.mechanics.tally = new TallyMechanic(this, this.zone.tally);
 
     this.fitCamera();
     this.cameras.main.setBackgroundColor('#242933'); // если зона ниже/уже экрана
@@ -519,7 +521,12 @@ class GameScene extends Phaser.Scene {
     if (!exit || !this.exitOpen(exit)) return;
     if (exit.trial) this.goToTrial();
     else if (exit.wip) this.transition(() => this.scene.start('WipScene', { label: exit.wip, label_he: exit.wip_he, back: this.zoneId }));
-    else this.goToZone(exit.to, exit.at);
+    else {
+      // intro у выхода — narration-заставка перед зоной (начало части Б карты 3: «…а потом
+      // Израилем правил Шмуэль»)
+      if (exit.intro) GameState.introQueue = [{ id: exit.intro }];
+      this.goToZone(exit.to, exit.at);
+    }
   }
 
   goToZone(to, at) {
@@ -638,9 +645,12 @@ class GameScene extends Phaser.Scene {
     const H = CONFIG.HEIGHT;
     this.healthBar = new HealthBar(this, 16, 16, 200, 18);
     this.healthBar.draw(this.player.hp, this.player.maxHp);
-    // «рассказ» (look: 'story'): без здоровья, вещей и подсказок — только название
+    // «рассказ» (look: 'story'): без здоровья, вещей и подсказок — только название.
+    // «тихая» зона (calm: Шмуэль, Ш1–Ш3): ходить и говорить можно, но боя нет — без здоровья,
+    // вещей и кнопки атаки; подсказка клавиш — без атаки
     const story = this.zone.look === 'story';
-    if (story) {
+    const calm = !!this.zone.calm;
+    if (story || calm) {
       this.healthBar.graphics.setVisible(false);
       this.healthBar.label.setVisible(false);
     }
@@ -649,7 +659,7 @@ class GameScene extends Phaser.Scene {
     if (CONFIG.TOUCH) this.touch = new TouchControls(this);
 
     // Раскладка HUD задаётся для русского; в иврите UI.x() зеркалит её слева направо
-    this.equipmentText = addUiText(this, 16, 42, '').setScrollFactor(0).setDepth(100).setVisible(!story);
+    this.equipmentText = addUiText(this, 16, 42, '').setScrollFactor(0).setDepth(100).setVisible(!story && !calm);
     this.updateEquipmentHud();
 
     // Название карты и зоны — сверху по центру; под ним — строка механик и шкал.
@@ -677,7 +687,7 @@ class GameScene extends Phaser.Scene {
     // Подсказка по клавишам — в противоположном от полоски здоровья углу (на тач там иконки)
     if (!CONFIG.TOUCH && !story) {
       // в боевой зоне — ещё строка про уворот и блок
-      addUiText(this, W - 16, 16, UI.t('hud_controls') + (this.combatZone ? `\n${UI.t('hud_controls_defense')}` : ''))
+      addUiText(this, W - 16, 16, UI.t(calm ? 'hud_controls_calm' : 'hud_controls') + (this.combatZone ? `\n${UI.t('hud_controls_defense')}` : ''))
         .setOrigin(UI.rtl ? 0 : 1, 0)
         .setScrollFactor(0)
         .setDepth(100);

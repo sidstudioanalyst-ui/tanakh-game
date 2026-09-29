@@ -156,6 +156,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
   attack(time) {
     if (this.isDead || time < this.nextAttackAt || this.isBlocking) return; // за щитом не атакует
+    if (this.scene.zone && this.scene.zone.calm) return; // «тихая» зона (Шмуэль): боя нет
     this.nextAttackAt = time + this.stats.attackCooldown;
 
     this.showAttackEffect();

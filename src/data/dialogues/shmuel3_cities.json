@@ -1,0 +1,56 @@
+{
+  "id": "shmuel3_cities",
+  "title_he": "לְכוּ אִישׁ לְעִירוֹ",
+  "title_ru": "Идите каждый в свой город",
+  "speakers": {},
+  "start": "c1",
+  "lines": [
+    {
+      "id": "c1",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И выслушал Шмуэль все слова народа, и пересказал их Г-споду.",
+      "next": "c2"
+    },
+    {
+      "id": "c2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И сказал Г-сподь Шмуэлю: «Послушай их голоса и поставь им царя».",
+      "next": "c3"
+    },
+    {
+      "id": "c3",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И сказал Шмуэль мужам Израиля: «Идите каждый в свой город».",
+      "next": "c4"
+    },
+    {
+      "id": "c4",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "О том, как был избран царь, рассказано дальше.",
+      "_note": "проверить: строка-мостик, не текст Писания",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "К Суду",
+          "next": null,
+          "effects": {
+            "set_flag": "shmuel_done",
+            "goto_trial": true
+          }
+        }
+      ]
+    }
+  ]
+}

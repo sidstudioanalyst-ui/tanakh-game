@@ -1,0 +1,61 @@
+{
+  "id": "shmuel2_people",
+  "speakers": {
+    "shmuel": {
+      "name_he": "שְׁמוּאֵל",
+      "name_ru": "Шмуэль"
+    },
+    "people": {
+      "name_he": "הָעָם",
+      "name_ru": "Народ"
+    }
+  },
+  "start": "w1",
+  "lines": [
+    {
+      "id": "w1",
+      "speaker": "shmuel",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "И возопите вы в тот день из-за царя вашего, которого избрали себе, и не ответит вам Г-сподь в тот день.",
+      "next": "w2"
+    },
+    {
+      "id": "w2",
+      "style": "narration",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Но народ не захотел слушать голоса Шмуэля, и сказали:",
+      "next": "w3"
+    },
+    {
+      "id": "w3",
+      "speaker": "people",
+      "no_escape": true,
+      "draft": true,
+      "text_he": "טְיוּטָה",
+      "text_ru": "Нет! Пусть будет над нами царь, и будем и мы, как все народы; и будет судить нас наш царь, и выходить перед нами, и вести наши войны.",
+      "choices": [
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Дальше",
+          "next": null,
+          "effects": {
+            "set_flag": "law_people"
+          }
+        },
+        {
+          "text_he": "טְיוּטָה",
+          "text_ru": "Комментаторы: право царя — закон или предостережение?",
+          "next": null,
+          "effects": {
+            "set_flag": "law_people",
+            "open_commentary": "kingslaw"
+          }
+        }
+      ]
+    }
+  ]
+}

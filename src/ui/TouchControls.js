@@ -133,6 +133,8 @@ class TouchControls {
       const p = this.scene.player;
       if (!this.scene.gameOver) p.attack(this.scene.time.now);
     });
+    // «тихая» зона (calm: Ш1–Ш3) — боя нет, кнопки атаки тоже
+    if (this.scene.zone.calm) this.attackBtn.setVisible(false);
     this.actionPos = { x: this.attackPos.x - a - e - 24, y: H - e - 26 };
     this.actionBtn = this.roundButton(this.actionPos.x, this.actionPos.y, e, 'icon-hand', 0.68, () => {
       if (!this.scene.gameOver) this.scene.talk();
