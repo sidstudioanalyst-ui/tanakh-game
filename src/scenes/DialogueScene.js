@@ -92,7 +92,7 @@ class DialogueScene extends Phaser.Scene {
     const line = this.lines[lineId];
     this.currentLineId = lineId;
     this.tweens.killAll();
-    this.layer.setAlpha(1);
+    this.layer.setAlpha(1).setScale(1).setX(0);
     this.layer.removeAll(true);
     this.options = [];
     const game = this.scene.get('GameScene');
@@ -186,8 +186,13 @@ class DialogueScene extends Phaser.Scene {
     this.layer.add(text.objects);
     y += text.height + 6;
     y = this.addButtons(line, right, y + 24, width);
-    const offset = Math.max(40, Math.round((CONFIG.HEIGHT - y) / 2 - 20));
+    // Сцена выше экрана (картинка «что, если» и перевод на телефоне в альбомной ориентации) —
+    // уменьшить её целиком, чтобы кнопка осталась на экране; иначе — по центру по вертикали
+    const room = CONFIG.HEIGHT - 52;
+    const k = y > room ? room / y : 1;
+    const offset = k < 1 ? 40 / k : Math.max(40, Math.round((CONFIG.HEIGHT - y) / 2 - 20));
     this.layer.each((obj) => (obj.y += offset));
+    if (k < 1) this.layer.setScale(k).setX((CONFIG.WIDTH * (1 - k)) / 2);
     this.addEscHint(line, 20, this.intro && this.intro.prologue ? 'dialogue_skip_prologue' : 'dialogue_esc_hint');
   }
 
