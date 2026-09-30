@@ -10,9 +10,8 @@ const COMMENTARY = {
   vow: {
     title_he: 'פַּרְשָׁנִים',
     title_ru: 'Комментаторы',
-    subtitle_he: 'טְיוּטָה',
+    subtitle_he: 'כיצד מבינים את נדר יפתח (שופטים י״א, ל׳–ל״א)',
     subtitle_ru: 'Как понимают обет Йифтаха (Шофтим 11:30–31)',
-    draft: true,
     views: [
       {
         draft: true,
@@ -33,9 +32,8 @@ const COMMENTARY = {
   daughter: {
     title_he: 'פַּרְשָׁנִים',
     title_ru: 'Комментаторы',
-    subtitle_he: 'טְיוּטָה',
+    subtitle_he: 'כיצד מבינים את אשר עשה יפתח כנדרו (שופטים י״א, ל״ט)',
     subtitle_ru: 'Как понимают, что сделал Йифтах по обету своему (Шофтим 11:39)',
-    draft: true,
     views: [
       {
         draft: true,
@@ -55,9 +53,8 @@ const COMMENTARY = {
   kingslaw: {
     title_he: 'פַּרְשָׁנִים',
     title_ru: 'Комментаторы',
-    subtitle_he: 'טְיוּטָה',
+    subtitle_he: 'האם שמואל מדבר על משפט המלך כחוק או כאזהרה (שמואל א׳ ח׳, י״א–י״ז)',
     subtitle_ru: 'Говорит ли Шмуэль о праве царя как о законе или как о предостережении (Шмуэль алеф 8:11–17)',
-    draft: true,
     views: [
       {
         draft: true,

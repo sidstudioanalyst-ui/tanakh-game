@@ -9,12 +9,11 @@
       "id": "m1",
       "style": "narration",
       "no_escape": true,
-      "draft": true,
-      "text_he": "טְיוּטָה",
+      "text_he": "וידבר יפתח את כל דבריו לפני ה׳ במצפה.",
       "text_ru": "И произнёс Йифтах все слова свои пред Г-сподом в Мицпе.",
       "choices": [
         {
-          "text_he": "טְיוּטָה",
+          "text_he": "הלאה",
           "text_ru": "Дальше",
           "next": null,
           "effects": {

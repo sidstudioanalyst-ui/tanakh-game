@@ -184,14 +184,25 @@ function validateContent(cache, uiStrings) {
     const where = `Диспут ${id}`;
     const cardIds = d.cards.map((c) => c.id);
     if (d.cards.length !== d.objections.length + 1) warn(`${where}: карточек должно быть на одну больше, чем возражений (последняя — на финальную реплику)`);
-    d.cards.forEach((c) => checkText({ text_he: c.text_he, text_ru: c.text_ru }, d.draft, `${where}, карточка ${c.id}`));
+    d.cards.forEach((c) => {
+      checkText({ text_he: c.text_he, text_ru: c.text_ru }, d.draft, `${where}, карточка ${c.id}`);
+      checkText({ text_he: c.title_he, text_ru: c.title_ru }, d.draft, `${where}, надпись карточки ${c.id}`);
+    });
     d.objections.forEach((o, i) => {
       checkText(o, d.draft, `${where}, возражение ${i + 1}`);
       Object.keys(o.fit).forEach((k) => cardIds.includes(k) || warn(`${where}, возражение ${i + 1}: fit — нет карточки "${k}"`));
     });
-    [0, 1, 2].forEach((f) => d.reactions[f] || warn(`${where}: нет реакции на fit ${f}`));
+    [0, 1, 2].forEach((f) => (d.reactions[f] ? checkText(d.reactions[f], d.draft, `${where}, реакция на fit ${f}`) : warn(`${where}: нет реакции на fit ${f}`)));
+    if (d.finale) checkText(d.finale, d.draft, `${where}, финал`);
+    checkText(d.result, d.draft, `${where}, итог`);
     if (d.result.gauge && !allGauges.has(d.result.gauge)) warn(`${where}: нет шкалы "${d.result.gauge}"`);
     if (d.onDone && d.onDone.dialogue && !cache.dialogue(d.onDone.dialogue)) warn(`${where}: не загружен диалог "${d.onDone.dialogue}"`);
+  });
+
+  // Панели «Комментаторы»: подзаголовок — по draft панели, каждый взгляд — по своему draft
+  Object.entries(COMMENTARY).forEach(([id, c]) => {
+    checkText({ text_he: c.subtitle_he, text_ru: c.subtitle_ru }, c.draft, `Комментаторы ${id}, подзаголовок`);
+    (c.views || []).forEach((v, i) => checkText(v, v.draft, `Комментаторы ${id}, взгляд ${i + 1}`));
   });
 
   Object.entries(EPOCH_TRIALS).forEach(([campaign, id]) => {

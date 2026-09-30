@@ -9,12 +9,11 @@
       "id": "m1",
       "style": "narration",
       "no_escape": true,
-      "draft": true,
-      "text_he": "טְיוּטָה",
+      "text_he": "ויעבר יפתח אל בני עמון להילחם בם, ויתנם ה׳ בידו.",
       "text_ru": "И перешёл Йифтах к сынам Аммона воевать с ними, и Г-сподь отдал их в его руку.",
       "choices": [
         {
-          "text_he": "טְיוּטָה",
+          "text_he": "אל הקרב",
           "text_ru": "В бой",
           "next": null,
           "effects": { "set_flag": "yiftach4_started" }

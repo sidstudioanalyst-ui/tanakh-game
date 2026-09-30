@@ -7,8 +7,7 @@
       "id": "p1",
       "style": "narration",
       "no_escape": true,
-      "draft": true,
-      "text_he": "טְיוּטָה",
+      "text_he": "ויפול בעת ההיא מאפרים ארבעים ושניים אלף.",
       "text_ru": "И пало в то время из Эфраима сорок две тысячи.",
       "next": "p2"
     },
@@ -16,12 +15,11 @@
       "id": "p2",
       "style": "narration",
       "no_escape": true,
-      "draft": true,
-      "text_he": "טְיוּטָה",
+      "text_he": "וישפוט יפתח את ישראל שש שנים. וימת יפתח הגלעדי, ויקבר בערי גלעד.",
       "text_ru": "И судил Йифтах Израиль шесть лет. И умер Йифтах из Гилада, и был похоронен в городах Гилада.",
       "choices": [
         {
-          "text_he": "טְיוּטָה",
+          "text_he": "הלאה",
           "text_ru": "Дальше",
           "next": null,
           "effects": { "set_flag": "yiftach_judged" }
