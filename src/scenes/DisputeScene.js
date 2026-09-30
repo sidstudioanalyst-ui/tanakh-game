@@ -18,6 +18,9 @@ class DisputeScene extends Phaser.Scene {
     this.used = [];
     this.picks = []; // [{ card, fit }]
     this.score = 0;
+    // сцена одна на всю игру: после «Начать заново» итог спора снова начисляется
+    this.applied = false;
+    this.notes = null;
   }
 
   create() {

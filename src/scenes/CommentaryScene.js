@@ -9,6 +9,9 @@ class CommentaryScene extends Phaser.Scene {
   init(data) {
     this.commentaryId = data.commentaryId;
     this.data_ = COMMENTARY[data.commentaryId];
+    // сцена одна на всю игру: после прошлой панели (Й3) флаг остался бы true, и следующую (Й5, Ш2)
+    // было бы не закрыть
+    this.closing = false;
   }
 
   create() {
