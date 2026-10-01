@@ -815,14 +815,20 @@ class GameScene extends Phaser.Scene {
   bindEvents() {
     this.events.on('player-hp-changed', (hp, max) => this.healthBar.draw(hp, max));
 
-    this.events.on('player-attack', ({ x, y, range, damage }) => {
+    this.events.on('player-attack', ({ x, y, range, damage, dir, arc }) => {
       this.enemies.getChildren().forEach((enemy) => {
         if (enemy.isDead) return;
         // Учитываем размер врага: достаточно задеть его край
+        const r = enemy.stats.size / 2;
         const dist = Phaser.Math.Distance.Between(x, y, enemy.x, enemy.y);
-        if (dist <= range + enemy.stats.size / 2) {
-          enemy.takeDamage(damage, x, y, this.time.now);
+        if (dist > range + r) return;
+        // Направленный удар (герой со спрайтом): враг хотя бы краем в конусе перед героем
+        if (arc) {
+          const off = Math.abs(Phaser.Math.Angle.Wrap(Phaser.Math.Angle.Between(x, y, enemy.x, enemy.y) - Math.atan2(dir.y, dir.x)));
+          const edge = dist > r ? Math.asin(r / dist) : Math.PI; // угловой полуразмер врага
+          if (off - edge > arc / 2) return;
         }
+        enemy.takeDamage(damage, x, y, this.time.now);
       });
     });
 
