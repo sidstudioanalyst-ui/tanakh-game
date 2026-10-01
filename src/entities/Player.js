@@ -9,7 +9,10 @@
 //
 // Вид: цветной квадрат или спрайт-лист героя в формате LPC (sprite — id из
 // CONFIG.CHARACTER_SPRITES). У спрайта: ходьба в сторону движения, стойка, когда стоит,
-// удар кинжалом при атаке. Физическое тело то же, что у квадрата, — бой и столкновения прежние.
+// удар кинжалом при атаке. Физическое тело то же, что у квадрата.
+// У героя со спрайтом удар направленный (CONFIG.PLAYER.directed): урон только в конусе перед
+// ним — по lastDir, куда шёл последним (клавиши или джойстик). Блок у него — голубое свечение
+// самого спрайта вместо кольца вокруг. У квадрата — как раньше: удар по кругу, кольцо щита.
 
 // Раскладка LPC: первый ряд анимации и число кадров. У каждой анимации 4 ряда —
 // направления в порядке LPC: вверх, влево, вниз, вправо.
@@ -37,6 +40,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.nextDodgeAt = 0;
     this.lastDir = new Phaser.Math.Vector2(0, 1);
     this.heroKey = null; // ключ спрайт-листа героя; null — квадрат
+    this.directed = null; // направленный удар: { arc (рад), range } — только у героя со спрайтом
     if (sprite) this.setupSprite(sprite);
 
     this.setCollideWorldBounds(true);
@@ -74,6 +78,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.body.setOffset(sp.anchorX - b / 2, sp.anchorY - b / 2);
     this.facing = 'down';
     this.slashing = false;
+    const d = CONFIG.PLAYER.directed;
+    this.directed = { arc: Phaser.Math.DegToRad(d.arc), range: d.range };
+    // Блок: свечение по контуру спрайта (WebGL); без WebGL — голубой оттенок (см. drawShield)
+    this.blockGlow = this.preFX ? this.preFX.addGlow(0x88c0d0, 3, 0, false, 0.1, 12) : null;
+    if (this.blockGlow) this.blockGlow.active = false;
     this.on('animationcomplete', (anim) => {
       if (anim.key.startsWith(`${key}-slash-`)) this.slashing = false;
     });
@@ -104,8 +113,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   // Работает и в катсценах: там update() не вызывается, а скорость обнулена — будет стойка.
   updateSpriteAnim() {
     if (this.isDead || this.slashing) return;
-    const d = this.lastDir;
-    this.facing = Math.abs(d.x) >= Math.abs(d.y) ? (d.x < 0 ? 'left' : 'right') : d.y < 0 ? 'up' : 'down';
+    this.updateFacing();
     if (this.body.velocity.lengthSq() > 100) {
       this.play(`${this.heroKey}-walk-${this.facing}`, true);
       return;
@@ -113,6 +121,12 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     if (this.anims.isPlaying) this.anims.stop();
     const stand = this.lpcFrame('walk', this.facing, 0);
     if (this.frame.name !== stand) this.setFrame(stand);
+  }
+
+  // Сторона спрайта (4 направления) — ближайшая к lastDir; по диагонали — влево/вправо
+  updateFacing() {
+    const d = this.lastDir;
+    this.facing = Math.abs(d.x) >= Math.abs(d.y) - 1e-6 ? (d.x < 0 ? 'left' : 'right') : d.y < 0 ? 'up' : 'down';
   }
 
   // Уворот и блок работают только в боевых зонах
@@ -195,10 +209,21 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
   }
 
-  // Кольцо щита вокруг игрока, пока держит блок
+  // Кольцо щита вокруг игрока, пока держит блок; у героя со спрайтом — свечение его контура
   drawShield() {
     const g = this.shield;
     g.clear();
+    if (this.heroKey) {
+      const on = this.isBlocking;
+      if (this.blockGlow) this.blockGlow.active = on;
+      else if (on !== this.blockTinted && !this.scene.tweens.isTweening(this)) {
+        // без WebGL: оттенок; не мешаем красному миганию при уроне (оно само снимает оттенок)
+        if (on) this.setTint(0x9fd8ff);
+        else this.clearTint();
+        this.blockTinted = on;
+      }
+      return;
+    }
     if (!this.isBlocking) return;
     g.lineStyle(3, 0x88c0d0, 0.9).strokeCircle(this.x, this.y, this.stats.size * 0.85);
     g.lineStyle(1, 0xeceff4, 0.6).strokeCircle(this.x, this.y, this.stats.size * 0.85 + 3);
@@ -236,16 +261,20 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.showAttackEffect();
     // спрайт: удар кинжалом в ту сторону, куда смотрит; урон — как и раньше, сразу ниже
     if (this.heroKey) {
+      this.updateFacing(); // направление — на момент удара
       this.slashing = true;
       this.play(`${this.heroKey}-slash-${this.facing}`);
     }
 
-    // Сцена сама решает, кого задела атака
+    // Сцена сама решает, кого задела атака. Направленный удар: конус arc с осью dir
+    const d = this.directed;
     this.scene.events.emit('player-attack', {
       x: this.x,
       y: this.y,
-      range: this.stats.attackRange,
+      range: d ? d.range : this.stats.attackRange,
       damage: this.getAttackDamage(),
+      dir: d ? this.lastDir.clone() : null,
+      arc: d ? d.arc : null,
     });
   }
 
@@ -277,6 +306,16 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   showAttackEffect() {
+    if (this.directed) {
+      // сектор удара — та же зона, где засчитывается урон
+      const { arc, range } = this.directed;
+      const a = Math.atan2(this.lastDir.y, this.lastDir.x);
+      const g = this.scene.add.graphics().setDepth(9);
+      g.fillStyle(CONFIG.COLORS.attack, 0.22).beginPath().slice(this.x, this.y, range, a - arc / 2, a + arc / 2).closePath().fillPath();
+      g.lineStyle(2, CONFIG.COLORS.attack, 0.8).beginPath().arc(this.x, this.y, range, a - arc / 2, a + arc / 2).strokePath();
+      this.scene.tweens.add({ targets: g, alpha: 0, duration: 180, onComplete: () => g.destroy() });
+      return;
+    }
     const ring = this.scene.add.circle(this.x, this.y, this.stats.attackRange, CONFIG.COLORS.attack, 0.25);
     ring.setStrokeStyle(2, CONFIG.COLORS.attack, 0.9).setDepth(9);
     this.scene.tweens.add({
