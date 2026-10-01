@@ -6,8 +6,21 @@
 //     прочь от ближайшего врага. Во время рывка неуязвим. Перезарядка CONFIG.PLAYER.dodgeCooldown.
 //   Блок (Ctrl, на тач — удержание кнопки со щитом): пока держишь — входящий урон вдвое меньше
 //     и отбрасывает слабее, но идёшь медленнее и не можешь атаковать.
+//
+// Вид: цветной квадрат или спрайт-лист героя в формате LPC (sprite — id из
+// CONFIG.CHARACTER_SPRITES). У спрайта: ходьба в сторону движения, стойка, когда стоит,
+// удар кинжалом при атаке. Физическое тело то же, что у квадрата, — бой и столкновения прежние.
+
+// Раскладка LPC: первый ряд анимации и число кадров. У каждой анимации 4 ряда —
+// направления в порядке LPC: вверх, влево, вниз, вправо.
+const LPC_LAYOUT = {
+  walk: { row: 8, frames: 9 }, // кадр 0 — стойка, 1–8 — цикл шага
+  slash: { row: 12, frames: 6 }, // удар с замахом (у Эхуда — кинжал в левой руке)
+};
+const LPC_DIRS = ['up', 'left', 'down', 'right'];
+
 class Player extends Phaser.Physics.Arcade.Sprite {
-  constructor(scene, x, y, texture = 'player') {
+  constructor(scene, x, y, texture = 'player', sprite = null) {
     super(scene, x, y, texture);
     scene.add.existing(this);
     scene.physics.add.existing(this);
@@ -23,6 +36,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.dodgeUntil = 0;
     this.nextDodgeAt = 0;
     this.lastDir = new Phaser.Math.Vector2(0, 1);
+    this.heroKey = null; // ключ спрайт-листа героя; null — квадрат
+    if (sprite) this.setupSprite(sprite);
 
     this.setCollideWorldBounds(true);
     this.setDepth(10);
@@ -41,6 +56,63 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.keys.attack.on('down', () => this.attack(scene.time.now));
     this.keys.dodge.on('down', () => this.dodge(scene.time.now));
     this.shield = scene.add.graphics().setDepth(11); // кольцо блока
+  }
+
+  // Спрайт-лист героя вместо квадрата. Тело — прежний квадрат PLAYER.size с центром в
+  // (x, y); картинка сдвинута так, что точка anchorX/anchorY кадра (бёдра) — в этом центре.
+  setupSprite(id) {
+    const sp = CONFIG.CHARACTER_SPRITES[id];
+    const key = `hero-${id}`;
+    this.heroKey = key;
+    this.lpcCols = this.scene.textures.get(key).getSourceImage().width / sp.frame;
+    Player.createLpcAnims(this.scene, key, this.lpcCols);
+    this.setTexture(key, this.lpcFrame('walk', 'down', 0));
+    this.setScale(sp.scale);
+    this.setOrigin(sp.anchorX / sp.frame, sp.anchorY / sp.frame);
+    const b = this.stats.size / sp.scale; // в пикселях кадра; на экране — PLAYER.size
+    this.body.setSize(b, b, false);
+    this.body.setOffset(sp.anchorX - b / 2, sp.anchorY - b / 2);
+    this.facing = 'down';
+    this.slashing = false;
+    this.on('animationcomplete', (anim) => {
+      if (anim.key.startsWith(`${key}-slash-`)) this.slashing = false;
+    });
+  }
+
+  // Анимации создаются один раз на игру (менеджер анимаций общий для сцен)
+  static createLpcAnims(scene, key, cols) {
+    if (scene.anims.exists(`${key}-walk-down`)) return;
+    const frames = (anim, i, from, to) =>
+      scene.anims.generateFrameNumbers(key, { start: (LPC_LAYOUT[anim].row + i) * cols + from, end: (LPC_LAYOUT[anim].row + i) * cols + to });
+    LPC_DIRS.forEach((dir, i) => {
+      scene.anims.create({ key: `${key}-walk-${dir}`, frames: frames('walk', i, 1, LPC_LAYOUT.walk.frames - 1), frameRate: 12, repeat: -1 });
+      // 6 кадров за 300 мс — успевает до следующего удара (attackCooldown 350 мс)
+      scene.anims.create({ key: `${key}-slash-${dir}`, frames: frames('slash', i, 0, LPC_LAYOUT.slash.frames - 1), frameRate: 20 });
+    });
+  }
+
+  lpcFrame(anim, dir, col) {
+    return (LPC_LAYOUT[anim].row + LPC_DIRS.indexOf(dir)) * this.lpcCols + col;
+  }
+
+  preUpdate(time, delta) {
+    super.preUpdate(time, delta);
+    if (this.heroKey) this.updateSpriteAnim();
+  }
+
+  // Направление — куда шёл последним (как и раньше у квадрата: lastDir); идёт — шаг, стоит — стойка.
+  // Работает и в катсценах: там update() не вызывается, а скорость обнулена — будет стойка.
+  updateSpriteAnim() {
+    if (this.isDead || this.slashing) return;
+    const d = this.lastDir;
+    this.facing = Math.abs(d.x) >= Math.abs(d.y) ? (d.x < 0 ? 'left' : 'right') : d.y < 0 ? 'up' : 'down';
+    if (this.body.velocity.lengthSq() > 100) {
+      this.play(`${this.heroKey}-walk-${this.facing}`, true);
+      return;
+    }
+    if (this.anims.isPlaying) this.anims.stop();
+    const stand = this.lpcFrame('walk', this.facing, 0);
+    if (this.frame.name !== stand) this.setFrame(stand);
   }
 
   // Уворот и блок работают только в боевых зонах
@@ -100,7 +172,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     for (let i = 0; i < 3; i++) {
       this.scene.time.delayedCall(i * 45, () => {
         if (!this.active) return;
-        const g = this.scene.add.rectangle(this.x, this.y, p.size, p.size, 0x88c0d0, 0.35).setDepth(9);
+        const g = this.heroKey
+          ? this.scene.add.image(this.x, this.y, this.heroKey, this.frame.name).setOrigin(this.originX, this.originY).setScale(this.scaleX).setTint(0x88c0d0).setAlpha(0.35).setDepth(9)
+          : this.scene.add.rectangle(this.x, this.y, p.size, p.size, 0x88c0d0, 0.35).setDepth(9);
         this.scene.tweens.add({ targets: g, alpha: 0, duration: 220, onComplete: () => g.destroy() });
       });
     }
@@ -160,6 +234,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.nextAttackAt = time + this.stats.attackCooldown;
 
     this.showAttackEffect();
+    // спрайт: удар кинжалом в ту сторону, куда смотрит; урон — как и раньше, сразу ниже
+    if (this.heroKey) {
+      this.slashing = true;
+      this.play(`${this.heroKey}-slash-${this.facing}`);
+    }
 
     // Сцена сама решает, кого задела атака
     this.scene.events.emit('player-attack', {
@@ -252,6 +331,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.tweens.killTweensOf(this); // остановить мигание, иначе оно сбросит цвет
     this.setAlpha(1);
     this.setVelocity(0, 0);
+    if (this.heroKey) {
+      this.slashing = false;
+      this.anims.stop();
+      this.setFrame(this.lpcFrame('walk', this.facing, 0));
+    }
     this.setTint(0x555555);
     this.scene.events.emit('player-dead');
   }

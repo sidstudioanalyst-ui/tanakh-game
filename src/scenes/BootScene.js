@@ -44,11 +44,19 @@ class BootScene extends Phaser.Scene {
     if (CONFIG.TOUCH) {
       ['sword', 'hand', 'bag', 'menu', 'dodge', 'shield', 'fullscreen'].forEach((name) => this.load.svg(`icon-${name}`, `assets/ui/${name}.svg`, { width: 96, height: 96 }));
     }
+    // Спрайт-листы героев (CONFIG.CHARACTER_SPRITES): ключ текстуры — hero-<id>
+    Object.entries(CONFIG.CHARACTER_SPRITES).forEach(([id, sp]) =>
+      this.load.spritesheet(`hero-${id}`, sp.file, { frameWidth: sp.frame, frameHeight: sp.frame })
+    );
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
     Content.trialIds.forEach((id) => this.load.json(`trial:${id}`, `src/data/trials/${id}.json`));
 
     this.loadFailed = [];
-    this.load.on('loaderror', (file) => this.loadFailed.push(file.src));
+    this.load.on('loaderror', (file) => {
+      // без спрайта героя игра идёт дальше — с цветным квадратом
+      if (file.type === 'spritesheet') console.warn('Спрайт не загружен, будет квадрат:', file.src);
+      else this.loadFailed.push(file.src);
+    });
     this.load.on('complete', () => {
       if (this.loadFailed.length) {
         status.setText(
