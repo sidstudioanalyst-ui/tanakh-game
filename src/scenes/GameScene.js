@@ -261,16 +261,18 @@ class GameScene extends Phaser.Scene {
 
     this.buildProps((zone.props || []).filter(shown));
 
-    // Игрок: цвет — у героя карты (например, Эхуд), иначе стандартный
+    // Игрок: цвет — у героя карты (например, Барак), иначе стандартный
     const hero = this.hero;
     let texture = 'player';
     if (hero && hero.color !== undefined) {
       texture = `player-${hero.color.toString(16)}`;
       this.makeRectTexture(texture, CONFIG.PLAYER.size, CONFIG.PLAYER.size, hero.color, 0xffffff);
     }
+    // Спрайт-лист героя (hero.sprite), если загрузился, — вместо квадрата
+    const sprite = hero && hero.sprite && this.textures.exists(`hero-${hero.sprite}`) ? hero.sprite : null;
     const [sx, sy] = this.spawnAt || zone.start;
     const spawn = this.tileCenter(sx, sy);
-    this.player = new Player(this, spawn.x, spawn.y, texture);
+    this.player = new Player(this, spawn.x, spawn.y, texture, sprite);
 
     (zone.enemies || []).forEach((data, i) => {
       const key = `enemy:${i}`;

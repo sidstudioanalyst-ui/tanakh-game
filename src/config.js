@@ -121,6 +121,16 @@ const CONFIG = {
     blockSpeed: 0.45,    // блок: скорость ходьбы
   },
 
+  // Спрайт-листы героев: формат LPC (Universal LPC Spritesheet Generator), кадр 64×64,
+  // 4 направления; раскладка рядов — LPC_LAYOUT в Player.js. Подключается у героя карты
+  // полем sprite (world.js). Файл не загрузился — у героя остаётся цветной квадрат.
+  //   scale   — множитель отрисовки (1 — родной размер LPC: он рисовался под тайлы 32×32);
+  //   anchorX, anchorY — точка кадра (в пикселях кадра), где центр физического тела игрока:
+  //   тело прежнее (PLAYER.size × PLAYER.size), на бёдрах и ногах; голова выше него.
+  CHARACTER_SPRITES: {
+    ehud: { file: 'assets/characters/ehud.png', frame: 64, scale: 1, anchorX: 32, anchorY: 50 },
+  },
+
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,
   // если игрок ещё рядом; затем пауза. У типа врага можно задать свои windupMs / cooldownMs.
   ENEMY_STRIKE: {

@@ -31,6 +31,8 @@ function zoneDialogueIds(zone) {
 //   zones / startZone — зоны карты и стартовая
 //   trial             — id суда (src/data/trials/<id>.json) или null, если Суд ещё не написан
 //   hero              — за кого играет игрок (имя в HUD, цвет квадрата; alias — прозвище по флагу)
+//                       sprite — спрайт-лист героя из CONFIG.CHARACTER_SPRITES вместо квадрата
+//                       (Эхуд — вся часть А: А1–А5; у части Б свой hero — там квадрат Барака)
 //   gauges            — шкалы карты (растут через effects: { gauge: { <id>: n } })
 //   restartOnDeath    — 'zone' (начать зону заново) или 'map' (всю карту; по умолчанию)
 //   parts             — части карты со своим названием и героем: { b: { name_he, name_ru, hero,
@@ -50,7 +52,7 @@ const CAMPAIGNS = {
       zones: ['a1', 'a2', 'a3', 'a4', 'a5', 'barak_1', 'barak_2', 'barak_3', 'barak_4'],
       startZone: 'a1',
       trial: 'saviors', // src/data/trials/saviors.json — после Бр4
-      hero: { name_ru: 'Эхуд, сын Геры', name_he: 'אֵהוּד בֶּן גֵּרָא', color: 0xe5c07b },
+      hero: { name_ru: 'Эхуд, сын Геры', name_he: 'אֵהוּד בֶּן גֵּרָא', color: 0xe5c07b, sprite: 'ehud' },
       gauges: {
         warriors: { label: 'gauge_warriors', max: 300 },
         barak_warriors: { label: 'gauge_barak', max: 10000 }, // Нафтали и Звулун (Бр2)
