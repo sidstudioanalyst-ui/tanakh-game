@@ -87,9 +87,10 @@ const ITEMS = {
   },
 
   // --- «Спасители», часть Б (Барак) ---
+  // id прежний (barak_spear) — для сохранений; было «копьё», переименовано под спрайт Барака с мечом
   barak_spear: {
-    name_ru: 'Копьё',
-    name_he: 'חֲנִית',
+    name_ru: 'Меч',
+    name_he: 'חֶרֶב',
     slot: 'weapon',
     damage: 1,
     color: 0xb8c4d0,
