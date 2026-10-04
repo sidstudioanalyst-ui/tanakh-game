@@ -309,12 +309,20 @@ class GameScene extends Phaser.Scene {
       else if (p.shape === 'tri') shape = this.add.triangle(x, y, 0, h, w / 2, 0, w, h, p.color);
       else shape = this.add.rectangle(x, y, w, h, p.color);
       shape.setAlpha(p.alpha !== undefined ? p.alpha : 1).setDepth(p.depth || 4);
-      let label = null;
-      if (p.name_he || p.name_ru) {
-        label = addUiText(this, x, y - h / 2 - 22, UI.pick(p, 'name'), { center: true, size: 11, color: '#e5e9f0', background: '#2e3440aa', padding: { x: 4, y: 1 } }).setDepth(20);
-      }
-      return { data: p, shape, label, baseAlpha: shape.alpha };
+      const prop = { data: p, shape, label: null, baseAlpha: shape.alpha, labelX: x, labelY: y - h / 2 - 22 };
+      this.makePropLabel(prop);
+      return prop;
     });
+  }
+
+  // Подпись декора на текущем языке; при смене языка создаётся заново (rebuildUI) —
+  // как имена NPC: объект Text не переводится из иврита в русский, а пересоздаётся.
+  makePropLabel(prop) {
+    if (prop.label) prop.label.destroy();
+    prop.label = null;
+    const p = prop.data;
+    if (!p.name_he && !p.name_ru) return;
+    prop.label = addUiText(this, prop.labelX, prop.labelY, UI.pick(p, 'name'), { center: true, size: 11, color: '#e5e9f0', background: '#2e3440aa', padding: { x: 4, y: 1 } }).setDepth(20);
   }
 
   // Говорит speaker из диалога — его фигура (prop с тем же speaker) выделена: крупнее,
@@ -638,6 +646,10 @@ class GameScene extends Phaser.Scene {
     const byId = {};
     (this.zone.npcs || []).forEach((d) => (byId[d.id] = d));
     this.npcs.getChildren().forEach((npc) => npc.setName(this.npcName(byId[npc.npcId])));
+    // и подписи декора («Пальма Деворы», станы колен…) — раньше оставались на языке входа в зону
+    (this.props || []).forEach((p) => this.makePropLabel(p));
+    // подписи механик в мире (Сисра в Бр3, места в Г3…)
+    Object.values(this.mechanics || {}).forEach((m) => m && m.onLanguageChanged && m.onLanguageChanged());
     if (toast) this.showToast(toast);
     if (this.messageKeys) this.showMessage(this.messageKeys);
   }

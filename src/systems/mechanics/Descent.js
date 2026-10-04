@@ -34,7 +34,18 @@ class DescentMechanic {
     // Сисра — фигура над своей колесницей
     const sc = this.chariots[cfg.siseraChariot || 0];
     this.sisera = scene.add.rectangle(sc.x, sc.y - 14, 12, 16, 0xbf616a).setDepth(8).setStrokeStyle(1, 0x2e3440);
-    this.siseraLabel = addUiText(scene, sc.x, sc.y - 40, UI.t('label_sisera'), { center: true, size: 10, color: '#ebcb8b' }).setDepth(20);
+    this.makeSiseraLabel();
+  }
+
+  // Подпись «Сисра»; при смене языка — заново (GameScene.rebuildUI → onLanguageChanged)
+  makeSiseraLabel() {
+    const sc = this.chariots[this.cfg.siseraChariot || 0];
+    if (this.siseraLabel) this.siseraLabel.destroy();
+    this.siseraLabel = addUiText(this.scene, sc.x, sc.y - 40, UI.t('label_sisera'), { center: true, size: 10, color: '#ebcb8b' }).setDepth(20);
+  }
+
+  onLanguageChanged() {
+    if (this.siseraLabel && this.siseraLabel.active) this.makeSiseraLabel();
   }
 
   get remaining() {

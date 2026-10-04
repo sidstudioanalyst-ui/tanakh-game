@@ -8,10 +8,18 @@
 //    краем: от подписи остаётся кусочек одного символа на пустой плашке (имена NPC, окно диалога —
 //    всё, что пересоздаётся при смене языка и на каждой реплике).
 //    Сброса направления при уничтожении (как было раньше) мало: браузер может не применить новое
-//    dir к canvas, уже снятому со страницы. Поэтому защита в два слоя, независимая от браузера:
+//    dir к canvas, уже снятому со страницы. Поэтому защита в три слоя, независимая от браузера:
 //    а) обычный текст сам задаёт направление слева направо перед каждой перерисовкой;
 //    б) canvas ивритского текста после уничтожения в пул не возвращается совсем — его больше не
-//       получит никакой другой объект (canvas уходит в сборщик мусора).
+//       получит никакой другой объект (canvas уходит в сборщик мусора);
+//    в) в самый момент отрисовки (TextStyle.syncStyle — его Phaser вызывает прямо перед fillText,
+//       уже после возможного сброса контекста при смене размера canvas) обычный текст получает
+//       direction 'ltr' и textAlign 'left': строка рисуется от левого края при любом направлении,
+//       доставшемся canvas, — даже если браузер не применил dir. Ивритскому тексту — 'rtl' и 'right'.
+// Версия исправлений — проверить в консоли браузера, что загружен новый код, а не старый из кэша:
+//   window.PHASER_FIXES  →  'rtl-canvas-3'
+window.PHASER_FIXES = 'rtl-canvas-3';
+
 (function patchRtlCanvasPool() {
   const proto = Phaser.GameObjects.Text.prototype;
   const pool = Phaser.Display.Canvas.CanvasPool.pool;
@@ -23,6 +31,22 @@
       if (this.context && this.context.direction !== 'ltr') this.context.direction = 'ltr';
     }
     return originalUpdateText.apply(this, arguments);
+  };
+
+  const styleProto = Phaser.GameObjects.TextStyle.prototype;
+  const originalSyncStyle = styleProto.syncStyle;
+  styleProto.syncStyle = function (canvas, context) {
+    originalSyncStyle.call(this, canvas, context);
+    if (this.rtl) {
+      // Phaser рисует ивритскую строку от правого края (x = ширина) и ждёт textAlign 'start',
+      // то есть правый край при rtl. Явно 'right' — то же самое, но не зависит от состояния,
+      // оставленного в контексте прежним (обычным) текстом из пула
+      context.direction = 'rtl';
+      context.textAlign = 'right';
+    } else {
+      context.direction = 'ltr';
+      context.textAlign = 'left';
+    }
   };
 
   const originalPreDestroy = proto.preDestroy;

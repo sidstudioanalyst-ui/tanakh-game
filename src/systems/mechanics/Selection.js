@@ -57,9 +57,10 @@ class SelectionMechanic {
         .setOrigin(0)
         .setStrokeStyle(1, 0x88c0d0, 0.35)
         .setDepth(2);
-      addUiText(scene, rect.centerX, rect.y - 20, UI.t(loc.label), { center: true, size: 12, color: '#88c0d0' }).setDepth(20);
       this.presence[loc.id] = 0;
-      return { ...loc, rect, marks: 0, lapperMarks: 0 };
+      const l = { ...loc, rect, marks: 0, lapperMarks: 0 };
+      this.makeLocationLabel(l);
+      return l;
     });
 
     // воины: сетка внутри прямоугольника точки; «сторожевые» — случайные из них
@@ -98,6 +99,16 @@ class SelectionMechanic {
         });
       });
     });
+  }
+
+  // Подпись места над прямоугольником; при смене языка — заново (GameScene.rebuildUI)
+  makeLocationLabel(loc) {
+    if (loc.labelText) loc.labelText.destroy();
+    loc.labelText = addUiText(this.scene, loc.rect.centerX, loc.rect.y - 20, UI.t(loc.label), { center: true, size: 12, color: '#88c0d0' }).setDepth(20);
+  }
+
+  onLanguageChanged() {
+    this.locations.forEach((loc) => this.makeLocationLabel(loc));
   }
 
   update(time, delta) {
