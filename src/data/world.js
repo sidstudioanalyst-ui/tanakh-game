@@ -32,7 +32,7 @@ function zoneDialogueIds(zone) {
 //   trial             — id суда (src/data/trials/<id>.json) или null, если Суд ещё не написан
 //   hero              — за кого играет игрок (имя в HUD, цвет квадрата; alias — прозвище по флагу)
 //                       sprite — спрайт-лист героя из CONFIG.CHARACTER_SPRITES вместо квадрата
-//                       (Эхуд — вся часть А: А1–А5; у части Б свой hero — там квадрат Барака)
+//                       (Эхуд — вся часть А: А1–А5; Барак — вся часть Б: Бр1–Бр4)
 //   gauges            — шкалы карты (растут через effects: { gauge: { <id>: n } })
 //   restartOnDeath    — 'zone' (начать зону заново) или 'map' (всю карту; по умолчанию)
 //   parts             — части карты со своим названием и героем: { b: { name_he, name_ru, hero,
@@ -63,7 +63,7 @@ const CAMPAIGNS = {
         b: {
           name_ru: 'Спасители · Б: Барак',
           name_he: 'הַמּוֹשִׁיעִים · ב: בָּרָק',
-          hero: { name_ru: 'Барак, сын Авиноама', name_he: 'בָּרָק בֶּן אֲבִינֹעַם', color: 0x88c0d0 },
+          hero: { name_ru: 'Барак, сын Авиноама', name_he: 'בָּרָק בֶּן אֲבִינֹעַם', color: 0x88c0d0, sprite: 'barak' },
           freshEquipment: true, // Барак начинает без вещей Эхуда
         },
       },

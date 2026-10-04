@@ -7,18 +7,22 @@
 //   Блок (Ctrl, на тач — удержание кнопки со щитом): пока держишь — входящий урон вдвое меньше
 //     и отбрасывает слабее, но идёшь медленнее и не можешь атаковать.
 //
-// Вид: цветной квадрат или спрайт-лист героя в формате LPC (sprite — id из
-// CONFIG.CHARACTER_SPRITES). У спрайта: ходьба в сторону движения, стойка, когда стоит,
-// удар кинжалом при атаке. Физическое тело то же, что у квадрата.
+// Вид: цветной квадрат или спрайт-лист героя (sprite — id из CONFIG.CHARACTER_SPRITES:
+// Эхуд — лист LPC, Барак — свой лист, см. README). У спрайта: ходьба в сторону движения, стойка,
+// когда стоит, удар оружием при атаке. Физическое тело то же, что у квадрата.
 // У героя со спрайтом удар направленный (CONFIG.PLAYER.directed): урон только в конусе перед
 // ним — по lastDir, куда шёл последним (клавиши или джойстик). Блок у него — голубое свечение
 // самого спрайта вместо кольца вокруг. У квадрата — как раньше: удар по кругу, кольцо щита.
 
-// Раскладка LPC: первый ряд анимации и число кадров. У каждой анимации 4 ряда —
-// направления в порядке LPC: вверх, влево, вниз, вправо.
+// Раскладка листа: у каждой анимации 4 ряда — направления в порядке LPC: вверх, влево, вниз,
+// вправо. row — первый ряд, from…to — кадры в ряду, fps — скорость; stand — кадр стойки.
+// По умолчанию — раскладка Universal LPC Spritesheet Generator (лист Эхуда); у другого листа
+// своя раскладка — CHARACTER_SPRITES.<id>.layout.
 const LPC_LAYOUT = {
-  walk: { row: 8, frames: 9 }, // кадр 0 — стойка, 1–8 — цикл шага
-  slash: { row: 12, frames: 6 }, // удар с замахом (у Эхуда — кинжал в левой руке)
+  walk: { row: 8, from: 1, to: 8, fps: 12 }, // ходьба: кадр 0 — стойка, 1–8 — цикл шага
+  stand: { row: 8, col: 0 },
+  // slash: 6 кадров за 300 мс — успевает до следующего удара (attackCooldown 350 мс)
+  attack: { row: 12, from: 0, to: 5, fps: 20 },
 };
 const LPC_DIRS = ['up', 'left', 'down', 'right'];
 
@@ -68,40 +72,41 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     const sp = CONFIG.CHARACTER_SPRITES[id];
     const key = `hero-${id}`;
     this.heroKey = key;
+    this.layout = sp.layout || LPC_LAYOUT;
     this.lpcCols = this.scene.textures.get(key).getSourceImage().width / sp.frame;
-    Player.createLpcAnims(this.scene, key, this.lpcCols);
-    this.setTexture(key, this.lpcFrame('walk', 'down', 0));
+    Player.createLpcAnims(this.scene, key, this.lpcCols, this.layout);
+    this.setTexture(key, this.standFrame('down'));
     this.setScale(sp.scale);
     this.setOrigin(sp.anchorX / sp.frame, sp.anchorY / sp.frame);
     const b = this.stats.size / sp.scale; // в пикселях кадра; на экране — PLAYER.size
     this.body.setSize(b, b, false);
     this.body.setOffset(sp.anchorX - b / 2, sp.anchorY - b / 2);
     this.facing = 'down';
-    this.slashing = false;
+    this.attacking = false;
+    // дальность — под оружие героя (sp.attackRange), иначе общая
     const d = CONFIG.PLAYER.directed;
-    this.directed = { arc: Phaser.Math.DegToRad(d.arc), range: d.range };
+    this.directed = { arc: Phaser.Math.DegToRad(d.arc), range: sp.attackRange || d.range };
     // Блок: свечение по контуру спрайта (WebGL); без WebGL — голубой оттенок (см. drawShield)
     this.blockGlow = this.preFX ? this.preFX.addGlow(0x88c0d0, 3, 0, false, 0.1, 12) : null;
     if (this.blockGlow) this.blockGlow.active = false;
     this.on('animationcomplete', (anim) => {
-      if (anim.key.startsWith(`${key}-slash-`)) this.slashing = false;
+      if (anim.key.startsWith(`${key}-attack-`)) this.attacking = false;
     });
   }
 
   // Анимации создаются один раз на игру (менеджер анимаций общий для сцен)
-  static createLpcAnims(scene, key, cols) {
+  static createLpcAnims(scene, key, cols, layout) {
     if (scene.anims.exists(`${key}-walk-down`)) return;
-    const frames = (anim, i, from, to) =>
-      scene.anims.generateFrameNumbers(key, { start: (LPC_LAYOUT[anim].row + i) * cols + from, end: (LPC_LAYOUT[anim].row + i) * cols + to });
+    const frames = (a, i) => scene.anims.generateFrameNumbers(key, { start: (a.row + i) * cols + a.from, end: (a.row + i) * cols + a.to });
     LPC_DIRS.forEach((dir, i) => {
-      scene.anims.create({ key: `${key}-walk-${dir}`, frames: frames('walk', i, 1, LPC_LAYOUT.walk.frames - 1), frameRate: 12, repeat: -1 });
-      // 6 кадров за 300 мс — успевает до следующего удара (attackCooldown 350 мс)
-      scene.anims.create({ key: `${key}-slash-${dir}`, frames: frames('slash', i, 0, LPC_LAYOUT.slash.frames - 1), frameRate: 20 });
+      scene.anims.create({ key: `${key}-walk-${dir}`, frames: frames(layout.walk, i), frameRate: layout.walk.fps, repeat: -1 });
+      scene.anims.create({ key: `${key}-attack-${dir}`, frames: frames(layout.attack, i), frameRate: layout.attack.fps });
     });
   }
 
-  lpcFrame(anim, dir, col) {
-    return (LPC_LAYOUT[anim].row + LPC_DIRS.indexOf(dir)) * this.lpcCols + col;
+  standFrame(dir) {
+    const st = this.layout.stand;
+    return (st.row + LPC_DIRS.indexOf(dir)) * this.lpcCols + st.col;
   }
 
   preUpdate(time, delta) {
@@ -112,14 +117,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   // Направление — куда шёл последним (как и раньше у квадрата: lastDir); идёт — шаг, стоит — стойка.
   // Работает и в катсценах: там update() не вызывается, а скорость обнулена — будет стойка.
   updateSpriteAnim() {
-    if (this.isDead || this.slashing) return;
+    if (this.isDead || this.attacking) return;
     this.updateFacing();
     if (this.body.velocity.lengthSq() > 100) {
       this.play(`${this.heroKey}-walk-${this.facing}`, true);
       return;
     }
     if (this.anims.isPlaying) this.anims.stop();
-    const stand = this.lpcFrame('walk', this.facing, 0);
+    const stand = this.standFrame(this.facing);
     if (this.frame.name !== stand) this.setFrame(stand);
   }
 
@@ -259,11 +264,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.nextAttackAt = time + this.stats.attackCooldown;
 
     this.showAttackEffect();
-    // спрайт: удар кинжалом в ту сторону, куда смотрит; урон — как и раньше, сразу ниже
+    // спрайт: удар оружием в ту сторону, куда смотрит; урон — как и раньше, сразу ниже
     if (this.heroKey) {
       this.updateFacing(); // направление — на момент удара
-      this.slashing = true;
-      this.play(`${this.heroKey}-slash-${this.facing}`);
+      this.attacking = true;
+      this.play(`${this.heroKey}-attack-${this.facing}`);
     }
 
     // Сцена сама решает, кого задела атака. Направленный удар: конус arc с осью dir
@@ -371,9 +376,9 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.setAlpha(1);
     this.setVelocity(0, 0);
     if (this.heroKey) {
-      this.slashing = false;
+      this.attacking = false;
       this.anims.stop();
-      this.setFrame(this.lpcFrame('walk', this.facing, 0));
+      this.setFrame(this.standFrame(this.facing));
     }
     this.setTint(0x555555);
     this.scene.events.emit('player-dead');
