@@ -44,6 +44,8 @@ class BootScene extends Phaser.Scene {
     if (CONFIG.TOUCH) {
       ['sword', 'hand', 'bag', 'menu', 'dodge', 'shield', 'fullscreen'].forEach((name) => this.load.svg(`icon-${name}`, `assets/ui/${name}.svg`, { width: 96, height: 96 }));
     }
+    // Тайлсеты окружения (CONFIG.TILESETS): ключ текстуры — tiles-<id>
+    Object.entries(CONFIG.TILESETS).forEach(([id, ts]) => this.load.image(`tiles-${id}`, ts.file));
     // Спрайт-листы героев (CONFIG.CHARACTER_SPRITES): ключ текстуры — hero-<id>
     Object.entries(CONFIG.CHARACTER_SPRITES).forEach(([id, sp]) =>
       this.load.spritesheet(`hero-${id}`, sp.file, { frameWidth: sp.frame, frameHeight: sp.frame })
@@ -54,7 +56,7 @@ class BootScene extends Phaser.Scene {
     this.loadFailed = [];
     this.load.on('loaderror', (file) => {
       // без спрайта героя игра идёт дальше — с цветным квадратом
-      if (file.type === 'spritesheet') console.warn('Спрайт не загружен, будет квадрат:', file.src);
+      if (file.type === 'spritesheet' || (file.key || '').startsWith('tiles-')) console.warn('Графика не загружена, будут квадраты:', file.src);
       else this.loadFailed.push(file.src);
     });
     this.load.on('complete', () => {

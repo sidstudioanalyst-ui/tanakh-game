@@ -34,6 +34,27 @@ function validateContent(cache, uiStrings) {
     if (!zone.start) warn(`${where}: нет start`);
     else floor(zone.start[0], zone.start[1], 'start');
 
+    // Тайлы окружения: те же размеры, объекты ровно на стенах (у стены без картинки — невидимое
+    // препятствие, у картинки на полу — «стена», сквозь которую ходят), все символы известны
+    if (zone.art) {
+      const art = zone.art;
+      const ts = CONFIG.TILESETS[art.tileset];
+      if (!ts) warn(`${where}: art — нет тайлсета "${art.tileset}"`);
+      ['ground', 'objects'].forEach((layer) => {
+        const lines = art[layer] || [];
+        if (lines.length !== zone.tiles.length || lines.some((l, y) => l.length !== zone.tiles[y].length)) warn(`${where}: art.${layer} — размер не совпадает с tiles`);
+        lines.forEach((l, y) =>
+          [...l].forEach((ch, x) => {
+            if (ch !== ' ' && art.legend[ch] === undefined && !(ts && ts.auto && ts.auto[ch])) warn(`${where}: art.${layer} (${x},${y}) — неизвестный символ "${ch}"`);
+            if (layer !== 'objects') return;
+            const wall = zone.tiles[y] && (zone.tiles[y][x] === CONFIG.TILES.WALL || zone.tiles[y][x] === CONFIG.TILES.WATER);
+            if (wall && ch === ' ') warn(`${where}: art.objects (${x},${y}) — стена без картинки`);
+            if (!wall && ch !== ' ') warn(`${where}: art.objects (${x},${y}) — картинка препятствия на полу`);
+          })
+        );
+      });
+    }
+
     (zone.enemies || []).forEach((e) => {
       if (!CONFIG.ENEMY_TYPES[e.type]) warn(`${where}: неизвестный тип врага "${e.type}"`);
       floor(e.x, e.y, `враг ${e.type}`);

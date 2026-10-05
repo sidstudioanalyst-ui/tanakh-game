@@ -206,12 +206,17 @@ class GameScene extends Phaser.Scene {
     this.walkable = rows.map((row) => [...row].map((ch) => ch === CONFIG.TILES.FLOOR));
     this.opaque = rows.map((row) => [...row].map((ch) => ch === CONFIG.TILES.WALL));
 
+    // Тайлы окружения (zone.art, README «Тайлы окружения») — только картинка: тела стен те же,
+    // но невидимые; пол из цветных квадратов не рисуется. Нет тайлсета — всё как раньше.
+    const art = zone.art && this.textures.exists(`tiles-${zone.art.tileset}`) ? zone.art : null;
+    if (art) this.buildTileArt(art, rows);
+
     rows.forEach((row, ty) => {
       [...row].forEach((ch, tx) => {
         const { x, y } = this.tileCenter(tx, ty);
-        if (ch === CONFIG.TILES.WALL) this.walls.create(x, y, 'wall');
-        else if (ch === CONFIG.TILES.WATER) this.walls.create(x, y, 'water');
-        else this.add.image(x, y, (tx + ty) % 2 ? 'floorA' : 'floorB');
+        if (ch === CONFIG.TILES.WALL) this.walls.create(x, y, 'wall').setVisible(!art);
+        else if (ch === CONFIG.TILES.WATER) this.walls.create(x, y, 'water').setVisible(!art);
+        else if (!art) this.add.image(x, y, (tx + ty) % 2 ? 'floorA' : 'floorB');
       });
     });
 
@@ -281,6 +286,53 @@ class GameScene extends Phaser.Scene {
       const EnemyClass = ENEMY_CLASSES[CONFIG.ENEMY_TYPES[data.type].class] || Enemy;
       this.enemies.add(new EnemyClass(this, x, y, data.type, key));
     });
+  }
+
+  // Тайловая картинка зоны: штатный Phaser Tilemap из двух слоёв поверх сетки зоны.
+  //   ground  — земля под всем (трава, грунт), objects — то, что стоит на клетках-стенах
+  //   (деревья, забор, дома); ' ' — пусто. Символ → номер тайла по art.legend; символы из
+  //   CONFIG.TILESETS.<id>.auto подбирают тайл по соседям (края грунта, стыки забора).
+  // Одна клетка зоны (32 px) — один тайл листа (16 px) с увеличением scale = 2.
+  buildTileArt(art, rows) {
+    const ts = CONFIG.TILESETS[art.tileset];
+    const H = rows.length;
+    const W = rows[0].length;
+    const grid = (layer) => {
+      const lines = art[layer] || [];
+      const same = (x, y, ch) => {
+        if (x < 0 || y < 0 || x >= W || y >= H) return ch === 'd'; // площадь продолжается за край карты (дорога к выходу)
+        return (lines[y] || '')[x] === ch;
+      };
+      return Array.from({ length: H }, (_, y) =>
+        Array.from({ length: W }, (_, x) => {
+          const ch = (lines[y] || '')[x] || ' ';
+          if (ch === ' ') return -1;
+          const auto = ts.auto && ts.auto[ch];
+          if (!auto) return art.legend[ch] !== undefined ? art.legend[ch] : -1;
+          const n = same(x, y - 1, ch), sth = same(x, y + 1, ch), w = same(x - 1, y, ch), e = same(x + 1, y, ch);
+          if (auto.type === 'area') {
+            const v = !n ? 't' : !sth ? 'b' : '';
+            const hz = !w ? 'l' : !e ? 'r' : '';
+            return auto[v + hz] !== undefined ? auto[v + hz] : auto[v || hz] !== undefined ? auto[v || hz] : auto.c;
+          }
+          // line (забор): углы, затем прямые участки и концы
+          if (sth && e && !n && !w) return auto.se;
+          if (sth && w && !n && !e) return auto.sw;
+          if (n && e && !sth && !w) return auto.ne;
+          if (n && w && !sth && !e) return auto.nw;
+          if ((w || e) && !n && !sth) return w && e ? auto.h : w ? auto.hr : auto.hl;
+          if (n && sth) return auto.v;
+          return n ? auto.vb : sth ? auto.vt : auto.v;
+        })
+      );
+    };
+    const map = this.make.tilemap({ tileWidth: ts.tile, tileHeight: ts.tile, width: W, height: H });
+    const tileset = map.addTilesetImage(art.tileset, `tiles-${art.tileset}`, ts.tile, ts.tile, 0, 0);
+    ['ground', 'objects'].forEach((name, i) => {
+      const layer = map.createBlankLayer(name, tileset, 0, 0).setScale(ts.scale).setDepth(i);
+      layer.putTilesAt(grid(name), 0, 0);
+    });
+    this.tileMap = map;
   }
 
   // Герой и название — карты или её части (zone.part: 'b' → map.parts.b), см. world.js
