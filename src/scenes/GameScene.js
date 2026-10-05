@@ -208,7 +208,7 @@ class GameScene extends Phaser.Scene {
 
     // Тайлы окружения (zone.art, README «Тайлы окружения») — только картинка: тела стен те же,
     // но невидимые; пол из цветных квадратов не рисуется. Нет тайлсета — всё как раньше.
-    const art = zone.art && this.textures.exists(`tiles-${zone.art.tileset}`) ? zone.art : null;
+    const art = zone.art && GameScene.artLayers(zone.art).every((l) => this.textures.exists(`tiles-${l.tileset}`)) ? zone.art : null;
     if (art) this.buildTileArt(art, rows);
 
     rows.forEach((row, ty) => {
@@ -228,7 +228,7 @@ class GameScene extends Phaser.Scene {
         const { x, y } = this.tileCenter(tx, ty);
         this.walkable[ty][tx] = false;
         this.opaque[ty][tx] = true;
-        return { tx, ty, sprite: this.doors.create(x, y, 'door') };
+        return { tx, ty, sprite: this.doors.create(x, y, 'door').setDepth(0.5) }; // над тайлами пола
       });
     });
 
@@ -239,7 +239,7 @@ class GameScene extends Phaser.Scene {
       for (let dy = 0; dy < (exit.h || 1); dy++) {
         for (let dx = 0; dx < (exit.w || 1); dx++) {
           const { x, y } = this.tileCenter(exit.x + dx, exit.y + dy);
-          images.push(this.add.image(x, y, 'exit').setAlpha(0.8));
+          images.push(this.add.image(x, y, 'exit').setAlpha(0.8).setDepth(0.5)); // над тайлами пола
         }
       }
       this.exits.push({ ...exit, rect: this.tileRect(exit), images });
@@ -288,51 +288,72 @@ class GameScene extends Phaser.Scene {
     });
   }
 
-  // Тайловая картинка зоны: штатный Phaser Tilemap из двух слоёв поверх сетки зоны.
-  //   ground  — земля под всем (трава, грунт), objects — то, что стоит на клетках-стенах
-  //   (деревья, забор, дома); ' ' — пусто. Символ → номер тайла по art.legend; символы из
-  //   CONFIG.TILESETS.<id>.auto подбирают тайл по соседям (края грунта, стыки забора).
-  // Одна клетка зоны (32 px) — один тайл листа (16 px) с увеличением scale = 2.
+  // Тайловая картинка зоны: штатный Phaser Tilemap, слои снизу вверх поверх сетки зоны.
+  // Каждый слой — свой тайлсет (CONFIG.TILESETS) со своим размером тайла и увеличением до
+  // клетки 32 px, поэтому у каждого слоя своя Tilemap. Символ раскладки → номер тайла по
+  // legend слоя ('25x' — отражён по горизонтали, '25y' — по вертикали), ' ' — пусто; символы
+  // из CONFIG.TILESETS.<id>.auto подбирают тайл по соседям (края грунта, стыки забора, стены).
+  // Короткая форма (А1): { tileset, ground, objects, legend } — два слоя одного тайлсета.
+  static artLayers(art) {
+    if (art.layers) return art.layers;
+    return [
+      { name: 'ground', tileset: art.tileset, rows: art.ground, legend: art.legend, place: 'all' },
+      { name: 'objects', tileset: art.tileset, rows: art.objects, legend: art.legend, place: 'walls' },
+    ];
+  }
+
   buildTileArt(art, rows) {
-    const ts = CONFIG.TILESETS[art.tileset];
     const H = rows.length;
     const W = rows[0].length;
-    const grid = (layer) => {
-      const lines = art[layer] || [];
+    this.tileMaps = GameScene.artLayers(art).map((layerDef, li) => {
+      const ts = CONFIG.TILESETS[layerDef.tileset];
+      const lines = layerDef.rows || [];
+      const legend = layerDef.legend || {};
       const same = (x, y, ch) => {
-        if (x < 0 || y < 0 || x >= W || y >= H) return ch === 'd'; // площадь продолжается за край карты (дорога к выходу)
+        if (x < 0 || y < 0 || x >= W || y >= H) return ch === 'd' || ch === 'w'; // площадь/стена продолжаются за край
         return (lines[y] || '')[x] === ch;
       };
-      return Array.from({ length: H }, (_, y) =>
-        Array.from({ length: W }, (_, x) => {
-          const ch = (lines[y] || '')[x] || ' ';
-          if (ch === ' ') return -1;
-          const auto = ts.auto && ts.auto[ch];
-          if (!auto) return art.legend[ch] !== undefined ? art.legend[ch] : -1;
-          const n = same(x, y - 1, ch), sth = same(x, y + 1, ch), w = same(x - 1, y, ch), e = same(x + 1, y, ch);
-          if (auto.type === 'area') {
-            const v = !n ? 't' : !sth ? 'b' : '';
-            const hz = !w ? 'l' : !e ? 'r' : '';
-            return auto[v + hz] !== undefined ? auto[v + hz] : auto[v || hz] !== undefined ? auto[v || hz] : auto.c;
-          }
-          // line (забор): углы, затем прямые участки и концы
-          if (sth && e && !n && !w) return auto.se;
-          if (sth && w && !n && !e) return auto.sw;
-          if (n && e && !sth && !w) return auto.ne;
-          if (n && w && !sth && !e) return auto.nw;
-          if ((w || e) && !n && !sth) return w && e ? auto.h : w ? auto.hr : auto.hl;
-          if (n && sth) return auto.v;
-          return n ? auto.vb : sth ? auto.vt : auto.v;
-        })
-      );
-    };
-    const map = this.make.tilemap({ tileWidth: ts.tile, tileHeight: ts.tile, width: W, height: H });
-    const tileset = map.addTilesetImage(art.tileset, `tiles-${art.tileset}`, ts.tile, ts.tile, 0, 0);
-    ['ground', 'objects'].forEach((name, i) => {
-      const layer = map.createBlankLayer(name, tileset, 0, 0).setScale(ts.scale).setDepth(i);
-      layer.putTilesAt(grid(name), 0, 0);
+      const cell = (x, y) => {
+        const ch = (lines[y] || '')[x] || ' ';
+        if (ch === ' ') return null;
+        const auto = ts.auto && ts.auto[ch];
+        if (!auto) {
+          const v = legend[ch];
+          if (v === undefined) return null;
+          const m = String(v).match(/^(\d+)([xy]*)$/);
+          return { index: +m[1], fx: m[2].includes('x'), fy: m[2].includes('y') };
+        }
+        const n = same(x, y - 1, ch), sth = same(x, y + 1, ch), w = same(x - 1, y, ch), e = same(x + 1, y, ch);
+        let index;
+        if (auto.type === 'wall') index = sth ? auto.top : auto.face;
+        else if (auto.type === 'area') {
+          const v = !n ? 't' : !sth ? 'b' : '';
+          const hz = !w ? 'l' : !e ? 'r' : '';
+          index = auto[v + hz] !== undefined ? auto[v + hz] : auto[v || hz] !== undefined ? auto[v || hz] : auto.c;
+        } else if (sth && e && !n && !w) index = auto.se; // line (забор): углы, прямые, концы
+        else if (sth && w && !n && !e) index = auto.sw;
+        else if (n && e && !sth && !w) index = auto.ne;
+        else if (n && w && !sth && !e) index = auto.nw;
+        else if ((w || e) && !n && !sth) index = w && e ? auto.h : w ? auto.hr : auto.hl;
+        else if (n && sth) index = auto.v;
+        else index = n ? auto.vb : sth ? auto.vt : auto.v;
+        return { index };
+      };
+      const map = this.make.tilemap({ tileWidth: ts.tile, tileHeight: ts.tile, width: W, height: H });
+      const tileset = map.addTilesetImage(layerDef.tileset, `tiles-${layerDef.tileset}`, ts.tile, ts.tile, 0, ts.spacing || 0);
+      // глубина 0…0,3: под всем, что есть в зоне (двери и выходы — 0,5, предметы — 4, стража — 7)
+      const layer = map.createBlankLayer(layerDef.name || `art${li}`, tileset, 0, 0).setScale(ts.scale).setDepth(li * 0.1);
+      for (let y = 0; y < H; y++) {
+        for (let x = 0; x < W; x++) {
+          const c = cell(x, y);
+          if (!c) continue;
+          const tile = layer.putTileAt(c.index, x, y);
+          if (c.fx) tile.flipX = true;
+          if (c.fy) tile.flipY = true;
+        }
+      }
+      return map;
     });
-    this.tileMap = map;
   }
 
   // Герой и название — карты или её части (zone.part: 'b' → map.parts.b), см. world.js
