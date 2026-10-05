@@ -34,22 +34,25 @@ function validateContent(cache, uiStrings) {
     if (!zone.start) warn(`${where}: нет start`);
     else floor(zone.start[0], zone.start[1], 'start');
 
-    // Тайлы окружения: те же размеры, объекты ровно на стенах (у стены без картинки — невидимое
-    // препятствие, у картинки на полу — «стена», сквозь которую ходят), все символы известны
+    // Тайлы окружения: у каждого слоя те же размеры, что у tiles; слой place: 'walls' — картинки
+    // ровно на стенах и (если не cover: false) у каждой стены (иначе невидимое препятствие или
+    // «стена», сквозь которую ходят); place: 'floor' — только на полу; все символы известны
     if (zone.art) {
-      const art = zone.art;
-      const ts = CONFIG.TILESETS[art.tileset];
-      if (!ts) warn(`${where}: art — нет тайлсета "${art.tileset}"`);
-      ['ground', 'objects'].forEach((layer) => {
-        const lines = art[layer] || [];
-        if (lines.length !== zone.tiles.length || lines.some((l, y) => l.length !== zone.tiles[y].length)) warn(`${where}: art.${layer} — размер не совпадает с tiles`);
+      GameScene.artLayers(zone.art).forEach((layer, li) => {
+        const name = `art.${layer.name || 'layers[' + li + ']'}`;
+        const ts = CONFIG.TILESETS[layer.tileset];
+        if (!ts) warn(`${where}: ${name} — нет тайлсета "${layer.tileset}"`);
+        const lines = layer.rows || [];
+        if (lines.length !== zone.tiles.length || lines.some((l, y) => l.length !== zone.tiles[y].length)) warn(`${where}: ${name} — размер не совпадает с tiles`);
         lines.forEach((l, y) =>
           [...l].forEach((ch, x) => {
-            if (ch !== ' ' && art.legend[ch] === undefined && !(ts && ts.auto && ts.auto[ch])) warn(`${where}: art.${layer} (${x},${y}) — неизвестный символ "${ch}"`);
-            if (layer !== 'objects') return;
+            if (ch !== ' ' && (layer.legend || {})[ch] === undefined && !(ts && ts.auto && ts.auto[ch])) warn(`${where}: ${name} (${x},${y}) — неизвестный символ "${ch}"`);
             const wall = zone.tiles[y] && (zone.tiles[y][x] === CONFIG.TILES.WALL || zone.tiles[y][x] === CONFIG.TILES.WATER);
-            if (wall && ch === ' ') warn(`${where}: art.objects (${x},${y}) — стена без картинки`);
-            if (!wall && ch !== ' ') warn(`${where}: art.objects (${x},${y}) — картинка препятствия на полу`);
+            if (layer.place === 'walls') {
+              if (wall && ch === ' ' && layer.cover !== false) warn(`${where}: ${name} (${x},${y}) — стена без картинки`);
+              if (!wall && ch !== ' ') warn(`${where}: ${name} (${x},${y}) — картинка препятствия на полу`);
+            }
+            if (layer.place === 'floor' && wall && ch !== ' ') warn(`${where}: ${name} (${x},${y}) — напольный декор на стене`);
           })
         );
       });
