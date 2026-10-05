@@ -5,7 +5,11 @@ fetch('index.html')
   .then((r) => r.text())
   .then((html) => {
     const doc = new DOMParser().parseFromString(html, 'text/html');
-    const srcs = [...doc.querySelectorAll('script[src]')].map((s) => s.getAttribute('src')).filter((src) => !src.includes('phaser'));
+    // пропускаем только сам движок (он уже в dev.html). Не src.includes('phaser'): под такой
+    // фильтр попадал и src/utils/phaserFixes.js — dev.html работал без исправлений Phaser
+    // (русский текст обрезался после смены языка, см. README «Иврит и RTL»)
+    const isEngine = (src) => /(^|\/)phaser(\.min)?\.js(\?|$)/.test(src);
+    const srcs = [...doc.querySelectorAll('script[src]')].map((s) => s.getAttribute('src')).filter((src) => !isEngine(src));
     [...srcs, 'src/dev/devStart.js'].forEach((src) => {
       const s = document.createElement('script');
       s.src = src;
