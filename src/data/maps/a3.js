@@ -24,6 +24,60 @@ defineZone({
     '#..............................#',
     '################################',
   ],
+  // Тайлы окружения (README «Тайлы окружения»): открытая местность — Kenney RPG base.
+  // Только картинка поверх tiles: коллизии из tiles.
+  art: {
+    layers: [
+      {
+        // трава (t — с кустиком); d — тропа: края по соседям (CONFIG.TILESETS.rpg_base.auto)
+        name: 'floor', tileset: 'rpg_base', place: 'all',
+        legend: { g: 43, t: 44 },
+        rows: [
+          'tggggggggggtggggggggggtggggggggg',
+          'ggggggtggggggggggtggggggggggtggg',
+          'gdddddddgdddddddddddddddddddddgg',
+          'gddddddddddddddgddddddddddddddgg',
+          'ggtggggggggggtggggggggggtgggddgg',
+          'ggggggggtggggggggggtggggggggddtg',
+          'ggddddgdddddddddddddgdddddddddgg',
+          'ggddddddddddddddddddddddddddddgt',
+          'ggddtggggggggggtggggggggggtggggg',
+          'ggddggggggtggggggggggtgggggggggg',
+          'ggddddddddddddddddddddddgdddddgg',
+          'tgdddddddgddddddddddddddddddddgg',
+          'ggggggtggggggggggtggggggggggddgg',
+          'dddddddddddddddddddddgddddddddgg',
+          'dddddddddddddgdddddddddddddgddgg',
+          'ggtggggggggggtggggggggggtggggggg',
+          'ggggggggtggggggggggtggggggggggtg',
+        ],
+      },
+      {
+        // сверху и снизу кромка рощи (стволы / кроны, обрезанные краем); живые изгороди из кустов (b, k — отражённые); O — одиночный рыжий куст на пути
+        name: 'walls', tileset: 'rpg_base', place: 'walls',
+        legend: { a: 220, q: 222, z: 224, A: 200, Q: 202, Z: 204, B: 180, K: 184, b: '180x', k: '184x', O: 182 },
+        rows: [
+          'aqzaazaqaaqzaqzaazaqaaqzaqzaazaq',
+          'K                     O        B',
+          'b       O                      K',
+          'k              O               b',
+          'BKbkBKbkBKbkBKbkBKbkBKbkBKb    k',
+          'K           O                  B',
+          'b     O             O          K',
+          'k                              b',
+          'B    KbkBKbkBKbkBKbkBKbkBKbkBKbk',
+          'K               O              B',
+          'b                       O      K',
+          'k        O                     b',
+          'BKbkBKbkBKbkBKbkBKbkBKbkBKb    k',
+          '                     O         B',
+          '             O             O   K',
+          'k                              b',
+          'AQZAAZAQAAQZAQZAAZAQAAQZAQZAAZAQ',
+        ],
+      },
+    ],
+  },
   start: [2, 2],
   timer: { seconds: 45, fail: 'fail_timer', label: 'hud_timer' },
   hazards: [
