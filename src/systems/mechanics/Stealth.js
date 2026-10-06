@@ -52,7 +52,8 @@ class Guard {
     const y0 = this.y;
     if (this.points.length) this.move(time, delta);
     this.sprite.setPosition(this.x, this.y);
-    if (this.animated && !this.striking) this.updateLook(Math.hypot(this.x - x0, this.y - y0) > 0.01);
+    // вид — только у живого спрайта (страж бывает и чистой моделью для расчёта маршрута)
+    if (this.animated && !this.striking && this.sprite.active) this.updateLook(Math.hypot(this.x - x0, this.y - y0) > 0.01);
   }
 
   // Вид спрайта: сторона — по углу взгляда (как у конуса); идёт — ходьба, стоит — стойка
