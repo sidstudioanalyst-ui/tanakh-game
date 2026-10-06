@@ -25,6 +25,62 @@ defineZone({
     '#............................#',
     '##############################',
   ],
+  // Тайлы окружения (README «Тайлы окружения»): открытая местность — Kenney RPG base.
+  // Только картинка поверх tiles: коллизии из tiles.
+  art: {
+    layers: [
+      {
+        // трава (t — с кустиком); d — дорога от входа к бродам, края по соседям (CONFIG.TILESETS.rpg_base.auto)
+        name: 'floor', tileset: 'rpg_base', place: 'all',
+        legend: { g: 43, t: 44 },
+        rows: [
+          'tggggggggggtggggggggggtggggggg',
+          'ggggggtggggggggggtggggggggggtg',
+          'gtggggggggggtggggggggggtgggggg',
+          'gggggggtggggggggggtggggggggggt',
+          'ggtggggggggggtggggggggggtggggg',
+          'ggggggggtggggggggggtgggggggggg',
+          'gggtggggggggggtggggggggggtgggg',
+          'gggggggggtdddddddgggtggggggggg',
+          'dddddddddddddddddddddddddddddd',
+          'ddddddddddddgggddddddddddddddd',
+          'gggggtggggggggggtggggggggggtgg',
+          'tggggggggggtggggggggggtggggggg',
+          'ggggggtggggggggggtggggggggggtg',
+          'gtggggggggggtggggggggggtgggggg',
+          'gggggggtggggggggggtggggggggggt',
+          'ggtggggggggggtggggggggggtggggg',
+          'ggggggggtggggggggggtgggggggggg',
+          'gggtggggggggggtggggggggggtgggg',
+        ],
+      },
+      {
+        // кромка рощи и кусты по краю; рощи: крона (A, Q, Z) над стволом (a, q, z), внизу куст; 1–9 — родник с берегом
+        name: 'walls', tileset: 'rpg_base', place: 'walls',
+        legend: { a: 220, q: 222, z: 224, A: 200, Q: 202, Z: 204, B: 180, K: 184, b: '180x', k: '184x', 1: 10, 2: 11, 3: 12, 4: 30, 5: 31, 6: 32, 7: 50, 8: 51, 9: 52 },
+        rows: [
+          'aqzaazaqaaqzaqzaazaqaaqzaqzaaz',
+          'K                            b',
+          'b                   ZAZ      k',
+          'k    AZA            zaz      B',
+          'B    aza            BKB      K',
+          'K    BKB                     b',
+          'b                AQ          k',
+          'k                aq          B',
+          '                              ',
+          '            123               ',
+          'b           456              k',
+          'k           456       AZA    B',
+          'B           789       aza    K',
+          'K       ZA            BKB    b',
+          'b       za                   k',
+          'k       BK                   B',
+          'B                            K',
+          'AQZAAZAQAAQZAQZAAZAQAAQZAQZAAZ',
+        ],
+      },
+    ],
+  },
   start: [1, 8],
   gauges: ['warriors'], // показывать шкалу «Собранные воины» в HUD
   items: [{ id: 'shofar', x: 26, y: 2 }],
