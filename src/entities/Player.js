@@ -105,8 +105,41 @@ class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   standFrame(dir) {
-    const st = this.layout.stand;
-    return (st.row + LPC_DIRS.indexOf(dir)) * this.lpcCols + st.col;
+    return Player.standFrameOf(this.layout, this.lpcCols, dir);
+  }
+
+  // Общие помощники для персонажей со спрайт-листом (игрок, стража, NPC)
+  static standFrameOf(layout, cols, dir) {
+    const st = layout.stand;
+    return (st.row + LPC_DIRS.indexOf(dir)) * cols + st.col;
+  }
+
+  // Сторона из 4 по направлению (dx, dy); по точной диагонали — влево/вправо
+  static facingOf(dx, dy) {
+    return Math.abs(dx) >= Math.abs(dy) - 1e-6 ? (dx < 0 ? 'left' : 'right') : dy < 0 ? 'up' : 'down';
+  }
+
+  // Персонаж со спрайтом (не игрок): спрайт и анимации по CONFIG.CHARACTER_SPRITES[id];
+  // нет записи или файл не загрузился — null (остаётся прежний квадрат)
+  static makeCharacterSprite(scene, id, x, y) {
+    const sp = id && CONFIG.CHARACTER_SPRITES[id];
+    const key = `hero-${id}`;
+    if (!sp || !scene.textures.exists(key)) return null;
+    const layout = sp.layout || LPC_LAYOUT;
+    const cols = scene.textures.get(key).getSourceImage().width / sp.frame;
+    Player.createLpcAnims(scene, key, cols, layout);
+    const sprite = scene.add.sprite(x, y, key, Player.standFrameOf(layout, cols, 'down')).setScale(sp.scale).setOrigin(sp.anchorX / sp.frame, sp.anchorY / sp.frame);
+    sprite.charLook = { key, layout, cols, dir: 'down' };
+    return sprite;
+  }
+
+  // Стойка в сторону dir (анимация, если шла, останавливается)
+  static showStand(sprite, dir) {
+    const c = sprite.charLook;
+    c.dir = dir;
+    if (sprite.anims.isPlaying) sprite.anims.stop();
+    const f = Player.standFrameOf(c.layout, c.cols, dir);
+    if (sprite.frame.name !== f) sprite.setFrame(f);
   }
 
   preUpdate(time, delta) {
@@ -130,8 +163,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
 
   // Сторона спрайта (4 направления) — ближайшая к lastDir; по диагонали — влево/вправо
   updateFacing() {
-    const d = this.lastDir;
-    this.facing = Math.abs(d.x) >= Math.abs(d.y) - 1e-6 ? (d.x < 0 ? 'left' : 'right') : d.y < 0 ? 'up' : 'down';
+    this.facing = Player.facingOf(this.lastDir.x, this.lastDir.y);
   }
 
   // Уворот и блок работают только в боевых зонах

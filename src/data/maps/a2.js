@@ -134,16 +134,18 @@ defineZone({
   doors: [{ id: 'main_gate', tiles: [[6, 8], [6, 9]] }],
   triggers: [{ x: 4, y: 8, w: 2, h: 2, dialogue: 'a2_inspection' }],
   npcs: [
-    { id: 'gate_guard', x: 5, y: 7, dialogue: 'a2_inspection', color: 0xb48ead },
+    // страж ворот — копейщик (спрайт), стоит лицом к месту досмотра
+    { id: 'gate_guard', x: 5, y: 7, dialogue: 'a2_inspection', color: 0xb48ead, sprite: 'guard_spear', facing: 'down' },
     { id: 'eglon', x: 25, y: 14, dialogue: 'a2_eglon', color: 0xd08770, name_he: 'עֶגְלוֹן', name_ru: 'Эглон' },
   ],
+  // вся стража дворца — копейщики (sprite); вариант с мечом подключим отдельно
   guards: [
     // тронный зал: обход по кругу вдоль стен
-    { x: 8, y: 6, facing: 'right', patrol: [[8, 6], [19, 6], [19, 13], [8, 13]], loop: true },
+    { x: 8, y: 6, facing: 'right', patrol: [[8, 6], [19, 6], [19, 13], [8, 13]], loop: true, sprite: 'guard_spear' },
     // прихожая горницы: вверх-вниз вдоль восточной стены
-    { x: 26, y: 5, facing: 'down', patrol: [[26, 5], [26, 9]], speed: 40 },
+    { x: 26, y: 5, facing: 'down', patrol: [[26, 5], [26, 9]], speed: 40, sprite: 'guard_spear' },
     // служебный коридор: туда-обратно
-    { x: 4, y: 2, facing: 'right', patrol: [[4, 2], [24, 2]], speed: 55 },
+    { x: 4, y: 2, facing: 'right', patrol: [[4, 2], [24, 2]], speed: 55, sprite: 'guard_spear' },
   ],
   enemies: [],
   items: [],
