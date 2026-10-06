@@ -1,7 +1,10 @@
 // Скрытность: стража с конусом зрения (зона: guards: [...]).
 //
 // Страж в данных зоны:
-//   { x, y, facing: 'up'|'down'|'left'|'right'|<градусы>, patrol: [[x, y], ...], loop?, range?, fov? }
+//   { x, y, facing: 'up'|'down'|'left'|'right'|<градусы>, patrol: [[x, y], ...], loop?, range?, fov?, sprite? }
+// sprite — id спрайт-листа (CONFIG.CHARACTER_SPRITES, например 'guard_spear'): вместо квадрата
+// персонаж; сторона — по направлению взгляда (тот же угол, что у конуса), идёт — ходьба, стоит
+// или поворачивается — стойка; заметил игрока — укол копьём в его сторону (только картинка).
 // Координаты — тайлы. Без patrol страж стоит на месте и смотрит в сторону facing.
 // Маршрут из двух и более точек проходится туда-обратно (loop: true — по кругу).
 //
@@ -31,12 +34,43 @@ class Guard {
     this.dir = 1;
     this.pauseUntil = 0;
 
-    this.sprite = scene.add.image(this.x, this.y, 'guard').setDepth(7);
+    this.sprite = Player.makeCharacterSprite(scene, data.sprite, this.x, this.y);
+    this.animated = !!this.sprite;
+    if (!this.sprite) this.sprite = scene.add.image(this.x, this.y, 'guard');
+    this.sprite.setDepth(7);
+    this.striking = false;
+    if (this.animated) {
+      Player.showStand(this.sprite, Player.facingOf(Math.cos(this.facing), Math.sin(this.facing)));
+      this.sprite.on('animationcomplete', (anim) => {
+        if (anim.key.includes('-attack-')) this.striking = false;
+      });
+    }
   }
 
   update(time, delta) {
+    const x0 = this.x;
+    const y0 = this.y;
     if (this.points.length) this.move(time, delta);
     this.sprite.setPosition(this.x, this.y);
+    if (this.animated && !this.striking) this.updateLook(Math.hypot(this.x - x0, this.y - y0) > 0.01);
+  }
+
+  // Вид спрайта: сторона — по углу взгляда (как у конуса); идёт — ходьба, стоит — стойка
+  updateLook(moving) {
+    const dir = Player.facingOf(Math.cos(this.facing), Math.sin(this.facing));
+    if (moving) {
+      this.sprite.charLook.dir = dir;
+      this.sprite.play(`${this.sprite.charLook.key}-walk-${dir}`, true);
+    } else Player.showStand(this.sprite, dir);
+  }
+
+  // Заметил игрока — укол в его сторону. Только картинка: исход решает StealthMechanic
+  strike(target) {
+    if (!this.animated || this.striking) return;
+    this.striking = true;
+    const dir = Player.facingOf(target.x - this.x, target.y - this.y);
+    this.sprite.charLook.dir = dir;
+    this.sprite.play(`${this.sprite.charLook.key}-attack-${dir}`);
   }
 
   move(time, delta) {
@@ -128,7 +162,11 @@ class StealthMechanic {
 
     const spotted = GameState.isArmed() && this.guards.some((g) => g.sees(player));
     this.draw(spotted);
-    if (spotted) this.scene.failZone('fail_spotted');
+    if (spotted) {
+      // заметивший колет копьём; остальные замирают в стойке (сцена больше не обновляется)
+      this.guards.forEach((g) => (g.sees(player) ? g.strike(player) : g.animated && Player.showStand(g.sprite, g.sprite.charLook.dir)));
+      this.scene.failZone('fail_spotted');
+    }
   }
 
   draw(alert) {

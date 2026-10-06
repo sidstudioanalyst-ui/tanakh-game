@@ -34,6 +34,11 @@ function validateContent(cache, uiStrings) {
     if (!zone.start) warn(`${where}: нет start`);
     else floor(zone.start[0], zone.start[1], 'start');
 
+    // Спрайты стражи и NPC — из CONFIG.CHARACTER_SPRITES
+    [...(zone.guards || []), ...(zone.npcs || [])].forEach((c) => {
+      if (c.sprite && !CONFIG.CHARACTER_SPRITES[c.sprite]) warn(`${where}: неизвестный спрайт "${c.sprite}"`);
+    });
+
     // Тайлы окружения: у каждого слоя те же размеры, что у tiles; слой place: 'walls' — картинки
     // ровно на стенах и (если не cover: false) у каждой стены (иначе невидимое препятствие или
     // «стена», сквозь которую ходят); place: 'floor' — только на полу; все символы известны

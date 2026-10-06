@@ -176,7 +176,7 @@ const CONFIG = {
   CHARACTER_SPRITES: {
     // Эхуд: лист Universal LPC Spritesheet Generator, кадр 64×64, кинжал
     ehud: { file: 'assets/characters/ehud.png', frame: 64, scale: 1, anchorX: 32, anchorY: 50 },
-    // Барак: лист собран из idle/walk/attack скриптом tools/build_barak_sheet.py — ячейки 96×96,
+    // Барак: лист собран из idle/walk/attack скриптом tools/build_character_sheets.py — ячейки 96×96,
     // ноги на 79-м пикселе. Рисунок крупнее LPC (рост ≈ 60 px против 47) — масштаб 0,8.
     // Меч длиннее кинжала: дальность 52 против 44 (README «Спрайт Барака»).
     barak: {
@@ -187,6 +187,16 @@ const CONFIG = {
         stand: { row: 8, col: 0 },
       },
       attackRange: 52,
+    },
+    // Стражник дворца Эглона с копьём (А2, не игрок): тот же формат листа, что у Барака
+    // (tools/build_character_sheets.py), рост тот же — масштаб 0,8. Вариант с мечом — отдельно, позже.
+    guard_spear: {
+      file: 'assets/characters/guard_spear/guard_spear.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 5, fps: 8 }, // стража обходит медленно (45 px/с)
+        attack: { row: 4, from: 0, to: 8, fps: 20 }, // укол копьём с выпадом
+        stand: { row: 8, col: 0 },
+      },
     },
   },
 
