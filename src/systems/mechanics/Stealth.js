@@ -164,7 +164,7 @@ class StealthMechanic {
     const spotted = GameState.isArmed() && this.guards.some((g) => g.sees(player));
     this.draw(spotted);
     if (spotted) {
-      // заметивший колет копьём; остальные замирают в стойке (сцена больше не обновляется)
+      // заметивший бьёт (копьём или мечом — по спрайту); остальные замирают в стойке (сцена больше не обновляется)
       this.guards.forEach((g) => (g.sees(player) ? g.strike(player) : g.animated && Player.showStand(g.sprite, g.sprite.charLook.dir)));
       this.scene.failZone('fail_spotted');
     }

@@ -14,7 +14,9 @@
 
 Раскладка листа (как у LPC: в каждой анимации 4 ряда — вверх, влево, вниз, вправо):
   ряды 0–3  — ходьба; ряды 4–7 — удар; ряды 8–11 — стойка (1 кадр).
-Число кадров — сколько в GIF (Барак: ходьба 8, удар 9; копейщик: ходьба 6, удар 9).
+Число кадров — сколько в GIF (Барак: ходьба 8, удар 9; копейщик: ходьба 6, удар 9), если у
+персонажа не задан attack_frames — срез кадров удара (мечник: в лист идут только кадры 5–9 из 9;
+кадры 1–4 — брак генерации, бег с опущенным мечом, — в лист не попадают вовсе).
 
 Запуск из корня репозитория: python3 tools/build_character_sheets.py  (нужен Pillow)
 """
@@ -42,6 +44,16 @@ CHARACTERS = {
         'idle': 'idle/{d}.png',
         'out': 'guard_spear.png',
     },
+    # стражник дворца Эглона с мечом (А2). Удар: из 9 кадров GIF только 5–9 (боевая стойка,
+    # замах над головой, удар по дуге вниз-вперёд); 1–4 — бег с мечом вниз, брак генерации
+    'guard_sword': {
+        'dir': 'assets/characters/guard_sword/',
+        'walk': 'walk/-_v3_walking_{d}.gif',
+        'attack': 'attack/-_custom-swinging_a_sword_in_a_horizont_{d}.gif',
+        'attack_frames': (4, 9),
+        'idle': 'idle/{d}.png',
+        'out': 'guard_sword.png',
+    },
 }
 
 
@@ -52,7 +64,8 @@ def frames(path):
 def build(spec):
     name = lambda kind, d: spec['dir'] + spec[kind].format(d=d, D=d.capitalize())
     rows = [frames(name('walk', d)) for d in DIRS]
-    rows += [frames(name('attack', d)) for d in DIRS]
+    a, b = spec.get('attack_frames', (0, COLS))
+    rows += [frames(name('attack', d))[a:b] for d in DIRS]
     rows += [frames(name('idle', d)) for d in DIRS]
     sheet = Image.new('RGBA', (CELL * COLS, CELL * len(rows)), (0, 0, 0, 0))
     for r, row in enumerate(rows):
