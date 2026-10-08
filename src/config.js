@@ -210,6 +210,15 @@ const CONFIG = {
         stand: { row: 8, col: 0 },
       },
     },
+    // Слуга с кувшином — препятствие в побеге (А3, EscapeTimer.js). Удара нет осознанно: слуга
+    // не бьёт, только сталкивается с Эхудом. Лист короче: ходьба 0–3, стойка 4–7.
+    servant_jar: {
+      file: 'assets/characters/servant_jar/servant_jar.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 5, fps: 8 }, // 6 кадров — как у копейщика
+        stand: { row: 4, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,

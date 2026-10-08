@@ -100,7 +100,8 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     const frames = (a, i) => scene.anims.generateFrameNumbers(key, { start: (a.row + i) * cols + a.from, end: (a.row + i) * cols + a.to });
     LPC_DIRS.forEach((dir, i) => {
       scene.anims.create({ key: `${key}-walk-${dir}`, frames: frames(layout.walk, i), frameRate: layout.walk.fps, repeat: -1 });
-      scene.anims.create({ key: `${key}-attack-${dir}`, frames: frames(layout.attack, i), frameRate: layout.attack.fps });
+      // удара может не быть (слуга с кувшином в А3 только ходит) — тогда и анимации удара нет
+      if (layout.attack) scene.anims.create({ key: `${key}-attack-${dir}`, frames: frames(layout.attack, i), frameRate: layout.attack.fps });
     });
   }
 
