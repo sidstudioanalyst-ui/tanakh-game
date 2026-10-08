@@ -138,13 +138,14 @@ defineZone({
     { id: 'gate_guard', x: 5, y: 7, dialogue: 'a2_inspection', color: 0xb48ead, sprite: 'guard_spear', facing: 'down' },
     { id: 'eglon', x: 25, y: 14, dialogue: 'a2_eglon', color: 0xd08770, name_he: 'עֶגְלוֹן', name_ru: 'Эглон' },
   ],
-  // вся стража дворца — копейщики (sprite); вариант с мечом подключим отдельно
+  // стража (sprite): у ворот и в служебном коридоре — копейщики, ближе к царю (тронный зал,
+  // прихожая горницы) — мечники; почему так — README «Стража дворца»
   guards: [
-    // тронный зал: обход по кругу вдоль стен
-    { x: 8, y: 6, facing: 'right', patrol: [[8, 6], [19, 6], [19, 13], [8, 13]], loop: true, sprite: 'guard_spear' },
-    // прихожая горницы: вверх-вниз вдоль восточной стены
-    { x: 26, y: 5, facing: 'down', patrol: [[26, 5], [26, 9]], speed: 40, sprite: 'guard_spear' },
-    // служебный коридор: туда-обратно
+    // тронный зал: обход по кругу вдоль стен — мечник
+    { x: 8, y: 6, facing: 'right', patrol: [[8, 6], [19, 6], [19, 13], [8, 13]], loop: true, sprite: 'guard_sword' },
+    // прихожая горницы: вверх-вниз вдоль восточной стены — мечник
+    { x: 26, y: 5, facing: 'down', patrol: [[26, 5], [26, 9]], speed: 40, sprite: 'guard_sword' },
+    // служебный коридор: туда-обратно — копейщик
     { x: 4, y: 2, facing: 'right', patrol: [[4, 2], [24, 2]], speed: 55, sprite: 'guard_spear' },
   ],
   enemies: [],
