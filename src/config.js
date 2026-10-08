@@ -227,14 +227,16 @@ const CONFIG = {
   // Поле class (необязательно) — ключ из ENEMY_CLASSES для врага со своим поведением.
   // Поле sprite (необязательно) — id из CHARACTER_SPRITES: вместо квадрата цвета color —
   // фигура воина (те же листы guard_spear/guard_sword, что у стражи А2); свой спрайт под
-  // каждый народ — задел на будущее, сейчас переиспользуем два имеющихся. color остаётся:
+  // каждый народ — задел на будущее, сейчас переиспользуем два имеющихся. Список id — враги
+  // этого типа в зоне получают их по очереди (первый, второй, первый…): половина мечников,
+  // половина копейщиков; одиночный враг — первый из списка. color остаётся:
   // это и цвет мигания/оттенка, и запасной квадрат, если лист почему-то не загрузится.
   ENEMY_TYPES: {
     // Пехота Сисры (Бр3): обычный враг, преследует и бьёт; легче врагов А5 по давлению
     sisera_foot: {
       size: 20,
       color: 0x9c7a5b,
-      sprite: 'guard_sword',
+      sprite: ['guard_sword', 'guard_spear'],
       speed: 88,
       hp: 3, // с мечом Барака — 2 удара, без него — 3
       damage: 14, // было 16: под направленный удар Барака (README «Спрайт Барака»)
@@ -255,7 +257,7 @@ const CONFIG = {
     chaser: {
       size: 24,
       color: 0xbf616a,
-      sprite: 'guard_sword',
+      sprite: ['guard_sword', 'guard_spear'],
       speed: 90,
       hp: 3,             // базовый урон игрока 1 → 3 удара; с оружием — меньше
       damage: 20,        // урон игроку при касании
@@ -264,7 +266,7 @@ const CONFIG = {
     bandit: {
       size: 20,
       color: 0xd08770,
-      sprite: 'guard_spear',
+      sprite: ['guard_spear', 'guard_sword'],
       speed: 115,
       hp: 2,
       damage: 12,
@@ -275,7 +277,7 @@ const CONFIG = {
       class: 'Runner',
       size: 20,
       color: 0xb07d62,
-      sprite: 'guard_sword',
+      sprite: ['guard_sword', 'guard_spear'],
       speed: 72,
       hp: 2,
       damage: 7,
@@ -286,7 +288,7 @@ const CONFIG = {
     ammonite: {
       size: 20,
       color: 0x8c6d8a,
-      sprite: 'guard_spear',
+      sprite: ['guard_spear', 'guard_sword'],
       speed: 84,
       hp: 3,
       damage: 12,
@@ -309,7 +311,7 @@ const CONFIG = {
       class: 'Runner',
       size: 22,
       color: 0x9c5b5b,
-      sprite: 'guard_spear',
+      sprite: ['guard_spear', 'guard_sword'],
       speed: 90, // было 95: под направленный удар Эхуда (README «Направленный удар и блок»)
       hp: 3,
       damage: 10,
