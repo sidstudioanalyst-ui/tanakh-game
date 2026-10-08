@@ -42,12 +42,19 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.setupSprite();
   }
 
-  // Воин вместо квадрата: лист CHARACTER_SPRITES.<stats.sprite> — тот же, что у стражи (А2) и
+  // Воин вместо квадрата: лист CHARACTER_SPRITES.<id из stats.sprite> — тот же, что у стражи (А2) и
   // героев (Player.js), раскладка и анимации общие (createLpcAnims/standFrameOf/facingOf — там же).
   // Тело (хитбокс) остаётся прежнего размера stats.size — меняется только картинка.
   // Нет sprite у типа, или лист не загрузился — остаётся цветной квадрат, как раньше.
+  // sprite — id или список id: враги одного типа в зоне берут их по очереди (счётчик на сцене),
+  // так что при ['guard_sword', 'guard_spear'] половина — мечники, половина — копейщики.
   setupSprite() {
-    const id = this.stats.sprite;
+    const list = [].concat(this.stats.sprite || []);
+    if (!list.length) return;
+    const turns = (this.scene.enemySpriteTurns = this.scene.enemySpriteTurns || {});
+    const turn = turns[this.typeKey] || 0;
+    turns[this.typeKey] = turn + 1;
+    const id = list[turn % list.length];
     const key = `hero-${id}`;
     if (!id || !this.scene.textures.exists(key)) return;
     const sp = CONFIG.CHARACTER_SPRITES[id];
