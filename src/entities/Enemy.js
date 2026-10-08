@@ -67,9 +67,11 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
   // Ходьба/стойка по вектору скорости; во время замаха и удара (windupUntil) не мешает —
   // анимация удара запущена явно в handleStrike(). Как у Player.updateSpriteAnim/Guard (Stealth.js).
-  updateSpriteAnim() {
+  // Отбрасывание от удара (stunnedUntil) — тоже не ходьба: скорость там — отлёт от бьющего, и по
+  // ней враг на 0,2 с разворачивался бы к нему спиной. Стоит в стойке лицом к бьющему (takeDamage).
+  updateSpriteAnim(time) {
     if (!this.spriteKey || this.isDead || this.windupUntil) return;
-    if (this.body.velocity.lengthSq() > 100) {
+    if (time >= this.stunnedUntil && this.body.velocity.lengthSq() > 100) {
       this.facing = Player.facingOf(this.body.velocity.x, this.body.velocity.y);
       this.play(`${this.spriteKey}-walk-${this.facing}`, true);
       return;
@@ -130,7 +132,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   // Полоска здоровья: рисуется каждый кадр, пока видна
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
-    this.updateSpriteAnim();
+    this.updateSpriteAnim(time);
     if (!this.hpBar) return;
     const w = Math.max(20, this.displayWidth);
     const x = this.x - w / 2;
@@ -194,6 +196,8 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     const push = new Phaser.Math.Vector2(this.x - fromX, this.y - fromY).normalize().scale(260);
     this.setVelocity(push.x, push.y);
     this.stunnedUntil = time + 200;
+    // спрайт: лицом к бьющему (на замахе — нет: удар уже направлен, см. handleStrike)
+    if (!this.windupUntil) this.facing = Player.facingOf(fromX - this.x, fromY - this.y);
 
     if (this.hp <= 0) this.die();
   }
