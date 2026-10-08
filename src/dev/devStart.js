@@ -14,8 +14,10 @@
 // DEV_VARIANTS.epoch — варианты Суда эпохи (пункт после Суда последней карты); у них ещё
 // measures — Мерило для общего профиля (в dev.html оно иначе пустое).
 //
-// Глубокая ссылка для проверок: dev.html?start=a5 · ?start=a5:1 (вариант 2) · ?start=trial:power_a:1
-// · ?start=epoch:1
+// Глубокая ссылка для проверок: dev.html?start=<ключ пункта>. Ключ — id зоны (?start=g4), а у
+// зоны с вариантами (DEV_VARIANTS) — id:номер варианта с нуля, без варианта такой пункт не
+// найдётся. Например: ?start=a5:0 / a5:1, barak_3:0 / barak_3:1, yiftach_4:0…yiftach_4:2. Так же у Суда
+// и эпохи: ?start=trial:power_a:1 · ?start=epoch:1 (см. devEntries)
 const DEV_AFTER = {
   a1: { flags: ['tribute_taken', 'jediael_done', 'dagger_hidden', 'dagger_right'], items: ['ehud_garment', 'tribute_bag', 'ehud_dagger'] },
   a2: { flags: ['gate_open', 'eglon_done'] },
