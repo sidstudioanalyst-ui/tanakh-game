@@ -225,11 +225,16 @@ const CONFIG = {
 
   // Типы врагов. В зоне враг задаётся как { type: 'chaser', x, y }.
   // Поле class (необязательно) — ключ из ENEMY_CLASSES для врага со своим поведением.
+  // Поле sprite (необязательно) — id из CHARACTER_SPRITES: вместо квадрата цвета color —
+  // фигура воина (те же листы guard_spear/guard_sword, что у стражи А2); свой спрайт под
+  // каждый народ — задел на будущее, сейчас переиспользуем два имеющихся. color остаётся:
+  // это и цвет мигания/оттенка, и запасной квадрат, если лист почему-то не загрузится.
   ENEMY_TYPES: {
     // Пехота Сисры (Бр3): обычный враг, преследует и бьёт; легче врагов А5 по давлению
     sisera_foot: {
       size: 20,
       color: 0x9c7a5b,
+      sprite: 'guard_sword',
       speed: 88,
       hp: 3, // с мечом Барака — 2 удара, без него — 3
       damage: 14, // было 16: под направленный удар Барака (README «Спрайт Барака»)
@@ -246,9 +251,11 @@ const CONFIG = {
       damage: 12,
       aggroRange: 0,
     },
+    // «Город»/«Поле» (demo, map1/map2) — старые пробные зоны вне сюжета трёх карт
     chaser: {
       size: 24,
       color: 0xbf616a,
+      sprite: 'guard_sword',
       speed: 90,
       hp: 3,             // базовый урон игрока 1 → 3 удара; с оружием — меньше
       damage: 20,        // урон игроку при касании
@@ -257,6 +264,7 @@ const CONFIG = {
     bandit: {
       size: 20,
       color: 0xd08770,
+      sprite: 'guard_spear',
       speed: 115,
       hp: 2,
       damage: 12,
@@ -267,6 +275,7 @@ const CONFIG = {
       class: 'Runner',
       size: 20,
       color: 0xb07d62,
+      sprite: 'guard_sword',
       speed: 72,
       hp: 2,
       damage: 7,
@@ -277,12 +286,15 @@ const CONFIG = {
     ammonite: {
       size: 20,
       color: 0x8c6d8a,
+      sprite: 'guard_spear',
       speed: 84,
       hp: 3,
       damage: 12,
       aggroRange: 240,
     },
-    // Мидьянитянин в стане после сигнала (Г4): числа по исходу сигнала задаёт зона (fight)
+    // Мидьянитянин в стане после сигнала (Г4): растерянный — безоружный, бежит и мечется
+    // (contactDamage, иногда бросок), поэтому БЕЗ sprite — воин с оружием тут не к месту;
+    // остаётся квадрат. У собранного (organized, те же числа типа) своя тёмная заливка.
     midianite_panic: {
       class: 'Panicked',
       size: 18,
@@ -297,6 +309,7 @@ const CONFIG = {
       class: 'Runner',
       size: 22,
       color: 0x9c5b5b,
+      sprite: 'guard_spear',
       speed: 90, // было 95: под направленный удар Эхуда (README «Направленный удар и блок»)
       hp: 3,
       damage: 10,

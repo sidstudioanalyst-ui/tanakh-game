@@ -9,6 +9,10 @@
 //
 // Полоска здоровья над врагом появляется после первого попадания и видна, пока он жив.
 // Неуязвимым (noHpBar: колесницы) не показывается. Глубина — ниже подписей и имён NPC.
+//
+// Вид: цветной квадрат или спрайт-лист воина (поле sprite у типа в CONFIG.ENEMY_TYPES — id
+// из CHARACTER_SPRITES, те же листы guard_spear/guard_sword, что у стражи А2). Хитбокс — тот
+// же квадрат stats.size, что и раньше; меняется только картинка (setupSprite/updateSpriteAnim).
 class Enemy extends Phaser.Physics.Arcade.Sprite {
   // spawnKey — метка в зоне ('enemy:0'), чтобы убитый враг не появлялся снова
   constructor(scene, x, y, typeKey, spawnKey) {
@@ -30,9 +34,49 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.baseTint = null; // свой оттенок (например, собранные мидьянитяне) — после вспышек возвращается
     this.hpBar = null;
     this.noHpBar = false;
+    this.spriteKey = null; // вместо квадрата — лист из CHARACTER_SPRITES (setupSprite)
+    this.facing = 'down';
 
     this.setCollideWorldBounds(true);
     this.setDepth(5);
+    this.setupSprite();
+  }
+
+  // Воин вместо квадрата: лист CHARACTER_SPRITES.<stats.sprite> — тот же, что у стражи (А2) и
+  // героев (Player.js), раскладка и анимации общие (createLpcAnims/standFrameOf/facingOf — там же).
+  // Тело (хитбокс) остаётся прежнего размера stats.size — меняется только картинка.
+  // Нет sprite у типа, или лист не загрузился — остаётся цветной квадрат, как раньше.
+  setupSprite() {
+    const id = this.stats.sprite;
+    const key = `hero-${id}`;
+    if (!id || !this.scene.textures.exists(key)) return;
+    const sp = CONFIG.CHARACTER_SPRITES[id];
+    this.spriteKey = key;
+    this.spriteSp = sp;
+    const layout = sp.layout || LPC_LAYOUT;
+    this.spriteLayout = layout;
+    this.spriteCols = this.scene.textures.get(key).getSourceImage().width / sp.frame;
+    Player.createLpcAnims(this.scene, key, this.spriteCols, layout);
+    this.setTexture(key, Player.standFrameOf(layout, this.spriteCols, this.facing));
+    this.setScale(sp.scale);
+    this.setOrigin(sp.anchorX / sp.frame, sp.anchorY / sp.frame);
+    const b = this.stats.size / sp.scale; // в пикселях кадра — на экране всё равно stats.size
+    this.body.setSize(b, b, false);
+    this.body.setOffset(sp.anchorX - b / 2, sp.anchorY - b / 2);
+  }
+
+  // Ходьба/стойка по вектору скорости; во время замаха и удара (windupUntil) не мешает —
+  // анимация удара запущена явно в handleStrike(). Как у Player.updateSpriteAnim/Guard (Stealth.js).
+  updateSpriteAnim() {
+    if (!this.spriteKey || this.isDead || this.windupUntil) return;
+    if (this.body.velocity.lengthSq() > 100) {
+      this.facing = Player.facingOf(this.body.velocity.x, this.body.velocity.y);
+      this.play(`${this.spriteKey}-walk-${this.facing}`, true);
+      return;
+    }
+    if (this.anims.isPlaying) this.anims.stop();
+    const f = Player.standFrameOf(this.spriteLayout, this.spriteCols, this.facing);
+    if (this.frame.name !== f) this.setFrame(f);
   }
 
   // Числа удара: у типа врага — windupMs / cooldownMs / reachPad, иначе общие
@@ -53,7 +97,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     const st = this.strike;
     if (this.windupUntil) {
       this.setVelocity(0, 0);
-      // мигание оранжевым всё время замаха
+      // мигание оранжевым всё время замаха — поверх квадрата или спрайта одинаково
       if (Math.floor(time / 90) % 2) this.setTint(0xffa040);
       else this.setTintFill(0xffd28a);
       if (time >= this.windupUntil) {
@@ -70,6 +114,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     if (dist <= st.reach && time >= this.nextStrikeAt) {
       this.windupUntil = time + st.windupMs;
       this.setVelocity(0, 0);
+      // замах лицом к цели: у спрайта — анимация удара на весь windup (кадры рассчитаны под него)
+      this.facing = Player.facingOf(target.x - this.x, target.y - this.y);
+      if (this.spriteKey) this.play(`${this.spriteKey}-attack-${this.facing}`);
       return true;
     }
     // уже вплотную, но удар на перезарядке — не наседает сверху
@@ -83,6 +130,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   // Полоска здоровья: рисуется каждый кадр, пока видна
   preUpdate(time, delta) {
     super.preUpdate(time, delta);
+    this.updateSpriteAnim();
     if (!this.hpBar) return;
     const w = Math.max(20, this.displayWidth);
     const x = this.x - w / 2;
@@ -160,7 +208,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     this.scene.tweens.add({
       targets: this,
       alpha: 0,
-      scale: 1.6,
+      // у спрайта свой базовый scale (0,8 и т.п.) — рост при смерти считаем от него,
+      // а не от абсолютных 1.6 (это было под квадрат с scale 1)
+      scale: this.spriteKey ? this.scale * 1.6 : 1.6,
       angle: 90,
       duration: 250,
       onComplete: () => this.destroy(),
