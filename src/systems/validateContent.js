@@ -122,7 +122,10 @@ function validateContent(cache, uiStrings) {
       floor(g.x, g.y, `страж ${i + 1}`);
       (g.patrol || []).forEach(([x, y]) => floor(x, y, `маршрут стража ${i + 1}`));
     });
-    (zone.hazards || []).forEach((h, i) => h.path.forEach(([x, y]) => floor(x, y, `маршрут препятствия ${i + 1}`)));
+    (zone.hazards || []).forEach((h, i) => {
+      h.path.forEach(([x, y]) => floor(x, y, `маршрут препятствия ${i + 1}`));
+      if (h.sprite && !CONFIG.CHARACTER_SPRITES[h.sprite]) warn(`${where}: препятствие ${i + 1} — неизвестный спрайт "${h.sprite}"`);
+    });
     if (zone.waves) {
       zone.waves.spawns.forEach(([x, y]) => floor(x, y, 'точка появления волны'));
       zone.waves.list.forEach((w) => CONFIG.ENEMY_TYPES[w.type] || warn(`${where}: волна — неизвестный тип "${w.type}"`));

@@ -1,7 +1,13 @@
 // Побег на время (зона: timer + hazards).
 //
 //   timer:   { seconds: 45, fail: 'fail_timer', label: 'hud_timer' }
-//   hazards: [{ path: [[x, y], [x, y], ...], speed?, size?, penalty? }]
+//   hazards: [{ path: [[x, y], [x, y], ...], speed?, size?, penalty?, sprite? }]
+//
+// sprite (необязательно) — id из CONFIG.CHARACTER_SPRITES (например, servant_jar — слуга с
+// кувшином, А3): вместо квадрата рисуется фигура, идущая по маршруту (анимация ходьбы в сторону
+// движения, Player.makeCharacterSprite — тот же механизм, что у Enemy/NPC). Нет sprite, или лист
+// не загрузился — остаётся цветной квадрат текстуры 'hazard', как раньше. Хитбокс столкновения
+// (size) от картинки не зависит — считается по дистанции в update() EscapeTimerMechanic.
 //
 // Время идёт, только пока игра не на паузе. Препятствия ходят по маршруту туда-обратно;
 // столкновение отнимает penalty секунд и отбрасывает игрока. Время вышло — сцена проваливается.
@@ -16,7 +22,11 @@ class Hazard {
     this.y = this.points[0].y;
     this.target = Math.min(1, this.points.length - 1);
     this.dir = 1;
-    this.sprite = scene.add.image(this.x, this.y, 'hazard').setDisplaySize(this.size, this.size).setDepth(6);
+    this.facing = 'down';
+
+    this.charSprite = data.sprite ? Player.makeCharacterSprite(scene, data.sprite, this.x, this.y) : null;
+    if (this.charSprite) this.charSprite.setDepth(6);
+    else this.sprite = scene.add.image(this.x, this.y, 'hazard').setDisplaySize(this.size, this.size).setDepth(6);
   }
 
   update(delta) {
@@ -32,7 +42,13 @@ class Hazard {
     const step = Math.min(dist, (this.speed * delta) / 1000);
     this.x += (dx / dist) * step;
     this.y += (dy / dist) * step;
-    this.sprite.setPosition(this.x, this.y);
+    if (this.charSprite) {
+      this.facing = Player.facingOf(dx, dy);
+      this.charSprite.setPosition(this.x, this.y);
+      this.charSprite.play(`${this.charSprite.charLook.key}-walk-${this.facing}`, true);
+    } else {
+      this.sprite.setPosition(this.x, this.y);
+    }
   }
 }
 

@@ -210,6 +210,15 @@ const CONFIG = {
         stand: { row: 8, col: 0 },
       },
     },
+    // Слуга с кувшином (А3, хазард «Побега»): тот же формат листа, но без удара — только
+    // ходьба и стойка (ряды 0–3 / 4–7); столкновение само по себе не ранит (Hazard, EscapeTimer.js)
+    servant_jar: {
+      file: 'assets/characters/servant_jar/servant_jar.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 5, fps: 10 },
+        stand: { row: 4, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,

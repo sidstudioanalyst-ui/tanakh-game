@@ -94,13 +94,15 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     });
   }
 
-  // Анимации создаются один раз на игру (менеджер анимаций общий для сцен)
+  // Анимации создаются один раз на игру (менеджер анимаций общий для сцен).
+  // layout.attack необязателен (нет удара — например, слуга-хазард servant_jar, CONFIG.js):
+  // тогда создаётся только ходьба, анимация удара не нужна и не создаётся.
   static createLpcAnims(scene, key, cols, layout) {
     if (scene.anims.exists(`${key}-walk-down`)) return;
     const frames = (a, i) => scene.anims.generateFrameNumbers(key, { start: (a.row + i) * cols + a.from, end: (a.row + i) * cols + a.to });
     LPC_DIRS.forEach((dir, i) => {
       scene.anims.create({ key: `${key}-walk-${dir}`, frames: frames(layout.walk, i), frameRate: layout.walk.fps, repeat: -1 });
-      scene.anims.create({ key: `${key}-attack-${dir}`, frames: frames(layout.attack, i), frameRate: layout.attack.fps });
+      if (layout.attack) scene.anims.create({ key: `${key}-attack-${dir}`, frames: frames(layout.attack, i), frameRate: layout.attack.fps });
     });
   }
 

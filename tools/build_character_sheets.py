@@ -18,6 +18,11 @@
 персонажа не задан attack_frames — срез кадров удара (мечник: в лист идут только кадры 5–9 из 9;
 кадры 1–4 — брак генерации, бег с опущенным мечом, — в лист не попадают вовсе).
 
+Персонаж без удара (нет ключа attack в спеке, например servant_jar — хазард, только мешает
+столкновением): ряды удара в лист не кладутся вовсе, стойка сразу после ходьбы — ряды 0–3
+ходьба, 4–7 стойка. В CONFIG.CHARACTER_SPRITES такому персонажу в layout задаётся только
+walk и stand (row: 4), без attack.
+
 Запуск из корня репозитория: python3 tools/build_character_sheets.py  (нужен Pillow)
 """
 from PIL import Image, ImageSequence
@@ -54,6 +59,13 @@ CHARACTERS = {
         'idle': 'idle/{d}.png',
         'out': 'guard_sword.png',
     },
+    # Слуга с кувшином (А3, хазард «Побега»): нет attack — только мешает столкновением
+    'servant_jar': {
+        'dir': 'assets/characters/servant_jar/',
+        'walk': 'walk/walk_{d}.gif',
+        'idle': 'idle/{d}.png',
+        'out': 'servant_jar.png',
+    },
 }
 
 
@@ -64,8 +76,9 @@ def frames(path):
 def build(spec):
     name = lambda kind, d: spec['dir'] + spec[kind].format(d=d, D=d.capitalize())
     rows = [frames(name('walk', d)) for d in DIRS]
-    a, b = spec.get('attack_frames', (0, COLS))
-    rows += [frames(name('attack', d))[a:b] for d in DIRS]
+    if 'attack' in spec:
+        a, b = spec.get('attack_frames', (0, COLS))
+        rows += [frames(name('attack', d))[a:b] for d in DIRS]
     rows += [frames(name('idle', d)) for d in DIRS]
     sheet = Image.new('RGBA', (CELL * COLS, CELL * len(rows)), (0, 0, 0, 0))
     for r, row in enumerate(rows):
