@@ -82,6 +82,7 @@ const CAMPAIGNS = {
         color: 0x9ccfa0,
         // прозвище после утренней сцены в Г1 (Шофтим 6:32) — показывается рядом с именем в HUD
         alias: { flag: 'jerubbaal', name_ru: 'Йеруббаал', name_he: 'יְרֻבַּעַל' },
+        sprite: 'gidon',
       },
       restartOnDeath: 'zone',
       intro: 'intro_power',
