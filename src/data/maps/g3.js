@@ -42,7 +42,7 @@ defineZone({
     layers: [
       {
         name: 'ground', tileset: 'rpg_base', place: 'all',
-        legend: { g: 43, b: 10, n: 11, c: 12, v: 31 }, // b/n/c — левый край/середина/правый край берега, v — вода
+        legend: { g: 43 }, // вода (b/n/c — левый край/середина/правый край берега, v — вода) — в слое objects
         rows: [
           'gggggggggggggggggggggggggggggggggggggggggggg',
           'gddddddddddddddddddddddddddddddddddddddddddg',
@@ -60,17 +60,17 @@ defineZone({
           'gdddddddddddddgggddgddddgdddgggddddddddddddg',
           'gddddddddddddddddddgddddgddddddddddddddddddg',
           'gddddddddddddddddddgddddgddddddddddddddddddg',
-          'gbnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnncg',
-          'gvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvg',
-          'gvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvg',
-          'gvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvg',
-          'gvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
           'gggggggggggggggggggggggggggggggggggggggggggg',
         ],
       },
       {
         name: 'objects', tileset: 'rpg_base', place: 'walls',
-        legend: { a: 220, q: 222, z: 224, B: 180, K: 184 }, // a/q/z — деревья границы, B/K — кусты тростника
+        legend: { a: 220, q: 222, z: 224, B: 180, K: 184, b: 10, c: 12, n: 11, v: 31 }, // a/q/z — деревья границы, B/K — кусты тростника; вода — здесь, на клетках ~ (препятствие), а не в ground
         rows: [
           'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaq',
           'z                                          a',
@@ -88,11 +88,11 @@ defineZone({
           'z             KBK  B    K   KBK            a',
           'q                  K    B                  z',
           'a                  B    K                  q',
-          'z                                          a',
-          'q                                          z',
-          'a                                          q',
-          'z                                          a',
-          'q                                          z',
+          'zbnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnca',
+          'qvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvz',
+          'avvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvq',
+          'zvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvva',
+          'qvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvz',
           'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaq',
         ],
       },
