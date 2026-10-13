@@ -29,6 +29,61 @@ defineZone({
     '#...................~~.......#',
     '##############################',
   ],
+  // Тайлы окружения: Иордан (rpg_base). Три отрезка воды — те же, что '~' в tiles; разрывы
+  // между ними — броды (как и раньше, проходимость из tiles, тут только картинка). Блок
+  // 'вода с берегом' тот же, что в А4/Г3, просто уже (два столбца вместо трёх).
+  art: {
+    layers: [
+      {
+        name: 'ground', tileset: 'rpg_base', place: 'all',
+        legend: { g: 43 },
+        rows: [
+          'gggggggggggggggggggggggggggggg',
+          'gdddddddddddddddddddggdddddddg',
+          'gdddddddddddddddddddggdddddddg',
+          'gddddddddddddddddddddddddddddg',
+          'gddddddddddddddddddddddddddddg',
+          'gdddddddggddddddddddggdddddddg',
+          'gdddddddggddddddddddggdddddddg',
+          'gdddddddddddddddddddggdddddddg',
+          'gddddddddddddddddddddddddddddd',
+          'gddddddddddddddddddddddddddddd',
+          'gdddddddddddddddddddggdddddddg',
+          'gdddddddddddggddddddggdddddddg',
+          'gdddddddddddggddddddggdddddddg',
+          'gddddddddddddddddddddddddddddg',
+          'gddddddddddddddddddddddddddddg',
+          'gdddddddddddddddddddggdddddddg',
+          'gdddddddddddddddddddggdddddddg',
+          'gggggggggggggggggggggggggggggg',
+        ],
+      },
+      {
+        name: 'objects', tileset: 'rpg_base', place: 'walls',
+        legend: { a: 220, q: 222, z: 224, B: 180, K: 184, '1': 10, '2': 12, '3': 50, '4': 52, '5': 30, '6': 32 }, // вода — здесь, на клетках ~ (препятствие), а не в ground
+        rows: [
+          'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqz',
+          'a                   12       q',
+          'z                   34       a',
+          'q                            z',
+          'a                            q',
+          'z       KB          12       a',
+          'q       BK          56       z',
+          'a                   34       q',
+          'z                             ',
+          'a                             ',
+          'q                   12       z',
+          'a           KB      56       q',
+          'z           BK      34       a',
+          'q                            z',
+          'a                            q',
+          'z                   12       a',
+          'q                   34       z',
+          'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqz',
+        ],
+      },
+    ],
+  },
   start: [18, 8],
   // первый вход — коротко о погоне; после победы (если разговор ещё не был) — эфраимиты
   onEnter: [

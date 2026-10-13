@@ -30,6 +30,66 @@ defineZone({
     '#..............................#',
     '################################',
   ],
+  // Тайлы окружения (README «Тайлы окружения»): открытое гумно — Kenney RPG base, как А4.
+  // ground — утрамбованный ток (d, авто-площадь CONFIG.TILESETS.rpg_base.auto) с травой по
+  // краям и под стенами; objects — деревья вдоль ограды и вокруг внутренних построек (ровно
+  // на клетках '#' из tiles — то же дерево в три варианта, что у границы рощи в А4).
+  art: {
+    layers: [
+      {
+        name: 'ground', tileset: 'rpg_base', place: 'all',
+        legend: { g: 43 },
+        rows: [
+          'gggggggggggggggggggggggggggggggg',
+          'gdddddddgddddddgggdddddddddddddg',
+          'gdddddddgddddddgggdddddddddgggdg',
+          'gdddddddgddddddddddddddddddgggdg',
+          'gddddddddddddddddddddddddddddddg',
+          'gdddddddddgggddddddddddddddddddg',
+          'gdddddddddgggddddddddddddddddddg',
+          'gdddddddddgggddddddddddddddddddg',
+          'gddddddddddddddddddddddddddddddg',
+          'gggggddddddddddddddddddddddddddd',
+          'gggggddddddddddddddddddddddddddd',
+          'gdddddddddddddddddddddddddgggddg',
+          'gdddddddddgggdddddddddddddgggddg',
+          'gdddddddddgggdddddddddddddgggddg',
+          'gdddddddddgggddddddddddddddddddg',
+          'gdddddddddddddddddddggggdddddddg',
+          'gdddddddddddddddddddggggdddddddg',
+          'gdddddddddddddddddddggggdddddddg',
+          'gddddddddddddddddddddddddddddddg',
+          'gggggggggggggggggggggggggggggggg',
+        ],
+      },
+      {
+        name: 'objects', tileset: 'rpg_base', place: 'walls',
+        legend: { a: 220, q: 222, z: 224 }, // три варианта одиночного дерева — как граница рощи в А4
+        rows: [
+          'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaq',
+          'z       a      qza             q',
+          'z       a      qza         qza q',
+          'z       a                  qza q',
+          'z                              a',
+          'q         zaq                  z',
+          'a         qza                  q',
+          'z         aqz                  a',
+          'q                              z',
+          'aqzaq                           ',
+          'zaqza                           ',
+          'q                         zaq  z',
+          'a         qza             qza  q',
+          'z         aqz             aqz  a',
+          'q         zaq                  z',
+          'a                   qzaq       z',
+          'a                   qzaq       z',
+          'a                   qzaq       z',
+          'a                              q',
+          'zaqzaqzaqzaqzaqzaqzaqzaqzaqzaqza',
+        ],
+      },
+    ],
+  },
   start: [3, 4],
   npcs: [
     { id: 'angel', x: 6, y: 3, dialogue: 'g1_angel', color: 0xf0e6c8, name_he: 'מַלְאַךְ ה׳', name_ru: 'Ангел' },

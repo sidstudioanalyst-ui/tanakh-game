@@ -34,6 +34,70 @@ defineZone({
     '#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#',
     '############################################',
   ],
+  // Тайлы окружения: стан у источника (rpg_base). Вода — полоса '~' внизу (сама по себе
+  // непроходима, как и раньше); ground даёт ей берег сверху (авто-не нужен, вода сплошная
+  // полоса до самых стен). Внутренние блоки '#' (тростник/тень у точек отбора) — кусты, а
+  // не деревья внешней границы, чтобы не путать с оградой.
+  art: {
+    layers: [
+      {
+        name: 'ground', tileset: 'rpg_base', place: 'all',
+        legend: { g: 43 }, // вода (b/n/c — левый край/середина/правый край берега, v — вода) — в слое objects
+        rows: [
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gddddddddddddddddddddddddddddddddddddddddddg',
+          'gddddddddddddddddddddddddddddddddddddddddddg',
+          'gddddddddddddddddddddddddddddddddddddddddddg',
+          'gdddddggggddddddddddddddddddddddddggggdddddg',
+          'gdddddggggdddddggddddddddddggdddddggggdddddg',
+          'gdddddggggdddddggddddddddddggdddddggggdddddg',
+          'gddddddddddddddddddddddddddddddddddddddddddg',
+          'gddddddddddddddddddddddddddddddddddddddddddg',
+          'gddddddddddddddddddggddggddddddddddddddddddg',
+          'gddddddddddddddddddgddddgdddgggddddddddddddg',
+          'gdddddddddddddgggddgddddgdddgggddddddddddddg',
+          'gdddddddddddddgggddgddddgdddgggddddddddddddg',
+          'gdddddddddddddgggddgddddgdddgggddddddddddddg',
+          'gddddddddddddddddddgddddgddddddddddddddddddg',
+          'gddddddddddddddddddgddddgddddddddddddddddddg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+          'gggggggggggggggggggggggggggggggggggggggggggg',
+        ],
+      },
+      {
+        name: 'objects', tileset: 'rpg_base', place: 'walls',
+        legend: { a: 220, q: 222, z: 224, B: 180, K: 184, b: 10, c: 12, n: 11, v: 31 }, // a/q/z — деревья границы, B/K — кусты тростника; вода — здесь, на клетках ~ (препятствие), а не в ground
+        rows: [
+          'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaq',
+          'z                                          a',
+          'q                                          z',
+          'a                                          q',
+          'z     BKBK                        BKBK     a',
+          'q     KBKB     BK          BK     KBKB     z',
+          'a     BKBK     KB          KB     BKBK     q',
+          'z                                          a',
+          'q                                          z',
+          'a                  BK  BK                  q',
+          'z                  K    B   BKB            a',
+          'q             KBK  B    K   KBK            z',
+          'a             BKB  K    B   BKB            q',
+          'z             KBK  B    K   KBK            a',
+          'q                  K    B                  z',
+          'a                  B    K                  q',
+          'zbnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnca',
+          'qvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvz',
+          'avvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvq',
+          'zvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvva',
+          'qvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvz',
+          'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaqzaq',
+        ],
+      },
+    ],
+  },
   start: [21, 3],
   onEnter: { dialogue: 'g3_muster', unless_flag: 'fearful_left' },
   selection: {
