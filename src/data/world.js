@@ -105,7 +105,7 @@ const CAMPAIGNS = {
       zones: ['yiftach_1', 'yiftach_2', 'yiftach_3', 'yiftach_4', 'yiftach_5', 'yiftach_6', 'shmuel_1', 'shmuel_2', 'shmuel_3'],
       startZone: 'yiftach_1',
       trial: 'word', // src/data/trials/word.json — после Ш3; карта последняя: «Начать заново»
-      hero: { name_ru: 'Йифтах из Гилада', name_he: 'יִפְתָּח הַגִּלְעָדִי', color: 0xb48ead },
+      hero: { name_ru: 'Йифтах из Гилада', name_he: 'יִפְתָּח הַגִּלְעָדִי', color: 0xb48ead, sprite: 'yiftach' },
       gauges: {
         gilead_warriors: { label: 'gauge_gilead', max: 10000 }, // после диспута в Й2 — к бою Й4
       },
@@ -116,7 +116,7 @@ const CAMPAIGNS = {
         b: {
           name_ru: 'Слово и власть · Б: Шмуэль',
           name_he: 'הַדָּבָר וְהַשִּׁלְטוֹן · ב: שְׁמוּאֵל',
-          hero: { name_ru: 'Шмуэль', name_he: 'שְׁמוּאֵל', color: 0x8fbcbb },
+          hero: { name_ru: 'Шмуэль', name_he: 'שְׁמוּאֵל', color: 0x8fbcbb, sprite: 'shmuel' },
           freshEquipment: true, // Шмуэль — без вещей Йифтаха; боя в части Б нет (зоны calm)
         },
       },
