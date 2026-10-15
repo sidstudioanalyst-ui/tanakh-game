@@ -282,6 +282,18 @@ const CONFIG = {
         stand: { row: 0, col: 5 },
       },
     },
+
+    // --- NPC (всегда стоят на месте — Npc.js, showStand; walk/attack не используются, но
+    // createLpcAnims требует layout.walk для настройки — ниже заглушка в 1 кадр, никогда не
+    // проигрывается). Арт — PixelLab, см. tools/npc_pixellab_brief.md. Лист 1×4 (96×384):
+    // кадр стойки на направление, собран tools/build_character_sheets.py (stand_only).
+    elder: {
+      file: 'assets/characters/elder/elder.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 }, // заглушка — NPC никогда не ходит
+        stand: { row: 0, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,

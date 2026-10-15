@@ -92,7 +92,7 @@ defineZone({
     { id: 'petitioner_widow', x: 6, y: 6, dialogue: 'shmuel1_widow', color: 0xc9b99a, name_he: 'אַלְמָנָה', name_ru: 'Вдова' },
     { id: 'petitioner_shepherd', x: 10, y: 10, dialogue: 'shmuel1_shepherd', color: 0xa3be8c, name_he: 'רוֹעֶה', name_ru: 'Пастух' },
     { id: 'petitioner_worker', x: 12, y: 5, dialogue: 'shmuel1_worker', color: 0xd08770, name_he: 'שָׂכִיר', name_ru: 'Работник' },
-    { id: 'israel_elders', x: 24, y: 8, dialogue: 'shmuel1_elders', color: 0xd8c3a5, name_he: 'זִקְנֵי יִשְׂרָאֵל', name_ru: 'Старейшины Израиля' },
+    { id: 'israel_elders', x: 24, y: 8, dialogue: 'shmuel1_elders', color: 0xd8c3a5, name_he: 'זִקְנֵי יִשְׂרָאֵל', name_ru: 'Старейшины Израиля', sprite: 'elder' },
   ],
   tally: { flags: ['petition_widow', 'petition_shepherd', 'petition_worker'], need: 2, effects: { justice: 1 }, flag: 'petitions_counted' },
   enemies: [],

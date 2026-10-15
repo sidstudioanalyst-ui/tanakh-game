@@ -72,10 +72,10 @@ CHARACTERS = {
 
     # --- NPC «только стоят» (см. tools/npc_pixellab_brief.md) — по мере поступления арта из
     # PixelLab раскомментировать нужные строки. Каждая — 4 кадра idle/{d}.png, лист 1×4.
-    # 'elder': {
-    #     'dir': 'assets/characters/elder/', 'idle': 'idle/{d}.png', 'out': 'elder.png',
-    #     'stand_only': True,
-    # },
+    'elder': {
+        'dir': 'assets/characters/elder/', 'idle': 'idle/{d}.png', 'out': 'elder.png',
+        'stand_only': True,
+    },
     # 'eglon': {
     #     'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
     #     'stand_only': True,

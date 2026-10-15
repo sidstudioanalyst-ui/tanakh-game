@@ -93,7 +93,7 @@ defineZone({
     { x: 9.6, y: 13.6, w: 3.2, h: 0.4, color: 0x6b5a45, alpha: 0.5, name_he: 'אֲנָשִׁים', name_ru: 'Люди Йифтаха' },
   ],
   npcs: [
-    { id: 'gilead_elders', x: 17, y: 5, dialogue: 'yiftach1_elders', color: 0xc9b99a, name_he: 'זִקְנֵי גִלְעָד', name_ru: 'Старейшины Гилада' },
+    { id: 'gilead_elders', x: 17, y: 5, dialogue: 'yiftach1_elders', color: 0xc9b99a, name_he: 'זִקְנֵי גִלְעָד', name_ru: 'Старейшины Гилада', sprite: 'elder' },
   ],
   enemies: [],
   items: [],
