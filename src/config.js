@@ -343,6 +343,14 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
+    // Верстак, где Эхуд куёт кинжал (А1)
+    ehud_workbench: {
+      file: 'assets/characters/ehud_workbench/ehud_workbench.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,

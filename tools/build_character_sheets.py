@@ -80,6 +80,11 @@ CHARACTERS = {
         'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
         'stand_only': True,
     },
+    # верстак Эхуда — предмет, не поворачивается, но лист собираем тем же способом
+    'ehud_workbench': {
+        'dir': 'assets/characters/ehud_workbench/', 'idle': 'idle/{d}.png', 'out': 'ehud_workbench.png',
+        'stand_only': True,
+    },
     'deborah': {
         'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
         'stand_only': True,
