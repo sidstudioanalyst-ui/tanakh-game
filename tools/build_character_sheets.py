@@ -21,6 +21,12 @@
 кадры 1–4 — брак генерации, бег с опущенным мечом, — в лист не попадают вовсе).
 
 Запуск из корня репозитория: python3 tools/build_character_sheets.py  (нужен Pillow)
+
+NPC «только стоят» (elder и т.п., см. tools/npc_pixellab_brief.md) — без ходьбы и удара,
+только 4 кадра стойки (idle/{d}.png): лист 1×4 (CELL×CELL на кадр, по кадру на направление),
+никакой строки ходьбы — она движку (src/entities/Player.js, showStand) не нужна: NPC через
+общий класс Npc всегда стоит на месте, никогда не проигрывает анимацию ходьбы. Флаг
+'stand_only': True в CHARACTERS — такой персонаж не требует walk/attack-исходников вовсе.
 """
 from PIL import Image, ImageSequence
 
@@ -63,6 +69,37 @@ CHARACTERS = {
         'idle': 'idle/{d}.png',
         'out': 'servant_jar.png',
     },
+
+    # --- NPC «только стоят» (см. tools/npc_pixellab_brief.md) — по мере поступления арта из
+    # PixelLab раскомментировать нужные строки. Каждая — 4 кадра idle/{d}.png, лист 1×4.
+    'elder': {
+        'dir': 'assets/characters/elder/', 'idle': 'idle/{d}.png', 'out': 'elder.png',
+        'stand_only': True,
+    },
+    'eglon': {
+        'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
+        'stand_only': True,
+    },
+    'deborah': {
+        'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
+        'stand_only': True,
+    },
+    'yael': {
+        'dir': 'assets/characters/yael/', 'idle': 'idle/{d}.png', 'out': 'yael.png',
+        'stand_only': True,
+    },
+    'angel': {
+        'dir': 'assets/characters/angel/', 'idle': 'idle/{d}.png', 'out': 'angel.png',
+        'stand_only': True,
+    },
+    'servant_young': {
+        'dir': 'assets/characters/servant_young/', 'idle': 'idle/{d}.png', 'out': 'servant_young.png',
+        'stand_only': True,
+    },
+    'envoy': {
+        'dir': 'assets/characters/envoy/', 'idle': 'idle/{d}.png', 'out': 'envoy.png',
+        'stand_only': True,
+    },
 }
 
 
@@ -72,14 +109,19 @@ def frames(path):
 
 def build(spec):
     name = lambda kind, d: spec['dir'] + spec[kind].format(d=d, D=d.capitalize())
-    rows = [frames(name('walk', d)) for d in DIRS]
-    if 'attack' in spec:
-        a, b = spec.get('attack_frames', (0, COLS))
-        rows += [frames(name('attack', d))[a:b] for d in DIRS]
-    rows += [frames(name('idle', d)) for d in DIRS]
-    sheet = Image.new('RGBA', (CELL * COLS, CELL * len(rows)), (0, 0, 0, 0))
+    if spec.get('stand_only'):
+        # Только 4 кадра стойки — ни ходьбы, ни удара (см. docstring вверху файла)
+        rows = [frames(name('idle', d)) for d in DIRS]
+    else:
+        rows = [frames(name('walk', d)) for d in DIRS]
+        if 'attack' in spec:
+            a, b = spec.get('attack_frames', (0, COLS))
+            rows += [frames(name('attack', d))[a:b] for d in DIRS]
+        rows += [frames(name('idle', d)) for d in DIRS]
+    cols = 1 if spec.get('stand_only') else COLS
+    sheet = Image.new('RGBA', (CELL * cols, CELL * len(rows)), (0, 0, 0, 0))
     for r, row in enumerate(rows):
-        assert len(row) <= COLS, (r, len(row))
+        assert len(row) <= cols, (r, len(row))
         for f in row:
             assert f.width == f.height and (CELL - f.width) % 2 == 0, f.size
         off = [(CELL - f.width) // 2 for f in row]  # центр холста кадра → центр ячейки

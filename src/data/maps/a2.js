@@ -136,7 +136,7 @@ defineZone({
   npcs: [
     // страж ворот — копейщик (спрайт), стоит лицом к месту досмотра
     { id: 'gate_guard', x: 5, y: 7, dialogue: 'a2_inspection', color: 0xb48ead, sprite: 'guard_spear', facing: 'down' },
-    { id: 'eglon', x: 25, y: 14, dialogue: 'a2_eglon', color: 0xd08770, name_he: 'עֶגְלוֹן', name_ru: 'Эглон' },
+    { id: 'eglon', x: 25, y: 14, dialogue: 'a2_eglon', color: 0xd08770, name_he: 'עֶגְלוֹן', name_ru: 'Эглон', sprite: 'eglon' },
   ],
   // стража (sprite): у ворот и в служебном коридоре — копейщики, ближе к царю (тронный зал,
   // прихожая горницы) — мечники; почему так — README «Стража дворца»

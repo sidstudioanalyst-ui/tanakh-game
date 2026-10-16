@@ -33,9 +33,9 @@ defineZone({
     { x: 18, y: 3.2, w: 3, h: 0.5, color: 0x7d6a50, alpha: 0.6, name_he: 'מַחֲנֵה זְבוּלֻן', name_ru: 'Стан Звулуна' },
   ],
   npcs: [
-    { id: 'naphtali', x: 7, y: 5, dialogue: 'barak2_naphtali', color: 0xa3be8c, name_he: 'זִקְנֵי נַפְתָּלִי', name_ru: 'Старейшины Нафтали' },
-    { id: 'zebulun', x: 18, y: 5, dialogue: 'barak2_zebulun', color: 0x81a1c1, name_he: 'זִקְנֵי זְבוּלֻן', name_ru: 'Старейшины Звулуна' },
-    { id: 'deborah', x: 12, y: 10, dialogue: 'barak2_deborah', color: 0xd8c3a5, name_he: 'דְּבוֹרָה', name_ru: 'Двора', if_flag: 'deborah_with' },
+    { id: 'naphtali', x: 7, y: 5, dialogue: 'barak2_naphtali', color: 0xa3be8c, name_he: 'זִקְנֵי נַפְתָּלִי', name_ru: 'Старейшины Нафтали', sprite: 'elder' },
+    { id: 'zebulun', x: 18, y: 5, dialogue: 'barak2_zebulun', color: 0x81a1c1, name_he: 'זִקְנֵי זְבוּלֻן', name_ru: 'Старейшины Звулуна', sprite: 'elder' },
+    { id: 'deborah', x: 12, y: 10, dialogue: 'barak2_deborah', color: 0xd8c3a5, name_he: 'דְּבוֹרָה', name_ru: 'Двора', if_flag: 'deborah_with', sprite: 'deborah' },
   ],
   enemies: [],
   items: [{ id: 'barak_spear', x: 14, y: 3 }],

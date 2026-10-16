@@ -87,7 +87,7 @@ defineZone({
     { x: 19, y: 8, w: 6, h: 0.5, color: 0x6b5a45, alpha: 0.45, name_he: 'הַדֶּרֶךְ לִבְנֵי עַמּוֹן', name_ru: 'Дорога к сынам Аммона' },
   ],
   npcs: [
-    { id: 'yiftach_envoys', x: 14, y: 8, dialogue: 'yiftach2_claim', color: 0xa3be8c, name_he: 'הַמַּלְאָכִים', name_ru: 'Послы' },
+    { id: 'yiftach_envoys', x: 14, y: 8, dialogue: 'yiftach2_claim', color: 0xa3be8c, name_he: 'הַמַּלְאָכִים', name_ru: 'Послы', sprite: 'envoy' },
   ],
   enemies: [],
   items: [],

@@ -36,7 +36,7 @@ defineZone({
     { x: 12, y: 5, w: 2.4, h: 1.4, shape: 'circle', color: 0x5e8a4a, name_he: 'תֹּמֶר דְּבוֹרָה', name_ru: 'Пальма Деворы' },
   ],
   npcs: [
-    { id: 'deborah', x: 12, y: 8, dialogue: 'barak1_deborah', color: 0xd8c3a5, name_he: 'דְּבוֹרָה', name_ru: 'Двора' },
+    { id: 'deborah', x: 12, y: 8, dialogue: 'barak1_deborah', color: 0xd8c3a5, name_he: 'דְּבוֹרָה', name_ru: 'Двора', sprite: 'deborah' },
   ],
   enemies: [],
   items: [],
