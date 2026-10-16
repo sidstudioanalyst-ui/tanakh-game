@@ -36,15 +36,18 @@ assets/characters/<id>/idle/east.png
 для всех шести — игра и так подписывает имя над головой, так что визуальное сходство разных
 делегаций старейшин не путает игрока.
 
-| id (папка) | Кому идёт | Промпт для PixelLab |
-|---|---|---|
-| `elder` | `elder_avidan`, `elder_jediael` (А1), `naphtali`, `zebulun` (Бр2), `gilead_elders` (Й1), `israel_elders` (Ш1) | Elderly Israelite tribal elder, long grey beard, simple earth-tone robe (undyed wool/linen), wooden walking staff, sandals. Bronze Age / early Iron Age Levant clothing — no armor, no royal regalia. Dignified, calm stance. |
-| `eglon` | `eglon` (А2) — царь Моава | Obese Moabite king, Bronze Age royal robe (rich purple/red dyed cloth), gold arm bands, seated or standing heavily, double chin, imposing but soft-bodied figure (Judges 3:17 — "a very fat man"). No crown spikes — ancient Near Eastern royal headcloth instead. |
-| `deborah` | `deborah` (Бр1, Бр2) | Israelite prophetess and judge, woman, modest long robe, head covering/scarf, confident upright posture, no weapon — she is a spiritual/legal authority, not a warrior. |
-| `yael` | `yael` (Бр4) | Kenite nomadic woman, practical tent-dweller's clothing (plain wool dress, headscarf), sturdy build — she lives among tent-herding Kenites, not a city dweller. No weapon visible by default (the tent peg/mallet from her story is a dialogue prop, not needed in the standing sprite). |
-| `angel` | `angel` (Г1) | IMPORTANT: in the text (Shoftim 6:11-22) Gideon does NOT recognize him as divine at first — he looks like an ordinary traveler/man sitting under a tree, not glowing or winged. Plain but slightly finer robe than a farmer, walking staff, calm/still posture. Subtle dignity, not overt divinity — avoid halos, wings, glowing effects. |
-| `servant_young` | `father_servants` (Г1) — слуги Иоаша | Young Israelite farmhand/servant, simple short tunic, rolled-up sleeves, practical worker's build — a farmer's household servant, not a soldier. |
-| `envoy` | `yiftach_envoys` (Й2) — послы аммонитян | Ammonite diplomatic envoy/messenger, foreign (non-Israelite) tribal dress — distinguish from Israelite elders with different robe trim/color and a travel cloak, conveys "messenger from a rival kingdom," no weapon (he's here to negotiate/threaten with words, not fight). |
+Колонка «Промпт» — вставлять в PixelLab как есть, без изменений. Колонка «Заметка» — это
+контекст для тебя (почему именно так), в PixelLab её вставлять не нужно.
+
+| id (папка) | Кому идёт | Промпт для PixelLab (вставлять как есть) | Заметка (не вставлять) |
+|---|---|---|---|
+| `elder` ✅ готово | `elder_avidan`, `elder_jediael` (А1), `naphtali`, `zebulun` (Бр2), `gilead_elders` (Й1), `israel_elders` (Ш1) | `Elderly Israelite tribal elder, long grey beard, simple earth-tone robe (undyed wool/linen), wooden walking staff, sandals. Bronze Age / early Iron Age Levant clothing — no armor, no royal regalia. Dignified, calm stance.` | — |
+| `eglon` | `eglon` (А2) — царь Моава | `Obese Moabite king, Bronze Age royal robe (rich purple/red dyed cloth), gold arm bands, standing heavily, double chin, imposing but soft-bodied figure. No crown spikes — ancient Near Eastern royal headcloth instead.` | Судьи 3:17 называют его «очень тучным человеком» — отсюда тучное телосложение в промпте. |
+| `deborah` | `deborah` (Бр1, Бр2) | `Israelite prophetess and judge, woman, modest long robe, head covering/scarf, confident upright posture, no weapon.` | Она духовный/судебный авторитет, не воин — поэтому без оружия. |
+| `yael` | `yael` (Бр4) | `Kenite nomadic woman, practical tent-dweller's clothing (plain wool dress, headscarf), sturdy build, no weapon visible.` | Живёт среди шатровых кенеев, не горожанка; колышек от шатра — реквизит диалога, в стоячем спрайте не нужен. |
+| `angel` | `angel` (Г1) | `Plain traveler, man, simple but slightly finer robe than a farmer's, wooden walking staff, calm and still posture, dignified. Bronze Age / early Iron Age Levant clothing. No halo, no wings, no glowing effects — ordinary human appearance.` | В тексте (Шофтим 6:11-22) Гидон не узнаёт в нём ангела сразу — выглядит обычным путником, без нимба/крыльев/свечения. |
+| `servant_young` | `father_servants` (Г1) — слуги Иоаша | `Young Israelite farmhand or servant, simple short tunic, rolled-up sleeves, practical worker's build.` | Домашний слуга-земледелец, не воин. |
+| `envoy` | `yiftach_envoys` (Й2) — послы аммонитян | `Ammonite diplomatic envoy, foreign (non-Israelite) tribal dress, different robe trim and color from Israelite elders, travel cloak, no weapon.` | Чужеземный посол на переговорах, не воин — отсюда другой крой/цвет одежды и без оружия. |
 
 ## Что делать с результатом
 
