@@ -76,10 +76,10 @@ CHARACTERS = {
         'dir': 'assets/characters/elder/', 'idle': 'idle/{d}.png', 'out': 'elder.png',
         'stand_only': True,
     },
-    # 'eglon': {
-    #     'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
-    #     'stand_only': True,
-    # },
+    'eglon': {
+        'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
+        'stand_only': True,
+    },
     'deborah': {
         'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
         'stand_only': True,
@@ -100,12 +100,6 @@ CHARACTERS = {
         'dir': 'assets/characters/envoy/', 'idle': 'idle/{d}.png', 'out': 'envoy.png',
         'stand_only': True,
     },
-
-    # --- ещё не прислано ---
-    # 'eglon': {
-    #     'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
-    #     'stand_only': True,
-    # },
 }
 
 
