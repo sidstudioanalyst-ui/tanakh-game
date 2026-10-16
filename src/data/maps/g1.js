@@ -92,8 +92,8 @@ defineZone({
   },
   start: [3, 4],
   npcs: [
-    { id: 'angel', x: 6, y: 3, dialogue: 'g1_angel', color: 0xf0e6c8, name_he: 'מַלְאַךְ ה׳', name_ru: 'Ангел' },
-    { id: 'father_servants', x: 5, y: 12, dialogue: 'g1_servants', color: 0xa3825c, name_he: 'עַבְדֵי יוֹאָשׁ', name_ru: 'Слуги Иоаша' },
+    { id: 'angel', x: 6, y: 3, dialogue: 'g1_angel', color: 0xf0e6c8, name_he: 'מַלְאַךְ ה׳', name_ru: 'Ангел', sprite: 'angel' },
+    { id: 'father_servants', x: 5, y: 12, dialogue: 'g1_servants', color: 0xa3825c, name_he: 'עַבְדֵי יוֹאָשׁ', name_ru: 'Слуги Иоаша', sprite: 'servant_young' },
   ],
   night: {
     activeFlag: 'night',

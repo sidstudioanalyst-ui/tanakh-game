@@ -294,6 +294,47 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
+    // Двора (Бр1, Бр2) — пророчица и судья
+    deborah: {
+      file: 'assets/characters/deborah/deborah.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Яэль (Бр4)
+    yael: {
+      file: 'assets/characters/yael/yael.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Ангел Господень (Г1) — по тексту (Шофтим 6:11-22) выглядит обычным путником, Гидон не
+    // узнаёт в нём ангела сразу; поэтому арт без нимба/крыльев
+    angel: {
+      file: 'assets/characters/angel/angel.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Слуги Иоаша (Г1)
+    servant_young: {
+      file: 'assets/characters/servant_young/servant_young.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Послы аммонитян (Й2)
+    envoy: {
+      file: 'assets/characters/envoy/envoy.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,

@@ -80,24 +80,30 @@ CHARACTERS = {
     #     'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
     #     'stand_only': True,
     # },
-    # 'deborah': {
-    #     'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
-    #     'stand_only': True,
-    # },
-    # 'yael': {
-    #     'dir': 'assets/characters/yael/', 'idle': 'idle/{d}.png', 'out': 'yael.png',
-    #     'stand_only': True,
-    # },
-    # 'angel': {
-    #     'dir': 'assets/characters/angel/', 'idle': 'idle/{d}.png', 'out': 'angel.png',
-    #     'stand_only': True,
-    # },
-    # 'servant_young': {
-    #     'dir': 'assets/characters/servant_young/', 'idle': 'idle/{d}.png', 'out': 'servant_young.png',
-    #     'stand_only': True,
-    # },
-    # 'envoy': {
-    #     'dir': 'assets/characters/envoy/', 'idle': 'idle/{d}.png', 'out': 'envoy.png',
+    'deborah': {
+        'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
+        'stand_only': True,
+    },
+    'yael': {
+        'dir': 'assets/characters/yael/', 'idle': 'idle/{d}.png', 'out': 'yael.png',
+        'stand_only': True,
+    },
+    'angel': {
+        'dir': 'assets/characters/angel/', 'idle': 'idle/{d}.png', 'out': 'angel.png',
+        'stand_only': True,
+    },
+    'servant_young': {
+        'dir': 'assets/characters/servant_young/', 'idle': 'idle/{d}.png', 'out': 'servant_young.png',
+        'stand_only': True,
+    },
+    'envoy': {
+        'dir': 'assets/characters/envoy/', 'idle': 'idle/{d}.png', 'out': 'envoy.png',
+        'stand_only': True,
+    },
+
+    # --- ещё не прислано ---
+    # 'eglon': {
+    #     'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
     #     'stand_only': True,
     # },
 }
