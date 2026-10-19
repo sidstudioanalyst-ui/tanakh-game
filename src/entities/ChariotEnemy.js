@@ -15,7 +15,9 @@ class ChariotEnemy extends Enemy {
     this.stopped = false;
     this.body.setImmovable(true);
     this.body.pushable = false;
-    this.setScale(1.4, 0.9); // шире, чем выше
+    // «шире, чем выше» — только для цветного квадрата-плейсхолдера; у спрайта (setupSprite в
+    // Enemy.js) свой масштаб из CONFIG.CHARACTER_SPRITES.chariot.scale, растягивать его нельзя.
+    if (!this.spriteKey) this.setScale(1.4, 0.9);
   }
 
   update() {

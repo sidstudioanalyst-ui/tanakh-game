@@ -407,6 +407,9 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
+    // Железная колесница Сисры (Бр3) — запись добавится, когда придёт арт (см.
+    // tools/npc_pixellab_brief.md «Колесница Сисры»); до этого ENEMY_TYPES.chariot без sprite —
+    // цветной квадрат, как сейчас.
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,
@@ -445,6 +448,7 @@ const CONFIG = {
       class: 'Chariot',
       size: 30,
       color: 0xa7b1c2, // светлое железо — хорошо видно на тёмном полу
+      // sprite: 'chariot', — раскомментировать, когда появится CONFIG.CHARACTER_SPRITES.chariot
       speed: 90,
       hp: 999,
       damage: 12,

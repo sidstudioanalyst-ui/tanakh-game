@@ -113,6 +113,15 @@ CHARACTERS = {
         'dir': 'assets/characters/worker/', 'idle': 'idle/{d}.png', 'out': 'worker.png',
         'stand_only': True,
     },
+
+    # --- ещё не прислано ---
+    # Колесница Сисры (Бр3, ChariotEnemy.js) — не NPC, а Enemy, но лист собираем тем же способом
+    # (см. tools/npc_pixellab_brief.md «Колесница Сисры»): 4 кадра idle/{d}.png, не поворачивается
+    # покадрово (едет, но «ходьба» — тот же кадр — см. CONFIG.CHARACTER_SPRITES.chariot).
+    # 'chariot': {
+    #     'dir': 'assets/characters/chariot/', 'idle': 'idle/{d}.png', 'out': 'chariot.png',
+    #     'stand_only': True,
+    # },
     'deborah': {
         'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
         'stand_only': True,
