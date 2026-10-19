@@ -34,7 +34,7 @@ defineZone({
     { id: 'leather_armor', x: 4, y: 15 },
     { id: 'oil_flask', x: 26, y: 15 },
   ],
-  npcs: [{ id: 'shepherd', x: 5, y: 5, dialogue: 'shepherd', color: 0xa3be8c }],
+  npcs: [{ id: 'shepherd', x: 5, y: 5, dialogue: 'shepherd', color: 0xa3be8c, sprite: 'shepherd' }],
   exits: [
     { x: 0, y: 8, h: 2, to: 'village', at: [28, 8] },
     { x: 29, y: 8, h: 2, trial: true }, // конец карты → экран «Суд»

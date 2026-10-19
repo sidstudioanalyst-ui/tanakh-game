@@ -367,6 +367,46 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
+    // Старый воин — нагорье Эфраима (А4)
+    ephraim_veteran: {
+      file: 'assets/characters/ephraim_veteran/ephraim_veteran.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Писец (карта «Город»)
+    scribe: {
+      file: 'assets/characters/scribe/scribe.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Пастух (поле + проситель Ш1)
+    shepherd: {
+      file: 'assets/characters/shepherd/shepherd.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Вдова (просительница Ш1 + Ханна в деревне)
+    widow: {
+      file: 'assets/characters/widow/widow.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Наёмный работник (проситель Ш1)
+    worker: {
+      file: 'assets/characters/worker/worker.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,

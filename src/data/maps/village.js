@@ -30,8 +30,8 @@ defineZone({
     { id: 'cloak', x: 5, y: 4 },
   ],
   npcs: [
-    { id: 'elder', x: 26, y: 7, dialogue: 'elder', color: 0xe5e9f0 },
-    { id: 'hannah', x: 23, y: 12, dialogue: 'hannah', color: 0xb48ead },
+    { id: 'elder', x: 26, y: 7, dialogue: 'elder', color: 0xe5e9f0, sprite: 'elder' },
+    { id: 'hannah', x: 23, y: 12, dialogue: 'hannah', color: 0xb48ead, sprite: 'widow' },
   ],
   // Выход: прямоугольник тайлов (w/h по умолчанию 1) → зона `to`, игрок появляется в тайле `at`
   exits: [{ x: 29, y: 8, h: 2, to: 'field', at: [1, 8] }],

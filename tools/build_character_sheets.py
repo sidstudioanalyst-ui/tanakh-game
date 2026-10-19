@@ -93,6 +93,26 @@ CHARACTERS = {
         'dir': 'assets/characters/ephraim_young/', 'idle': 'idle/{d}.png', 'out': 'ephraim_young.png',
         'stand_only': True,
     },
+    'ephraim_veteran': {
+        'dir': 'assets/characters/ephraim_veteran/', 'idle': 'idle/{d}.png', 'out': 'ephraim_veteran.png',
+        'stand_only': True,
+    },
+    'scribe': {
+        'dir': 'assets/characters/scribe/', 'idle': 'idle/{d}.png', 'out': 'scribe.png',
+        'stand_only': True,
+    },
+    'shepherd': {
+        'dir': 'assets/characters/shepherd/', 'idle': 'idle/{d}.png', 'out': 'shepherd.png',
+        'stand_only': True,
+    },
+    'widow': {
+        'dir': 'assets/characters/widow/', 'idle': 'idle/{d}.png', 'out': 'widow.png',
+        'stand_only': True,
+    },
+    'worker': {
+        'dir': 'assets/characters/worker/', 'idle': 'idle/{d}.png', 'out': 'worker.png',
+        'stand_only': True,
+    },
     'deborah': {
         'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
         'stand_only': True,
