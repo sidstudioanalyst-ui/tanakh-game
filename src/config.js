@@ -351,6 +351,22 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
+    // Земледельцы нагорья Эфраима (А4)
+    ephraim_farmer: {
+      file: 'assets/characters/ephraim_farmer/ephraim_farmer.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Юноши Эфраима (А4)
+    ephraim_young: {
+      file: 'assets/characters/ephraim_young/ephraim_young.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,
