@@ -80,6 +80,50 @@ CHARACTERS = {
         'dir': 'assets/characters/eglon/', 'idle': 'idle/{d}.png', 'out': 'eglon.png',
         'stand_only': True,
     },
+    # верстак Эхуда — предмет, не поворачивается, но лист собираем тем же способом
+    'ehud_workbench': {
+        'dir': 'assets/characters/ehud_workbench/', 'idle': 'idle/{d}.png', 'out': 'ehud_workbench.png',
+        'stand_only': True,
+    },
+    'ephraim_farmer': {
+        'dir': 'assets/characters/ephraim_farmer/', 'idle': 'idle/{d}.png', 'out': 'ephraim_farmer.png',
+        'stand_only': True,
+    },
+    'ephraim_young': {
+        'dir': 'assets/characters/ephraim_young/', 'idle': 'idle/{d}.png', 'out': 'ephraim_young.png',
+        'stand_only': True,
+    },
+    'ephraim_veteran': {
+        'dir': 'assets/characters/ephraim_veteran/', 'idle': 'idle/{d}.png', 'out': 'ephraim_veteran.png',
+        'stand_only': True,
+    },
+    'scribe': {
+        'dir': 'assets/characters/scribe/', 'idle': 'idle/{d}.png', 'out': 'scribe.png',
+        'stand_only': True,
+    },
+    'shepherd': {
+        'dir': 'assets/characters/shepherd/', 'idle': 'idle/{d}.png', 'out': 'shepherd.png',
+        'stand_only': True,
+    },
+    'widow': {
+        'dir': 'assets/characters/widow/', 'idle': 'idle/{d}.png', 'out': 'widow.png',
+        'stand_only': True,
+    },
+    'worker': {
+        'dir': 'assets/characters/worker/', 'idle': 'idle/{d}.png', 'out': 'worker.png',
+        'stand_only': True,
+    },
+
+    # Колесница Сисры (Бр3, ChariotEnemy.js) — не NPC, а Enemy (CONFIG.ENEMY_TYPES.chariot),
+    # но лист собираем тем же способом. В отличие от NPC — едет почти всё время, поэтому
+    # настоящая ходьба (galop, 8 кадров из PixelLab walk/run-анимации), не один статичный кадр;
+    # idle — только для остановки (Сисра бежал, колесница встала). Удара нет.
+    'chariot': {
+        'dir': 'assets/characters/chariot/',
+        'walk': 'walk/walk_{d}.gif',
+        'idle': 'idle/{d}.png',
+        'out': 'chariot.png',
+    },
     'deborah': {
         'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
         'stand_only': True,

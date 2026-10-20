@@ -30,6 +30,6 @@ defineZone({
     { type: 'bandit', x: 25, y: 8 },
   ],
   items: [],
-  npcs: [{ id: 'scribe', x: 6, y: 8, dialogue: 'scribe', color: 0xd8dee9 }],
+  npcs: [{ id: 'scribe', x: 6, y: 8, dialogue: 'scribe', color: 0xd8dee9, sprite: 'scribe' }],
   exits: [{ x: 29, y: 8, h: 2, trial: true }],
 });

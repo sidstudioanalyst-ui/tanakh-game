@@ -343,6 +343,79 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
+    // Верстак, где Эхуд куёт кинжал (А1)
+    ehud_workbench: {
+      file: 'assets/characters/ehud_workbench/ehud_workbench.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Земледельцы нагорья Эфраима (А4)
+    ephraim_farmer: {
+      file: 'assets/characters/ephraim_farmer/ephraim_farmer.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Юноши Эфраима (А4)
+    ephraim_young: {
+      file: 'assets/characters/ephraim_young/ephraim_young.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Старый воин — нагорье Эфраима (А4)
+    ephraim_veteran: {
+      file: 'assets/characters/ephraim_veteran/ephraim_veteran.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Писец (карта «Город»)
+    scribe: {
+      file: 'assets/characters/scribe/scribe.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Пастух (поле + проситель Ш1)
+    shepherd: {
+      file: 'assets/characters/shepherd/shepherd.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Вдова (просительница Ш1 + Ханна в деревне)
+    widow: {
+      file: 'assets/characters/widow/widow.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Наёмный работник (проситель Ш1)
+    worker: {
+      file: 'assets/characters/worker/worker.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
+    // Железная колесница Сисры (Бр3): едет почти всё время — настоящая ходьба (галоп, 8 кадров),
+    // не один статичный кадр, как у NPC; стойка — только когда встала (Сисра бежал пешком).
+    chariot: {
+      file: 'assets/characters/chariot/chariot.png', frame: 96, scale: 1, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 7, fps: 16 },
+        stand: { row: 4, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,
@@ -354,7 +427,8 @@ const CONFIG = {
   },
 
   NPC_SIZE: 24,
-  ITEM_SIZE: 14,
+  ITEM_SIZE: 14,       // хитбокс предмета (и размер квадрата-плейсхолдера) — не меняется
+  ITEM_ICON_SIZE: 28,  // во сколько показывать настоящую иконку (src/data/items.js: icon) — крупнее квадрата, лучше видно
 
   // Типы врагов. В зоне враг задаётся как { type: 'chaser', x, y }.
   // Поле class (необязательно) — ключ из ENEMY_CLASSES для врага со своим поведением.
@@ -380,7 +454,8 @@ const CONFIG = {
     chariot: {
       class: 'Chariot',
       size: 30,
-      color: 0xa7b1c2, // светлое железо — хорошо видно на тёмном полу
+      color: 0xa7b1c2, // светлое железо — запасной квадрат, если лист не загрузится
+      sprite: 'chariot',
       speed: 90,
       hp: 999,
       damage: 12,

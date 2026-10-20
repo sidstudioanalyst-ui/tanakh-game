@@ -85,9 +85,9 @@ defineZone({
   gauges: ['warriors'], // показывать шкалу «Собранные воины» в HUD
   items: [{ id: 'shofar', x: 26, y: 2 }],
   npcs: [
-    { id: 'ephraim_young', x: 10, y: 4, dialogue: 'a4_young', color: 0xa3be8c },
-    { id: 'ephraim_farmers', x: 3, y: 15, dialogue: 'a4_farmers', color: 0xd4b8e0 }, // не жёлтый — жёлтый у Эхуда
-    { id: 'ephraim_veteran', x: 26, y: 14, dialogue: 'a4_veteran', color: 0x81a1c1 },
+    { id: 'ephraim_young', x: 10, y: 4, dialogue: 'a4_young', color: 0xa3be8c, sprite: 'ephraim_young' },
+    { id: 'ephraim_farmers', x: 3, y: 15, dialogue: 'a4_farmers', color: 0xd4b8e0, sprite: 'ephraim_farmer' }, // не жёлтый — жёлтый у Эхуда
+    { id: 'ephraim_veteran', x: 26, y: 14, dialogue: 'a4_veteran', color: 0x81a1c1, sprite: 'ephraim_veteran' },
   ],
   enemies: [{ type: 'bandit', x: 16, y: 15 }],
   exits: [{ x: 29, y: 8, h: 2, to: 'a5', at: [22, 8], requires_item: 'shofar', locked: 'locked_a4' }],

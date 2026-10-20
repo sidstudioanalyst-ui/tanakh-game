@@ -31,9 +31,15 @@ class DescentMechanic {
       scene.enemies.add(e);
       return e;
     });
-    // Сисра — фигура над своей колесницей
+    // Сисра — фигура над своей колесницей. Картинка — src/scenes/BootScene.js грузит
+    // assets/characters/sisera.png под ключ 'sisera', если файл есть; нет файла —
+    // как и везде в игре, остаётся цветной квадрат-плейсхолдер.
     const sc = this.chariots[cfg.siseraChariot || 0];
-    this.sisera = scene.add.rectangle(sc.x, sc.y - 14, 12, 16, 0xbf616a).setDepth(8).setStrokeStyle(1, 0x2e3440);
+    if (scene.textures.exists('sisera')) {
+      this.sisera = scene.add.image(sc.x, sc.y - 14, 'sisera').setDepth(8).setDisplaySize(24, 32);
+    } else {
+      this.sisera = scene.add.rectangle(sc.x, sc.y - 14, 12, 16, 0xbf616a).setDepth(8).setStrokeStyle(1, 0x2e3440);
+    }
     this.makeSiseraLabel();
   }
 
