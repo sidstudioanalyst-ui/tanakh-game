@@ -114,14 +114,16 @@ CHARACTERS = {
         'stand_only': True,
     },
 
-    # --- ещё не прислано ---
-    # Колесница Сисры (Бр3, ChariotEnemy.js) — не NPC, а Enemy, но лист собираем тем же способом
-    # (см. tools/npc_pixellab_brief.md «Колесница Сисры»): 4 кадра idle/{d}.png, не поворачивается
-    # покадрово (едет, но «ходьба» — тот же кадр — см. CONFIG.CHARACTER_SPRITES.chariot).
-    # 'chariot': {
-    #     'dir': 'assets/characters/chariot/', 'idle': 'idle/{d}.png', 'out': 'chariot.png',
-    #     'stand_only': True,
-    # },
+    # Колесница Сисры (Бр3, ChariotEnemy.js) — не NPC, а Enemy (CONFIG.ENEMY_TYPES.chariot),
+    # но лист собираем тем же способом. В отличие от NPC — едет почти всё время, поэтому
+    # настоящая ходьба (galop, 8 кадров из PixelLab walk/run-анимации), не один статичный кадр;
+    # idle — только для остановки (Сисра бежал, колесница встала). Удара нет.
+    'chariot': {
+        'dir': 'assets/characters/chariot/',
+        'walk': 'walk/walk_{d}.gif',
+        'idle': 'idle/{d}.png',
+        'out': 'chariot.png',
+    },
     'deborah': {
         'dir': 'assets/characters/deborah/', 'idle': 'idle/{d}.png', 'out': 'deborah.png',
         'stand_only': True,

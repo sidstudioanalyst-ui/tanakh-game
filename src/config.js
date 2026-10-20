@@ -407,9 +407,15 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
-    // Железная колесница Сисры (Бр3) — запись добавится, когда придёт арт (см.
-    // tools/npc_pixellab_brief.md «Колесница Сисры»); до этого ENEMY_TYPES.chariot без sprite —
-    // цветной квадрат, как сейчас.
+    // Железная колесница Сисры (Бр3): едет почти всё время — настоящая ходьба (галоп, 8 кадров),
+    // не один статичный кадр, как у NPC; стойка — только когда встала (Сисра бежал пешком).
+    chariot: {
+      file: 'assets/characters/chariot/chariot.png', frame: 96, scale: 1, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 7, fps: 16 },
+        stand: { row: 4, col: 0 },
+      },
+    },
   },
 
   // Удар врага с замахом (см. Enemy.js): замах — враг стоит и мигает оранжевым, потом удар,
@@ -447,8 +453,8 @@ const CONFIG = {
     chariot: {
       class: 'Chariot',
       size: 30,
-      color: 0xa7b1c2, // светлое железо — хорошо видно на тёмном полу
-      // sprite: 'chariot', — раскомментировать, когда появится CONFIG.CHARACTER_SPRITES.chariot
+      color: 0xa7b1c2, // светлое железо — запасной квадрат, если лист не загрузится
+      sprite: 'chariot',
       speed: 90,
       hp: 999,
       damage: 12,
