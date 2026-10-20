@@ -21,6 +21,7 @@ const ITEMS = {
     slot: 'weapon',
     damage: 1,
     color: 0xa3825c,
+    icon: 'assets/items/staff.png',
   },
   sling: {
     name_ru: 'Праща',
@@ -28,6 +29,7 @@ const ITEMS = {
     slot: 'weapon',
     damage: 2,
     color: 0xd8dee9,
+    icon: 'assets/items/sling.png',
   },
   cloak: {
     name_ru: 'Плащ',
@@ -35,6 +37,7 @@ const ITEMS = {
     slot: 'armor',
     defense: 4,
     color: 0x81a1c1,
+    icon: 'assets/items/cloak.png',
   },
   leather_armor: {
     name_ru: 'Кожаный доспех',
@@ -42,6 +45,7 @@ const ITEMS = {
     slot: 'armor',
     defense: 8,
     color: 0x8fbcbb,
+    icon: 'assets/items/leather_armor.png',
   },
   belt: {
     name_ru: 'Пояс',
@@ -49,6 +53,7 @@ const ITEMS = {
     slot: 'special',
     maxHp: 20,
     color: 0xebcb8b,
+    icon: 'assets/items/belt.png',
   },
   oil_flask: {
     name_ru: 'Кувшинчик масла',
@@ -57,6 +62,7 @@ const ITEMS = {
     maxHp: 10,
     defense: 1,
     color: 0xe5c07b,
+    icon: 'assets/items/oil_flask.png',
   },
 
   // --- «Спасители», часть А (Эхуд) ---
@@ -66,6 +72,7 @@ const ITEMS = {
     slot: 'weapon',
     damage: 2,
     color: 0xeceff4,
+    icon: 'assets/items/ehud_dagger.png',
   },
   ehud_garment: {
     name_ru: 'Плащ',
@@ -73,12 +80,14 @@ const ITEMS = {
     slot: 'armor',
     defense: 3,
     color: 0x7b6f5a,
+    icon: 'assets/items/ehud_garment.png',
   },
   tribute_bag: {
     name_ru: 'Мешок с данью',
     name_he: 'שַׂק הַמִּנְחָה',
     slot: 'special',
     color: 0xd4a84b,
+    icon: 'assets/items/tribute_bag.png',
   },
   shofar: {
     name_ru: 'Шофар',
@@ -86,6 +95,7 @@ const ITEMS = {
     slot: 'special',
     maxHp: 10,
     color: 0xc8a165,
+    icon: 'assets/items/shofar.png',
   },
 
   // --- «Спасители», часть Б (Барак) ---
@@ -96,5 +106,6 @@ const ITEMS = {
     slot: 'weapon',
     damage: 1,
     color: 0xb8c4d0,
+    icon: 'assets/items/barak_spear.png',
   },
 };
