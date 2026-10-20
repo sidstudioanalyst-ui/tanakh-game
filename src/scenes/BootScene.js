@@ -53,13 +53,18 @@ class BootScene extends Phaser.Scene {
     // Фигура Сисры над колесницей (Бр3, src/systems/mechanics/Descent.js) — не спрайт-лист
     // (один кадр, направления не нужны), поэтому отдельно; нет файла — остаётся квадрат (ниже).
     this.load.image('sisera', 'assets/characters/sisera.png');
+    // Иконки предметов (ITEMS[id].icon в src/data/items.js, необязательно) — ключ текстуры
+    // сразу item-<id>, тот же, что использует Item.js: если иконка загрузится, GameScene.
+    // createTextures() не станет поверх неё рисовать квадрат (makeRectTexture проверяет,
+    // есть ли текстура, и пропускает, если да). Нет поля icon или файл не нашёлся — квадрат.
+    Object.entries(ITEMS).forEach(([id, item]) => item.icon && this.load.image(`item-${id}`, item.icon));
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
     Content.trialIds.forEach((id) => this.load.json(`trial:${id}`, `src/data/trials/${id}.json`));
 
     this.loadFailed = [];
     this.load.on('loaderror', (file) => {
       // без спрайта героя игра идёт дальше — с цветным квадратом
-      if (file.type === 'spritesheet' || file.key === 'sisera' || (file.key || '').startsWith('tiles-')) console.warn('Графика не загружена, будут квадраты:', file.src);
+      if (file.type === 'spritesheet' || file.key === 'sisera' || (file.key || '').startsWith('tiles-') || (file.key || '').startsWith('item-')) console.warn('Графика не загружена, будут квадраты:', file.src);
       else this.loadFailed.push(file.src);
     });
     this.load.on('complete', () => {

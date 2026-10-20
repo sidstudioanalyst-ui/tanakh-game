@@ -160,6 +160,8 @@ class GameScene extends Phaser.Scene {
     Object.entries(CONFIG.ENEMY_TYPES).forEach(([key, type]) => {
       this.makeRectTexture(`enemy-${key}`, type.size, type.size, type.color, 0x000000);
     });
+    // Если у предмета есть icon (BootScene.js загрузил текстуру item-<key> из файла) —
+    // makeRectTexture ничего не рисует поверх (проверяет exists), квадрат остаётся запасным.
     Object.entries(ITEMS).forEach(([key, item]) => {
       this.makeRectTexture(`item-${key}`, CONFIG.ITEM_SIZE, CONFIG.ITEM_SIZE, item.color, 0xffffff);
     });
