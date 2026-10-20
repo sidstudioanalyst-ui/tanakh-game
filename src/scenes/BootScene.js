@@ -50,13 +50,16 @@ class BootScene extends Phaser.Scene {
     Object.entries(CONFIG.CHARACTER_SPRITES).forEach(([id, sp]) =>
       this.load.spritesheet(`hero-${id}`, sp.file, { frameWidth: sp.frame, frameHeight: sp.frame })
     );
+    // Фигура Сисры над колесницей (Бр3, src/systems/mechanics/Descent.js) — не спрайт-лист
+    // (один кадр, направления не нужны), поэтому отдельно; нет файла — остаётся квадрат (ниже).
+    this.load.image('sisera', 'assets/characters/sisera.png');
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
     Content.trialIds.forEach((id) => this.load.json(`trial:${id}`, `src/data/trials/${id}.json`));
 
     this.loadFailed = [];
     this.load.on('loaderror', (file) => {
       // без спрайта героя игра идёт дальше — с цветным квадратом
-      if (file.type === 'spritesheet' || (file.key || '').startsWith('tiles-')) console.warn('Графика не загружена, будут квадраты:', file.src);
+      if (file.type === 'spritesheet' || file.key === 'sisera' || (file.key || '').startsWith('tiles-')) console.warn('Графика не загружена, будут квадраты:', file.src);
       else this.loadFailed.push(file.src);
     });
     this.load.on('complete', () => {
