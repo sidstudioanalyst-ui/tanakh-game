@@ -113,6 +113,11 @@ CHARACTERS = {
         'dir': 'assets/characters/worker/', 'idle': 'idle/{d}.png', 'out': 'worker.png',
         'stand_only': True,
     },
+    # Мужи Эфраима (Г5 «Погоня, переправы») — разгневанная группа, упрекает Гидона (Шофтим 8:1–3)
+    'ephraim_angry': {
+        'dir': 'assets/characters/ephraim_angry/', 'idle': 'idle/{d}.png', 'out': 'ephraim_angry.png',
+        'stand_only': True,
+    },
 
     # Колесница Сисры (Бр3, ChariotEnemy.js) — не NPC, а Enemy (CONFIG.ENEMY_TYPES.chariot),
     # но лист собираем тем же способом. В отличие от NPC — едет почти всё время, поэтому
