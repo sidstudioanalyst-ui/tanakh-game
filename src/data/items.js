@@ -108,4 +108,15 @@ const ITEMS = {
     color: 0xb8c4d0,
     icon: 'assets/items/barak_spear.png',
   },
+
+  // --- «Спасители», часть Й (Йифтах) ---
+  // Не экипировка: нет slot, есть heal — подбирается сразу и лечит (GameScene.pickUpItem),
+  // в сумку/на слот не попадает. Используется как подкрепление в затяжных боях (например, Й4 «Миннит»).
+  bread: {
+    name_ru: 'Лепёшка',
+    name_he: 'כִּכַּר לֶחֶם',
+    heal: 20,
+    color: 0xc9995c,
+    icon: 'assets/items/bread.png',
+  },
 };
