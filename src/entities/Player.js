@@ -343,6 +343,14 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     this.scene.events.emit('player-hp-changed', this.hp, this.maxHp);
   }
 
+  // Еда (например, лепёшка — ITEMS.bread.heal): лечит, не превышая максимум. Сколько реально
+  // восстановилось — возвращается, чтобы показать точную цифру в тосте подбора.
+  heal(amount) {
+    const before = this.hp;
+    this.setHp(Math.min(this.maxHp, this.hp + amount));
+    return this.hp - before;
+  }
+
   showAttackEffect() {
     if (this.directed) {
       // сектор удара — та же зона, где засчитывается урон

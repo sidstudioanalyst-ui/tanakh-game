@@ -121,6 +121,28 @@ class GameScene extends Phaser.Scene {
     if (onEnter) {
       this.time.delayedCall(350, () => !this.gameOver && !this.transitioning && this.openDialogue(onEnter.dialogue));
     }
+
+    // Подсказка «что делать» в здешней механике (goal_<ключ>, по this.mechanics) — один раз за
+    // зону за игру (флаг), после входного диалога, если он есть (та же пауза сцены его дождётся).
+    const goalKeys = Object.keys(this.mechanics).filter((k) => UI.strings[`goal_${k}`]);
+    const goalFlag = `_goal_shown_${this.zoneId}`;
+    if (goalKeys.length && !GameState.flags[goalFlag]) {
+      GameState.flags[goalFlag] = true;
+      this.time.delayedCall(onEnter ? 700 : 900, () => {
+        if (this.gameOver || this.transitioning) return;
+        this.goalHint = addUiText(this, CONFIG.WIDTH / 2, this.toastText.y - 44, goalKeys.map((k) => UI.t(`goal_${k}`)).join('\n'), {
+          center: true,
+          size: 14,
+          color: '#2e3440',
+          background: '#ebcb8bee',
+          padding: { x: 10, y: 6 },
+          width: CONFIG.WIDTH - 60,
+        })
+          .setScrollFactor(0)
+          .setDepth(150);
+        this.time.delayedCall(7000, () => this.goalHint && this.tweens.add({ targets: this.goalHint, alpha: 0, duration: 500, onComplete: () => this.goalHint && this.goalHint.destroy() }));
+      });
+    }
   }
 
   update(time, delta) {
@@ -489,6 +511,15 @@ class GameScene extends Phaser.Scene {
 
   pickUpItem(item) {
     if (!item.body.enable) return;
+    const data = ITEMS[item.itemId];
+    // Еда (ITEMS[id].heal, без slot) — не экипировка: лечит сразу и не занимает слот/сумку
+    if (data && data.heal) {
+      item.collect();
+      GameState.markRemoved(this.zoneId, item.spawnKey);
+      const healed = this.player.heal(data.heal);
+      this.showToast(UI.t(healed > 0 ? 'toast_healed' : 'toast_full_hp', { item: describeItem(item.itemId), n: healed }));
+      return;
+    }
     item.collect();
     GameState.markRemoved(this.zoneId, item.spawnKey);
     const equipped = GameState.equipment.pickUp(item.itemId);
@@ -712,8 +743,10 @@ class GameScene extends Phaser.Scene {
   }
 
   rebuildUI() {
-    // всплывающее сообщение живёт 2,5 с — переносим его текст как есть
-    const toast = this.toastText && this.toastText.visible ? this.toastText.text : null;
+    // Всплывающее сообщение (toast) раньше переносилось как есть (сырой текст на старом языке) —
+    // при смене языка оно оставалось непереведённым и к тому же отрисовывалось в раскладке нового
+    // языка (RTL/LTR перепутаны), то есть повисало лишней/искажённой надписью. Проще и надёжнее —
+    // не переносить: сообщение и так живёт не больше 2,5 с, пропажа почти незаметна.
     if (this.touch) this.touch.destroy(); // снять подписки на касания; объекты — в hudObjects
     this.hudObjects.forEach((o) => o.destroy());
     this.createUI();
@@ -725,7 +758,6 @@ class GameScene extends Phaser.Scene {
     (this.props || []).forEach((p) => this.makePropLabel(p));
     // подписи механик в мире (Сисра в Бр3, места в Г3…)
     Object.values(this.mechanics || {}).forEach((m) => m && m.onLanguageChanged && m.onLanguageChanged());
-    if (toast) this.showToast(toast);
     if (this.messageKeys) this.showMessage(this.messageKeys);
   }
 
