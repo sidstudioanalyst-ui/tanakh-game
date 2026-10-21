@@ -106,11 +106,10 @@ defineZone({
     failKey: 'fail_crossings',
     onWin: { dialogue: 'g5_ephraim', delay: 1300 },
   },
-  props: [
-    // эфраимиты ждут на восточном берегу; в разговоре их группа выделена
-    { x: 26, y: 5, w: 2.2, h: 1.4, color: 0x8fa3bf, alpha: 0.85, name_he: 'אַנְשֵׁי אֶפְרַיִם', name_ru: 'Мужи Эфраима', speaker: 'ephraim' },
-  ],
-  npcs: [],
+  props: [],
+  // эфраимиты ждут на восточном берегу (см. onEnter выше — заговаривают сами после победы;
+  // E рядом с ними откроет тот же разговор ещё раз)
+  npcs: [{ id: 'ephraim', x: 26, y: 5, dialogue: 'g5_ephraim', color: 0x8fa3bf, name_he: 'אַנְשֵׁי אֶפְרַיִם', name_ru: 'Мужи Эфраима', sprite: 'ephraim_angry' }],
   enemies: [],
   items: [],
   exits: [{ x: 29, y: 8, h: 2, to: 'g6', at: [3, 8], requires_flag: 'ephraim_done', locked: 'locked_g5' }],

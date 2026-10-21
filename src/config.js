@@ -407,6 +407,14 @@ const CONFIG = {
         stand: { row: 0, col: 0 },
       },
     },
+    // Мужи Эфраима (Г5 «Погоня, переправы») — разгневанная группа на восточном берегу
+    ephraim_angry: {
+      file: 'assets/characters/ephraim_angry/ephraim_angry.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 0, fps: 1 },
+        stand: { row: 0, col: 0 },
+      },
+    },
     // Железная колесница Сисры (Бр3): едет почти всё время — настоящая ходьба (галоп, 8 кадров),
     // не один статичный кадр, как у NPC; стойка — только когда встала (Сисра бежал пешком).
     chariot: {
