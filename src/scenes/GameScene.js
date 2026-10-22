@@ -402,7 +402,11 @@ class GameScene extends Phaser.Scene {
       const w = (p.w || 1) * T;
       const h = (p.h || 1) * T;
       let shape;
-      if (p.shape === 'circle') shape = this.add.ellipse(x, y, w, h, p.color);
+      // картинка (p.icon — путь, загруженный в BootScene под ключом prop-icon:<путь>) вместо
+      // фигуры, если текстура загрузилась; иначе — прежняя фигура (та же логика, что у иконок
+      // предметов: нет файла — квадрат/круг/треугольник, игра не ломается)
+      if (p.icon && this.textures.exists(`prop-icon:${p.icon}`)) shape = this.add.image(x, y, `prop-icon:${p.icon}`).setDisplaySize(w, h);
+      else if (p.shape === 'circle') shape = this.add.ellipse(x, y, w, h, p.color);
       else if (p.shape === 'tri') shape = this.add.triangle(x, y, 0, h, w / 2, 0, w, h, p.color);
       else shape = this.add.rectangle(x, y, w, h, p.color);
       shape.setAlpha(p.alpha !== undefined ? p.alpha : 1).setDepth(p.depth || 4);
@@ -428,8 +432,11 @@ class GameScene extends Phaser.Scene {
     (this.props || []).forEach((p) => {
       const on = !!speaker && p.data.speaker === speaker;
       p.shape.setScale(on ? 1.15 : 1).setAlpha(on ? 1 : p.baseAlpha);
-      if (on) p.shape.setStrokeStyle(3, 0xebcb8b, 1);
-      else p.shape.isStroked = false;
+      // у картинки (p.icon) нет обводки, как у фигур — выделение только масштабом/яркостью
+      if (p.shape.setStrokeStyle) {
+        if (on) p.shape.setStrokeStyle(3, 0xebcb8b, 1);
+        else p.shape.isStroked = false;
+      }
       if (p.label) p.label.setColor(on ? '#ebcb8b' : '#e5e9f0');
     });
   }

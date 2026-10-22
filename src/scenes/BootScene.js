@@ -58,13 +58,21 @@ class BootScene extends Phaser.Scene {
     // createTextures() не станет поверх неё рисовать квадрат (makeRectTexture проверяет,
     // есть ли текстура, и пропускает, если да). Нет поля icon или файл не нашёлся — квадрат.
     Object.entries(ITEMS).forEach(([id, item]) => item.icon && this.load.image(`item-${id}`, item.icon));
+    // Иконки декора (zone.props[i].icon, необязательно) — тот же принцип: ключ по самому пути,
+    // GameScene.buildProps() рисует картинку вместо фигуры, если текстура загрузилась.
+    // Костёр и палатки Г4 (src/data/maps/g4.js) — так; маркер отряда (Coordination.js) — отдельно.
+    const propIcons = new Set();
+    Object.values(ZONES).forEach((zone) => (zone.props || []).forEach((p) => p.icon && propIcons.add(p.icon)));
+    propIcons.forEach((path) => this.load.image(`prop-icon:${path}`, path));
+    this.load.image('squad-marker', 'assets/props/squad_marker.png');
+    this.load.image('sleeping-figure', 'assets/props/sleeping.png');
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
     Content.trialIds.forEach((id) => this.load.json(`trial:${id}`, `src/data/trials/${id}.json`));
 
     this.loadFailed = [];
     this.load.on('loaderror', (file) => {
       // без спрайта героя игра идёт дальше — с цветным квадратом
-      if (file.type === 'spritesheet' || file.key === 'sisera' || (file.key || '').startsWith('tiles-') || (file.key || '').startsWith('item-')) console.warn('Графика не загружена, будут квадраты:', file.src);
+      if (file.type === 'spritesheet' || file.key === 'sisera' || file.key === 'squad-marker' || file.key === 'sleeping-figure' || (file.key || '').startsWith('tiles-') || (file.key || '').startsWith('item-') || (file.key || '').startsWith('prop-icon:')) console.warn('Графика не загружена, будут квадраты:', file.src);
       else this.loadFailed.push(file.src);
     });
     this.load.on('complete', () => {

@@ -219,6 +219,19 @@ const CONFIG = {
         stand: { row: 4, col: 0 },
       },
     },
+    // Мидьянитянин в ночном стане (Г4, Coordination.js) — растерянный/собранный воин, который
+    // бежит и мечется (contactDamage, иногда наскок): удара нет, как у слуги с кувшином
+    midianite_panic: {
+      file: 'assets/characters/midianite_panic/midianite_panic.png', frame: 96, scale: 0.8, anchorX: 48, anchorY: 64,
+      layout: {
+        walk: { row: 0, from: 0, to: 7, fps: 10 },
+        // собранный (organized) бьёт через общий Enemy.handleStrike — настоящего удара в
+        // исходниках нет (броском наотмашь, без отдельного замаха), поэтому «удар» — тот же
+        // кадр стойки (row 4), чтобы play() не ругался на отсутствующую анимацию
+        attack: { row: 4, from: 0, to: 0, fps: 1 },
+        stand: { row: 4, col: 0 },
+      },
+    },
     // Гидон (часть А карты 2, Г1–Г6) — фермер, ставший судьёй: без щита/меча/копья, с косой
     // (ближайший в LPC-наборе к серпу инструмент; самого серпа в наборе нет). Собран из слоёв
     // Universal LPC Spritesheet Character Generator (см. CREDITS.md — авторы и лицензии).
@@ -511,12 +524,13 @@ const CONFIG = {
       aggroRange: 240,
     },
     // Мидьянитянин в стане после сигнала (Г4): растерянный — безоружный, бежит и мечется
-    // (contactDamage, иногда бросок), поэтому БЕЗ sprite — воин с оружием тут не к месту;
-    // остаётся квадрат. У собранного (organized, те же числа типа) своя тёмная заливка.
+    // (contactDamage, иногда бросок). У собранного (organized, те же числа типа) — тот же
+    // спрайт, но тёмная заливка (baseTint в PanickedEnemy.js) поверх неё.
     midianite_panic: {
       class: 'Panicked',
       size: 18,
       color: 0x9c6b5b,
+      sprite: 'midianite_panic',
       speed: 70,
       hp: 1,
       damage: 0,
