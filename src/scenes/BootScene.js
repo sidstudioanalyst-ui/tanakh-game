@@ -104,7 +104,8 @@ class BootScene extends Phaser.Scene {
     GameState.newGame(CONFIG.CAMPAIGN);
 
     // ?zone=<id> — начать с конкретной зоны (удобно для отладки). Кампания и карта
-    // определяются по зоне, так что ?zone=field сам переключит на демо.
+    // определяются по зоне, так что ?zone=field сам переключит на демо. Отладочный прямой
+    // старт — без титульного экрана, как и без пролога (см. introQueue ниже).
     if (CONFIG.START_ZONE && ZONES[CONFIG.START_ZONE]) {
       Object.entries(CAMPAIGNS).some(([campaign, maps]) => {
         const index = maps.findIndex((m) => m.zones.includes(CONFIG.START_ZONE));
@@ -116,8 +117,11 @@ class BootScene extends Phaser.Scene {
         GameState.introQueue = CONFIG.START_ZONE === GameState.map.startZone ? GameState.introQueue.filter((i) => !i.prologue) : [];
         return true;
       });
+      this.scene.start('GameScene');
+      return;
     }
 
-    this.scene.start('GameScene');
+    // Обычный старт — титульный экран (название игры, «нажми, чтобы начать»), с него уже в игру
+    this.scene.start('TitleScene');
   }
 }
