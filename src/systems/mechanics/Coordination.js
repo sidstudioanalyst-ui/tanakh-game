@@ -52,7 +52,12 @@ class CoordinationMechanic {
       const pts = s.path.map(this.px);
       const end = pts[pts.length - 1];
       scene.add.circle(end.x, end.y, 18).setStrokeStyle(2, s.color, 0.6).setDepth(2);
-      const dots = [0, 1, 2].map(() => scene.add.rectangle(0, 0, 9, 9, s.color).setDepth(7).setStrokeStyle(1, 0x2e3440));
+      // маркеры отряда: воинский значок (картинка), окрашенный в цвет отряда; нет текстуры —
+      // прежний цветной квадрат (та же защита, что у иконок предметов/декора)
+      const hasIcon = scene.textures.exists('squad-marker');
+      const dots = [0, 1, 2].map(() =>
+        (hasIcon ? scene.add.image(0, 0, 'squad-marker').setTint(s.color) : scene.add.rectangle(0, 0, 9, 9, s.color).setStrokeStyle(1, 0x2e3440)).setDepth(7)
+      );
       const label = addUiText(scene, 0, 0, UI.t(s.label), { center: true, size: 10, color: '#d8dee9' }).setDepth(52);
       const squad = { ...s, labelKey: s.label, pts, seg: 0, x: pts[0].x, y: pts[0].y, arrived: false, dots, label };
       if (this.signaled) this.placeAt(squad, pts.length - 1);
@@ -65,7 +70,11 @@ class CoordinationMechanic {
     for (let i = 0; i < n; i++) {
       const x = Phaser.Math.Between(this.campRect.x + 10, this.campRect.right - 10);
       const y = Phaser.Math.Between(this.campRect.y + 10, this.campRect.bottom - 10);
-      const body = scene.add.rectangle(x, y, 16, 9, 0x9c6b5b).setDepth(6).setStrokeStyle(1, 0x2e3440);
+      // спящая фигура: картинка свёртка (см. BootScene/assets/props/sleeping.png), чуть
+      // разного оттенка и поворота, чтобы стан не выглядел однообразно; нет текстуры — квадрат
+      const body = scene.textures.exists('sleeping-figure')
+        ? scene.add.image(x, y, 'sleeping-figure').setDisplaySize(20, 12).setTint(Phaser.Display.Color.GetColor(140 + Phaser.Math.Between(-20, 20), 100 + Phaser.Math.Between(-15, 15), 85 + Phaser.Math.Between(-15, 15))).setFlipX(Math.random() < 0.5).setDepth(6)
+        : scene.add.rectangle(x, y, 16, 9, 0x9c6b5b).setDepth(6).setStrokeStyle(1, 0x2e3440);
       this.figures.push({ body, x, y, vx: 0, vy: 0, fallen: false, organized: false });
     }
 

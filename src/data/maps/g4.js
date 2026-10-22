@@ -103,17 +103,17 @@ defineZone({
   // у костра на краю стана — двое спящих; подойти — услышать сон (один раз)
   triggers: [{ x: 12, y: 9, w: 3, h: 5, dialogue: 'g4_dream', unless_flag: 'heard_dream' }],
   props: [
-    // стан: шатры (треугольники) — под ночной темнотой
-    { x: 20, y: 7, w: 2, h: 1.6, shape: 'tri', color: 0x7a5c44 },
-    { x: 25, y: 6, w: 2, h: 1.6, shape: 'tri', color: 0x7a5c44 },
-    { x: 30, y: 8, w: 2, h: 1.6, shape: 'tri', color: 0x7a5c44 },
-    { x: 22, y: 12, w: 2, h: 1.6, shape: 'tri', color: 0x7a5c44 },
-    { x: 28, y: 13, w: 2, h: 1.6, shape: 'tri', color: 0x7a5c44 },
-    { x: 32, y: 15, w: 2, h: 1.6, shape: 'tri', color: 0x7a5c44 },
-    // костёр и двое у огня — светятся поверх темноты
-    { x: 16, y: 11, w: 0.6, h: 0.6, shape: 'circle', color: 0xffa94d, depth: 51, name_he: 'מְדוּרָה', name_ru: 'Костёр' },
-    { x: 16, y: 10, w: 0.8, h: 0.45, color: 0x9c6b5b, depth: 51, speaker: 'dreamer' },
-    { x: 16, y: 12, w: 0.8, h: 0.45, color: 0x9c6b5b, depth: 51, speaker: 'friend' },
+    // стан: шатры — под ночной темнотой (icon — рисунок вместо треугольника, см. BootScene/buildProps)
+    { x: 20, y: 7, w: 2, h: 1.6, icon: 'assets/props/tent.png', color: 0x7a5c44 },
+    { x: 25, y: 6, w: 2, h: 1.6, icon: 'assets/props/tent.png', color: 0x7a5c44 },
+    { x: 30, y: 8, w: 2, h: 1.6, icon: 'assets/props/tent.png', color: 0x7a5c44 },
+    { x: 22, y: 12, w: 2, h: 1.6, icon: 'assets/props/tent.png', color: 0x7a5c44 },
+    { x: 28, y: 13, w: 2, h: 1.6, icon: 'assets/props/tent.png', color: 0x7a5c44 },
+    { x: 32, y: 15, w: 2, h: 1.6, icon: 'assets/props/tent.png', color: 0x7a5c44 },
+    // костёр и двое спящих у огня (разбудить — услышать сон) — светятся поверх темноты
+    { x: 16, y: 11, w: 0.6, h: 0.6, icon: 'assets/props/campfire.png', color: 0xffa94d, depth: 51, name_he: 'מְדוּרָה', name_ru: 'Костёр' },
+    { x: 16, y: 10, w: 0.8, h: 0.48, icon: 'assets/props/sleeping.png', color: 0x9c6b5b, depth: 51, speaker: 'dreamer' },
+    { x: 16, y: 12, w: 0.8, h: 0.48, icon: 'assets/props/sleeping.png', color: 0x9c6b5b, depth: 51, speaker: 'friend' },
   ],
   coordination: {
     activeFlag: 'heard_dream',
