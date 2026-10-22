@@ -34,6 +34,10 @@ CELL = 96
 COLS = 9
 GROUND = 79  # линия земли: нижний пиксель ног в ячейке
 DIRS = ['north', 'west', 'south', 'east']  # порядок LPC: вверх, влево, вниз, вправо
+# Диагонали — только у колесницы (ChariotEnemy.js сам знает про них, в общую LPC-систему
+# Player.js/Enemy.js не добавлены: это затронуло бы вообще все спрайты листов). Порядок — ряды
+# 8–11 листа, следом за ходьбой (0–3) и стойкой (4–7).
+DIAG_DIRS = ['north_east', 'south_east', 'south_west', 'north_west']
 
 # Персонаж → папка, имена файлов по направлениям ({d} — north…, {D} — North…), итоговый лист
 CHARACTERS = {
@@ -134,9 +138,14 @@ CHARACTERS = {
     # но лист собираем тем же способом. В отличие от NPC — едет почти всё время, поэтому
     # настоящая ходьба (galop, 8 кадров из PixelLab walk/run-анимации), не один статичный кадр;
     # idle — только для остановки (Сисра бежал, колесница встала). Удара нет.
+    # diag_walk — доп. 4 ряда (8–11) для промежуточных направлений (см. DIAG_DIRS, ChariotEnemy.js):
+    # на прямоугольных путях (barak_3.js) колесница едет и по диагонали, 4 направлений было мало.
+    # Диагональной стойки нет: колесница почти не останавливается, при остановке ChariotEnemy.js
+    # сводит диагональ к ближайшему кардинальному направлению для кадра стойки.
     'chariot': {
         'dir': 'assets/characters/chariot/',
         'walk': 'walk/walk_{d}.gif',
+        'diag_walk': 'walk/{d}.gif',
         'idle': 'idle/{d}.png',
         'out': 'chariot.png',
     },
@@ -178,6 +187,9 @@ def build(spec):
             a, b = spec.get('attack_frames', (0, COLS))
             rows += [frames(name('attack', d))[a:b] for d in DIRS]
         rows += [frames(name('idle', d)) for d in DIRS]
+        if 'diag_walk' in spec:
+            name_diag = lambda d: spec['dir'] + spec['diag_walk'].format(d=d)
+            rows += [frames(name_diag(d)) for d in DIAG_DIRS]
     cols = 1 if spec.get('stand_only') else COLS
     sheet = Image.new('RGBA', (CELL * cols, CELL * len(rows)), (0, 0, 0, 0))
     for r, row in enumerate(rows):

@@ -430,11 +430,16 @@ const CONFIG = {
     },
     // Железная колесница Сисры (Бр3): едет почти всё время — настоящая ходьба (галоп, 8 кадров),
     // не один статичный кадр, как у NPC; стойка — только когда встала (Сисра бежал пешком).
+    // diagWalk — 4 доп. ряда (8–11) для промежуточных направлений на прямоугольных путях
+    // (barak_3.js): без них колесница на диагональных отрезках пути дёргано скачет между
+    // 4 направлениями. Читает только ChariotEnemy.js — остальные спрайты/Enemy.js об этом поле
+    // не знают, общая LPC-система (Player.js) не тронута.
     chariot: {
       file: 'assets/characters/chariot/chariot.png', frame: 96, scale: 1, anchorX: 48, anchorY: 64,
       layout: {
         walk: { row: 0, from: 0, to: 7, fps: 16 },
         stand: { row: 4, col: 0 },
+        diagWalk: { row: 8, from: 0, to: 7, fps: 16, dirs: ['up-right', 'down-right', 'down-left', 'up-left'] },
       },
     },
   },
