@@ -26,6 +26,64 @@ defineZone({
     '#................~~~.........#',
     '##############################',
   ],
+  // Тайлы окружения (rpg_base): открытая трава + Иордан. Три полосы '~' (как в tiles) —
+  // тот же приём, что в Г3/Г5: вода рисуется в objects layer (не в floor, он просто продолжает
+  // травой — вода полностью её закрывает), 3×3-блок «пруд» из листа (10/11/12 — верхняя кромка
+  // берега слева/по центру/справа, 30/31/32 — открытая вода, 50/51/52 — нижняя кромка),
+  // с разрывами между полосами — это и есть сами броды. Внутренние '#' (кусты/камни у троп) —
+  // B/K, как и везде; внешняя стена — деревья aqz.
+  art: {
+    layers: [
+      {
+        name: 'floor', tileset: 'rpg_base', place: 'all',
+        legend: { g: 43, t: 44 },
+        rows: [
+          'tggggggggggtggggggggggtggggggg',
+          'ggggggtggggggggggtggggggggggtg',
+          'gtggggggggggtggggggggggtgggggg',
+          'gggggggtggggggggggtggggggggggt',
+          'ggtggggggggggtggggggggggtggggg',
+          'ggggggggtggggggggggtgggggggggg',
+          'gggtggggggggggtggggggggggtgggg',
+          'gggggggggtggggggggggtggggggggg',
+          'ggggtggggggggggtggggggggggtggg',
+          'ggggggggggtggggggggggtgggggggg',
+          'gggggtggggggggggtggggggggggtgg',
+          'tggggggggggtggggggggggtggggggg',
+          'ggggggtggggggggggtggggggggggtg',
+          'gtggggggggggtggggggggggtgggggg',
+          'gggggggtggggggggggtggggggggggt',
+          'ggtggggggggggtggggggggggtggggg',
+          'ggggggggtggggggggggtgggggggggg',
+          'gggtggggggggggtggggggggggtgggg',
+        ],
+      },
+      {
+        name: 'objects', tileset: 'rpg_base', place: 'walls',
+        legend: { a: 220, q: 222, z: 224, B: 180, K: 184, '1': 10, '2': 11, '3': 12, '4': 30, '5': 31, '6': 32, '7': 50, '8': 51, '9': 52 },
+        rows: [
+          'aqzaqzaqzaqzaqzaqzaqzaqzaqzaqz',
+          'q                123         a',
+          'z                456         q',
+          'a     KB         789         z',
+          'q     BK                     a',
+          'z                            q',
+          'a                123         z',
+          'q                456         a',
+          'z                456   KB    q',
+          'a         KB     456   BK    z',
+          'q         BK     456         a',
+          'z                789         q',
+          'a                            z',
+          'q     KB                     a',
+          'z     BK         123         q',
+          'a                456         z',
+          'q                789         a',
+          'zaqzaqzaqzaqzaqzaqzaqzaqzaqzaq',
+        ],
+      },
+    ],
+  },
   start: [22, 8],
   gauges: ['warriors'],
   waves: {
