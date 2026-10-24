@@ -3,8 +3,9 @@
 //   Продолжить       — закрыть меню (так же Esc)
 //   Начать заново    — текущую карту с самого начала (Мерило, вещи, флаги — как на её старте)
 //   Демо-карты       — перейти в демо-кампанию; из демо этот пункт возвращает к «Спасителям»
+//   Как играть       — то же объяснение, что перед первым входом в игру (IntroScene.js)
 //   Список зон (dev) — только на dev.html: вернуться к меню выбора старта
-// Управление: ↑/↓ или W/S и Enter, цифры 1–3, мышь или палец; L / B — язык.
+// Управление: ↑/↓ или W/S и Enter, цифры 1–4, мышь или палец; L / B — язык.
 class MenuScene extends Phaser.Scene {
   constructor() {
     super('MenuScene');
@@ -18,8 +19,19 @@ class MenuScene extends Phaser.Scene {
     const W = CONFIG.WIDTH;
     const H = CONFIG.HEIGHT;
     this.add.rectangle(0, 0, W, H, 0x000000, 0.6).setOrigin(0);
+
+    const demo = GameState.campaign === 'demo';
+    this.items = [
+      { key: 'menu_continue', action: () => this.close() },
+      { key: 'menu_restart', action: () => this.restartMap() },
+      { key: demo ? 'menu_saviors' : 'menu_demo', action: () => this.switchCampaign(demo ? 'saviors' : 'demo') },
+      { key: 'menu_howto', action: () => this.howTo() },
+    ];
+    // dev.html: вернуться к списку зон
+    if (window.DEV_MODE) this.items.push({ key: 'menu_dev', action: () => window.location.assign('dev.html') });
+
     const panelW = Math.min(420, W - 32); // на узком экране — почти во всю ширину
-    const panelH = 300;
+    const panelH = 70 + this.items.length * 44 + 40; // строки + заголовок/подсказка снизу
     this.panelX = (W - panelW) / 2;
     this.panelY = (H - panelH) / 2;
     this.panelW = panelW;
@@ -27,14 +39,6 @@ class MenuScene extends Phaser.Scene {
     addUiText(this, W / 2, this.panelY + 18, UI.t('menu_title'), { center: true, size: 22, bold: true, color: '#88c0d0' });
     addUiText(this, W / 2, this.panelY + panelH - 34, UI.t('menu_help'), { center: true, size: 12, color: '#a0a8b8' });
 
-    const demo = GameState.campaign === 'demo';
-    this.items = [
-      { key: 'menu_continue', action: () => this.close() },
-      { key: 'menu_restart', action: () => this.restartMap() },
-      { key: demo ? 'menu_saviors' : 'menu_demo', action: () => this.switchCampaign(demo ? 'saviors' : 'demo') },
-    ];
-    // dev.html: вернуться к списку зон
-    if (window.DEV_MODE) this.items.push({ key: 'menu_dev', action: () => window.location.assign('dev.html') });
     this.rows = this.add.container(0, 0);
     this.drawItems();
 
@@ -87,6 +91,13 @@ class MenuScene extends Phaser.Scene {
   close() {
     this.scene.stop();
     this.scene.resume('GameScene');
+  }
+
+  // Объяснение (о чём игра, управление) — то же окно, что перед первым входом в игру
+  // (IntroScene), только закрытие возвращает в игру, а не запускает её заново
+  howTo() {
+    this.scene.stop();
+    this.scene.launch('IntroScene', { fromMenu: true });
   }
 
   // Текущая карта с самого начала — не только зона

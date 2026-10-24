@@ -19,7 +19,7 @@ function startGame() {
       mode: Phaser.Scale.FIT,
       autoCenter: Phaser.Scale.CENTER_BOTH,
     },
-    scene: [BootScene, TitleScene, GameScene, InventoryScene, DialogueScene, TrialScene, MenuScene, DisputeScene, CommentaryScene, WipScene],
+    scene: [BootScene, TitleScene, IntroScene, GameScene, InventoryScene, DialogueScene, TrialScene, MenuScene, DisputeScene, CommentaryScene, WipScene],
   });
   // тач: поворот и изменение окна — раскладка перестраивается на лету (src/ui/Layout.js)
   Layout.watch(window.game);

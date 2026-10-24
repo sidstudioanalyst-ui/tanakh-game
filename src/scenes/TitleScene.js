@@ -1,6 +1,7 @@
-// Заставка игры — первый экран после загрузки (src/main.js: BootScene → TitleScene → GameScene).
-// Название игры, лёгкая анимация и «нажми, чтобы начать». Без выбора — кампания и язык уже
-// определены в BootScene (CONFIG.CAMPAIGN, ?zone= и т. п.), это просто титульный экран.
+// Заставка игры — первый экран после загрузки (src/main.js: BootScene → TitleScene →
+// IntroScene (первый раз в браузере) → GameScene). Название игры, лёгкая анимация и
+// «нажми, чтобы начать». Без выбора — кампания и язык уже определены в BootScene
+// (CONFIG.CAMPAIGN, ?zone= и т. п.), это просто титульный экран.
 // На dev.html и при ?zone= (отладочный прямой старт) эта сцена не показывается — см. BootScene.
 class TitleScene extends Phaser.Scene {
   constructor() {
@@ -68,6 +69,8 @@ class TitleScene extends Phaser.Scene {
     this.started = true;
     this.ringTimer.remove();
     this.cameras.main.fadeOut(300);
-    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('GameScene'));
+    // первый раз в этом браузере — объяснение (IntroScene) перед игрой; дальше сразу игра
+    const next = readStorage('tanakh-game.introSeen') === '1' ? 'GameScene' : 'IntroScene';
+    this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(next));
   }
 }
