@@ -25,6 +25,7 @@ class IntroScene extends Phaser.Scene {
     const kb = this.input.keyboard;
     kb.on('keydown-ENTER', () => this.advance());
     kb.on('keydown-SPACE', () => this.advance());
+    kb.on('keydown-ONE', () => this.advance()); // badge «1» на единственной кнопке (createChoiceButton)
     if (this.fromMenu) kb.on('keydown-ESC', () => this.finish());
     bindLanguageKeys(this, () => this.draw());
   }
