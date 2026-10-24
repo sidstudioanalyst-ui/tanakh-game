@@ -96,8 +96,9 @@ class MenuScene extends Phaser.Scene {
   // Объяснение (о чём игра, управление) — то же окно, что перед первым входом в игру
   // (IntroScene), только закрытие возвращает в игру, а не запускает её заново
   howTo() {
-    this.scene.stop();
-    this.scene.launch('IntroScene', { fromMenu: true });
+    // start (не stop+launch) — атомарный переход в один шаг, тот же приём, что уже
+    // работает в TitleScene→IntroScene и IntroScene→GameScene
+    this.scene.start('IntroScene', { fromMenu: true });
   }
 
   // Текущая карта с самого начала — не только зона
