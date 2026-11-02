@@ -68,6 +68,7 @@ class BootScene extends Phaser.Scene {
     Object.values(ZONES).forEach((zone) => (zone.props || []).forEach((p) => p.icon && propIcons.add(p.icon)));
     // то же для фигур жителей деревни Ш2 (zone.village.groups[].members[].icon, Village.js)
     Object.values(ZONES).forEach((zone) => zone.village && zone.village.groups.forEach((g) => g.members.forEach((m) => m.icon && propIcons.add(m.icon))));
+    Object.values(ZONES).forEach((zone) => (zone.npcs || []).forEach((n) => n.icon && propIcons.add(n.icon)));
     // и картинки ночных задач (zone.night: tasks[].icon/done_icon/fire_icon, sleeper_icon, follower_icon)
     Object.values(ZONES).forEach((zone) => {
       const n = zone.night;
@@ -77,13 +78,14 @@ class BootScene extends Phaser.Scene {
     propIcons.forEach((path) => this.load.image(`prop-icon:${path}`, path));
     this.load.image('squad-marker', 'assets/props/squad_marker.png');
     this.load.image('sleeping-figure', 'assets/props/sleeping.png');
+    this.load.image('fugitive', 'assets/props/fugitive.png'); // беглец у брода (Shibboleth.js); нет файла — квадрат
     Content.dialogueIds.forEach((id) => this.load.json(`dialogue:${id}`, `src/data/dialogues/${id}.json`));
     Content.trialIds.forEach((id) => this.load.json(`trial:${id}`, `src/data/trials/${id}.json`));
 
     this.loadFailed = [];
     this.load.on('loaderror', (file) => {
       // без спрайта героя игра идёт дальше — с цветным квадратом
-      if (file.type === 'spritesheet' || file.key === 'sisera' || file.key === 'squad-marker' || file.key === 'sleeping-figure' || (file.key || '').startsWith('tiles-') || (file.key || '').startsWith('item-') || (file.key || '').startsWith('prop-icon:')) console.warn('Графика не загружена, будут квадраты:', file.src);
+      if (file.type === 'spritesheet' || file.key === 'sisera' || file.key === 'squad-marker' || file.key === 'sleeping-figure' || file.key === 'fugitive' || (file.key || '').startsWith('tiles-') || (file.key || '').startsWith('item-') || (file.key || '').startsWith('prop-icon:')) console.warn('Графика не загружена, будут квадраты:', file.src);
       else this.loadFailed.push(file.src);
     });
     this.load.on('complete', () => {

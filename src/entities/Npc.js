@@ -22,6 +22,16 @@ class Npc extends Phaser.Physics.Arcade.Sprite {
       this.labelLift = 18;
     }
 
+    // icon (путь к картинке, BootScene грузит как prop-icon:<путь>) — предмет вместо фигуры
+    // (руно, плащ): картинка в размер iconW×iconH клеток, тело невидимое
+    const iconKey = data.icon && `prop-icon:${data.icon}`;
+    if (!this.look && iconKey && scene.textures.exists(iconKey)) {
+      const T = CONFIG.TILE_SIZE;
+      this.iconImg = scene.add.image(x, y, iconKey).setDisplaySize((data.iconW || 1.5) * T, (data.iconH || 1) * T).setDepth(6);
+      this.setVisible(false);
+      this.labelLift = Math.max(0, (data.iconH || 1) * T / 2 - 14);
+    }
+
     this.nameLabel = null;
     this.setName(name);
 

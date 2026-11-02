@@ -80,9 +80,8 @@ defineZone({
   },
   start: [3, 8],
   props: [
-    // пальма: крона и ствол
-    { x: 12, y: 6.2, w: 0.4, h: 1.6, color: 0x8a6d3b },
-    { x: 12, y: 5, w: 2.4, h: 1.4, shape: 'circle', color: 0x5e8a4a, name_he: 'תֹּמֶר דְּבוֹרָה', name_ru: 'Пальма Деворы' },
+    // пальма Деворы (картинка: ствол и крона)
+    { x: 12, y: 5.2, w: 2, h: 2.5, icon: 'assets/props/palm.png', color: 0x5e8a4a, name_he: 'תֹּמֶר דְּבוֹרָה', name_ru: 'Пальма Деворы' },
   ],
   npcs: [
     { id: 'deborah', x: 12, y: 8, dialogue: 'barak1_deborah', color: 0xd8c3a5, name_he: 'דְּבוֹרָה', name_ru: 'Двора', sprite: 'deborah' },

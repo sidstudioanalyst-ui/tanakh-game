@@ -79,7 +79,7 @@ defineZone({
     { x: 12, y: 4.4, w: 4.31, h: 1.9, icon: 'assets/props/crowd_israel.png', color: 0x7d6a50, name_he: 'אִישׁ יִשְׂרָאֵל', name_ru: 'Народ Израиля', speaker: 'people' },
   ],
   npcs: [
-    { id: 'cloak', x: 17, y: 10, dialogue: 'g6_ephod', color: 0x9b3b3b, name_he: 'הַשִּׂמְלָה', name_ru: 'Плащ для добычи' },
+    { id: 'cloak', x: 17, y: 10, dialogue: 'g6_ephod', icon: 'assets/props/cloak.png', iconW: 2.2, iconH: 1.4, color: 0x9b3b3b, name_he: 'הַשִּׂמְלָה', name_ru: 'Плащ для добычи' },
   ],
   enemies: [],
   items: [],

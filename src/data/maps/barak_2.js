@@ -78,8 +78,8 @@ defineZone({
   start: [2, 8],
   gauges: ['barak_warriors'],
   props: [
-    { x: 7, y: 3.2, w: 3, h: 0.5, color: 0x7d6a50, alpha: 0.6, name_he: 'מַחֲנֵה נַפְתָּלִי', name_ru: 'Стан Нафтали' },
-    { x: 18, y: 3.2, w: 3, h: 0.5, color: 0x7d6a50, alpha: 0.6, name_he: 'מַחֲנֵה זְבוּלֻן', name_ru: 'Стан Звулуна' },
+    { x: 7, y: 2.6, w: 5.3, h: 2.2, icon: 'assets/props/camp.png', color: 0x7d6a50, alpha: 0.6, name_he: 'מַחֲנֵה נַפְתָּלִי', name_ru: 'Стан Нафтали' },
+    { x: 18, y: 2.6, w: 5.3, h: 2.2, icon: 'assets/props/camp.png', color: 0x7d6a50, alpha: 0.6, name_he: 'מַחֲנֵה זְבוּלֻן', name_ru: 'Стан Звулуна' },
   ],
   npcs: [
     { id: 'naphtali', x: 7, y: 5, dialogue: 'barak2_naphtali', color: 0xa3be8c, name_he: 'זִקְנֵי נַפְתָּלִי', name_ru: 'Старейшины Нафтали', sprite: 'elder' },
