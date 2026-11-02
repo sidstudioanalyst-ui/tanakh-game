@@ -53,6 +53,18 @@ class TitleScene extends Phaser.Scene {
       const hint = addUiText(this, W / 2, H - 28, UI.t('title_lang_hint'), { center: true, size: 11, color: '#4c566a' });
       this.layer.add(hint);
     }
+
+    // Логотип студии — внизу, на светлой плашке (чёрный знак на тёмном фоне не виден)
+    if (this.textures.exists('logo-sm')) {
+      const logoW = Math.min(180, W * 0.45);
+      const logo = this.add.image(W / 2, 0, 'logo-sm').setOrigin(0.5, 0);
+      logo.setScale(logoW / logo.width);
+      const top = Math.max(cy + 135, H - 28 - 22 - logo.displayHeight - 24);
+      logo.y = top + 6;
+      const plate = this.add.graphics();
+      plate.fillStyle(0xffffff, 0.96).fillRoundedRect(W / 2 - logoW / 2 - 8, top, logoW + 16, logo.displayHeight + 12, 8);
+      this.layer.add([plate, logo]);
+    }
   }
 
   pulseRing() {
