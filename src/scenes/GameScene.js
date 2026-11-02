@@ -424,6 +424,11 @@ class GameScene extends Phaser.Scene {
     const p = prop.data;
     if (!p.name_he && !p.name_ru) return;
     prop.label = addUiText(this, prop.labelX, prop.labelY, UI.pick(p, 'name'), { center: true, size: 11, color: '#e5e9f0', background: '#2e3440aa', padding: { x: 4, y: 1 } }).setDepth(20);
+    // у края карты подпись не должна уходить за него (камера дальше не едет — обрезалась бы)
+    const T = CONFIG.TILE_SIZE;
+    const mapW = this.zone.tiles[0].length * T;
+    const half = prop.label.width / 2 + 4;
+    prop.label.x = Phaser.Math.Clamp(prop.labelX, half, Math.max(half, mapW - half));
   }
 
   // Говорит speaker из диалога — его фигура (prop с тем же speaker) выделена: крупнее,
