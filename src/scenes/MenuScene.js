@@ -4,6 +4,7 @@
 //   Начать заново    — текущую карту с самого начала (Мерило, вещи, флаги — как на её старте)
 //   Демо-карты       — перейти в демо-кампанию; из демо этот пункт возвращает к «Спасителям»
 //   Как играть       — то же объяснение, что перед первым входом в игру (IntroScene.js)
+//   Титры            — CreditsScene (закрытие возвращает в игру)
 //   Список зон (dev) — только на dev.html: вернуться к меню выбора старта
 // Управление: ↑/↓ или W/S и Enter, цифры 1–4, мышь или палец; L / B — язык.
 class MenuScene extends Phaser.Scene {
@@ -26,6 +27,7 @@ class MenuScene extends Phaser.Scene {
       { key: 'menu_restart', action: () => this.restartMap() },
       { key: demo ? 'menu_saviors' : 'menu_demo', action: () => this.switchCampaign(demo ? 'saviors' : 'demo') },
       { key: 'menu_howto', action: () => this.howTo() },
+      { key: 'menu_credits', action: () => this.credits() },
     ];
     // dev.html: вернуться к списку зон
     if (window.DEV_MODE) this.items.push({ key: 'menu_dev', action: () => window.location.assign('dev.html') });
@@ -99,6 +101,11 @@ class MenuScene extends Phaser.Scene {
     // start (не stop+launch) — атомарный переход в один шаг, тот же приём, что уже
     // работает в TitleScene→IntroScene и IntroScene→GameScene
     this.scene.start('IntroScene', { fromMenu: true });
+  }
+
+  // Титры (CreditsScene): закрытие возвращает в игру
+  credits() {
+    this.scene.start('CreditsScene', { fromMenu: true });
   }
 
   // Текущая карта с самого начала — не только зона

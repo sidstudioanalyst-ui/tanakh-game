@@ -53,6 +53,9 @@ class BootScene extends Phaser.Scene {
     // Фигура Сисры над колесницей (Бр3, src/systems/mechanics/Descent.js) — не спрайт-лист
     // (один кадр, направления не нужны), поэтому отдельно; нет файла — остаётся квадрат (ниже).
     this.load.image('sisera', 'assets/characters/sisera.png');
+    // Логотип SID Studio (заставка и титры): пиксель-арт-режим игры рисует его «квадратами» — ниже включаем сглаживание
+    this.load.image('logo', 'assets/ui/logo.png');
+    this.load.image('logo-sm', 'assets/ui/logo_sm.png'); // вдвое мельче — для заставки (иначе уменьшение даёт «лесенку»)
     // Иконки предметов (ITEMS[id].icon в src/data/items.js, необязательно) — ключ текстуры
     // сразу item-<id>, тот же, что использует Item.js: если иконка загрузится, GameScene.
     // createTextures() не станет поверх неё рисовать квадрат (makeRectTexture проверяет,
@@ -94,6 +97,7 @@ class BootScene extends Phaser.Scene {
   create() {
     if (this.loadFailed.length) return;
     Content.cache = this.cache.json;
+    ['logo', 'logo-sm'].forEach((k) => this.textures.exists(k) && this.textures.get(k).setFilter(Phaser.Textures.FilterMode.LINEAR));
     UI.load(this.cache.json.get('ui-strings'));
     validateContent(Content, UI.strings);
 
