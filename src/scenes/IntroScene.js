@@ -17,6 +17,9 @@ class IntroScene extends Phaser.Scene {
   }
 
   create() {
+    // из меню GameScene (на паузе) всё ещё рисуется: IntroScene стоит в списке сцен раньше неё
+    // (main.js) и без этого окажется под игрой — «Как играть» открывался «невидимым»
+    if (this.fromMenu) this.scene.bringToTop();
     this.cameras.main.setBackgroundColor('#1d2129');
     this.cameras.main.fadeIn(250);
     this.layer = this.add.container(0, 0);
