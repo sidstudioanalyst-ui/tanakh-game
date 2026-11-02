@@ -86,11 +86,9 @@ defineZone({
   onEnter: { dialogue: 'yiftach1_exile', unless_flag: 'yiftach_exiled' },
   props: [
     // стоянка в земле Тов: шатёр и люди, что собрались к Йифтаху (без оружия и добычи)
-    { x: 6, y: 11.5, w: 2.4, h: 1.6, shape: 'tri', color: 0x7a5c3e, name_he: 'אֶרֶץ טוֹב', name_ru: 'Земля Тов' },
-    { x: 8.6, y: 12.6, w: 0.8, h: 0.8, shape: 'circle', color: 0x8f7a5a },
-    { x: 9.6, y: 12.2, w: 0.8, h: 0.8, shape: 'circle', color: 0xa3825c },
-    { x: 10.6, y: 12.8, w: 0.8, h: 0.8, shape: 'circle', color: 0x9a825e },
-    { x: 9.6, y: 13.6, w: 3.2, h: 0.4, color: 0x6b5a45, alpha: 0.5, name_he: 'אֲנָשִׁים', name_ru: 'Люди Йифтаха' },
+    // картинки — tools/build_prop_sprites.py (шатёр — assets/props/tent.png, как в Г4)
+    { x: 6, y: 11.5, w: 2.4, h: 1.9, icon: 'assets/props/tent.png', shape: 'tri', color: 0x7a5c3e, name_he: 'אֶרֶץ טוֹב', name_ru: 'Земля Тов' },
+    { x: 9.8, y: 12.8, w: 4.47, h: 1.34, icon: 'assets/props/crowd_yiftach.png', color: 0x9a825e, name_he: 'אֲנָשִׁים', name_ru: 'Люди Йифтаха' },
   ],
   npcs: [
     { id: 'gilead_elders', x: 17, y: 5, dialogue: 'yiftach1_elders', color: 0xc9b99a, name_he: 'זִקְנֵי גִלְעָד', name_ru: 'Старейшины Гилада', sprite: 'elder' },

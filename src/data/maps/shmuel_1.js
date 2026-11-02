@@ -83,9 +83,9 @@ defineZone({
   onEnter: { dialogue: 'shmuel1_sons', unless_flag: 'shmuel_sons_told' },
   props: [
     { x: 7, y: 14.4, w: 0.1, h: 0.1, color: 0x000000, alpha: 0, name_he: 'בְּאֵר שֶׁבַע', name_ru: 'Беэр-Шева' },
-    { x: 9, y: 2.2, w: 3, h: 0.6, color: 0x8a7a64, alpha: 0.8, name_he: 'מְקוֹם הַמִּשְׁפָּט', name_ru: 'Место суда' },
+    { x: 9, y: 2.4, w: 3, h: 2, icon: 'assets/props/court_stone.png', color: 0x8a7a64, name_he: 'מְקוֹם הַמִּשְׁפָּט', name_ru: 'Место суда' },
     { x: 23, y: 14.4, w: 0.1, h: 0.1, color: 0x000000, alpha: 0, name_he: 'הָרָמָה', name_ru: 'Рама' },
-    { x: 24, y: 5.5, w: 2.4, h: 1.6, shape: 'tri', color: 0x7a6a50, name_he: 'בֵּית שְׁמוּאֵל', name_ru: 'Дом Шмуэля' },
+    { x: 24, y: 5.5, w: 3, h: 3, icon: 'assets/props/house_blue.png', shape: 'tri', color: 0x7a6a50, name_he: 'בֵּית שְׁמוּאֵל', name_ru: 'Дом Шмуэля' },
   ],
   npcs: [
     // просители — иллюстрация, не текст (см. README)

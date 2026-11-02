@@ -76,11 +76,7 @@ defineZone({
   onEnter: { dialogue: 'g6_kingship', unless_flag: 'kingship_done' },
   props: [
     // народ Израиля собрался перед Гидоном
-    { x: 9, y: 4, w: 1, h: 1, shape: 'circle', color: 0xa3825c },
-    { x: 11, y: 3.6, w: 1, h: 1, shape: 'circle', color: 0x8f7a5a },
-    { x: 13, y: 4, w: 1, h: 1, shape: 'circle', color: 0xb08d6a },
-    { x: 15, y: 4.2, w: 1, h: 1, shape: 'circle', color: 0x9a825e },
-    { x: 12, y: 5.2, w: 5, h: 0.6, color: 0x7d6a50, alpha: 0.6, name_he: 'אִישׁ יִשְׂרָאֵל', name_ru: 'Народ Израиля', speaker: 'people' },
+    { x: 12, y: 4.4, w: 4.31, h: 1.9, icon: 'assets/props/crowd_israel.png', color: 0x7d6a50, name_he: 'אִישׁ יִשְׂרָאֵל', name_ru: 'Народ Израиля', speaker: 'people' },
   ],
   npcs: [
     { id: 'cloak', x: 17, y: 10, dialogue: 'g6_ephod', color: 0x9b3b3b, name_he: 'הַשִּׂמְלָה', name_ru: 'Плащ для добычи' },

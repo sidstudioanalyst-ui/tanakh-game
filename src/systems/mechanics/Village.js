@@ -6,7 +6,8 @@
 //       x, y, radius,                  // центр группы (тайлы); подойти ближе radius — можно объявить
 //       dialogue,                      // разговор: пункт «права царя» (сказать прямо или резче)
 //       doneFlag,                      // ставит диалог, когда пункт объявлен
-//       members: [{ x, y, w?, h?, color }],   // фигуры-плейсхолдеры (тайлы)
+//       members: [{ x, y, w?, h?, color, icon? }],   // фигуры жителей (тайлы); icon — картинка (путь,
+//                                     // грузится в BootScene), нет файла — цветной прямоугольник
 //       change: {                      // что меняется в деревне, когда пункт объявлен (без насилия):
 //         moves: [{ members: [0, 1], to: [x, y], fade? }],  // фигуры уходят (к колесницам, в шатёр…)
 //         recolor: ['field_1', ...], color,                  // props с этими id — в «царский» цвет
@@ -20,6 +21,11 @@
 // Игрок подходит к каждой группе (E или кнопка действия) и объявляет её пункт. Пункт объявлен —
 // деревня меняется на глазах: люди уходят, поля окрашиваются. Выход открывается, когда
 // объявлены все. Если зона начата заново (или открыта с dev.html), уже объявленное показано сразу.
+function lightenColor(color, k) {
+  const c = Phaser.Display.Color.IntegerToColor(color);
+  return Phaser.Display.Color.GetColor(c.r + (255 - c.r) * k, c.g + (255 - c.g) * k, c.b + (255 - c.b) * k);
+}
+
 class VillageMechanic {
   constructor(scene, cfg) {
     this.scene = scene;
@@ -30,6 +36,7 @@ class VillageMechanic {
     this.groups = cfg.groups.map((g) => {
       const figures = g.members.map((m) => {
         const p = this.px([m.x, m.y]);
+        if (m.icon && scene.textures.exists(`prop-icon:${m.icon}`)) return scene.add.image(p.x, p.y, `prop-icon:${m.icon}`).setDisplaySize(m.w || 14, m.h || 18).setDepth(6);
         return scene.add.rectangle(p.x, p.y, m.w || 14, m.h || 18, m.color).setStrokeStyle(1, 0x2e3440).setDepth(6);
       });
       const changed = !!GameState.flags[g.doneFlag];
@@ -94,12 +101,17 @@ class VillageMechanic {
     (ch.recolor || []).forEach((id) => {
       const prop = (scene.props || []).find((p) => p.data.id === id);
       if (!prop) return;
+      // у картинки (props[].icon) нет заливки — «окрашивание» делаем оттенком (tint) от белого
+      const isImg = !prop.shape.setFillStyle;
+      // оттенок умножается на цвета картинки — «царский» цвет разбавляем белым, чтобы поле не чернело
+      const target = isImg ? lightenColor(ch.color, 0.5) : ch.color;
       if (!animate) {
-        prop.shape.setFillStyle(ch.color, prop.baseAlpha);
+        if (isImg) prop.shape.setTint(target);
+        else prop.shape.setFillStyle(ch.color, prop.baseAlpha);
         return;
       }
-      const from = Phaser.Display.Color.IntegerToColor(prop.data.color);
-      const toC = Phaser.Display.Color.IntegerToColor(ch.color);
+      const from = Phaser.Display.Color.IntegerToColor(isImg ? 0xffffff : prop.data.color);
+      const toC = Phaser.Display.Color.IntegerToColor(target);
       const t = { v: 0 };
       scene.tweens.add({
         targets: t,
@@ -107,7 +119,9 @@ class VillageMechanic {
         duration: 1400,
         onUpdate: () => {
           const c = Phaser.Display.Color.Interpolate.ColorWithColor(from, toC, 100, t.v);
-          prop.shape.setFillStyle(Phaser.Display.Color.GetColor(c.r, c.g, c.b), prop.baseAlpha);
+          const col = Phaser.Display.Color.GetColor(c.r, c.g, c.b);
+          if (isImg) prop.shape.setTint(col);
+          else prop.shape.setFillStyle(col, prop.baseAlpha);
         },
       });
     });

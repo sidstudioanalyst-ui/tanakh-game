@@ -83,9 +83,9 @@ defineZone({
   aura: { flag: 'yiftach_spirit' },
   props: [
     // три части пути — подписи земель
-    { x: 5, y: 13.4, w: 6, h: 0.4, color: 0x5e7a4a, alpha: 0.5, name_he: 'גִּלְעָד', name_ru: 'Гилад' },
-    { x: 14, y: 2, w: 6, h: 0.4, color: 0x5e7a4a, alpha: 0.5, name_he: 'מְנַשֶּׁה', name_ru: 'Менаше' },
-    { x: 24, y: 11.8, w: 2.6, h: 1.4, color: 0x8a7a64, name_he: 'מִצְפֵּה גִלְעָד', name_ru: 'Мицпе Гилада' },
+    { x: 5, y: 13.4, w: 1, h: 1, icon: 'assets/props/sign.png', color: 0x5e7a4a, name_he: 'גִּלְעָד', name_ru: 'Гилад' },
+    { x: 14, y: 2, w: 1, h: 1, icon: 'assets/props/sign.png', color: 0x5e7a4a, name_he: 'מְנַשֶּׁה', name_ru: 'Менаше' },
+    { x: 24, y: 11.8, w: 3, h: 2, icon: 'assets/props/house_blue_s.png', color: 0x8a7a64, name_he: 'מִצְפֵּה גִלְעָד', name_ru: 'Мицпе Гилада' },
   ],
   npcs: [],
   enemies: [],

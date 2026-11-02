@@ -82,9 +82,9 @@ defineZone({
   start: [3, 8],
   onEnter: { dialogue: 'yiftach2_envoys', unless_flag: 'envoys_sent' },
   props: [
-    { x: 11, y: 4, w: 3, h: 1.4, color: 0x8a7a64, name_he: 'הַמִּצְפָּה', name_ru: 'Мицпе' },
+    { x: 11, y: 4, w: 3, h: 2, icon: 'assets/props/house_blue_s.png', color: 0x8a7a64, name_he: 'הַמִּצְפָּה', name_ru: 'Мицпе' },
     // дорога на восток — к царю сынов Аммона
-    { x: 19, y: 8, w: 6, h: 0.5, color: 0x6b5a45, alpha: 0.45, name_he: 'הַדֶּרֶךְ לִבְנֵי עַמּוֹן', name_ru: 'Дорога к сынам Аммона' },
+    { x: 19, y: 8, w: 6, h: 0.5, icon: 'assets/props/road.png', color: 0x6b5a45, alpha: 0.9, name_he: 'הַדֶּרֶךְ לִבְנֵי עַמּוֹן', name_ru: 'Дорога к сынам Аммона' },
   ],
   npcs: [
     { id: 'yiftach_envoys', x: 14, y: 8, dialogue: 'yiftach2_claim', color: 0xa3be8c, name_he: 'הַמַּלְאָכִים', name_ru: 'Послы', sprite: 'envoy' },

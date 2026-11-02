@@ -63,6 +63,8 @@ class BootScene extends Phaser.Scene {
     // Костёр и палатки Г4 (src/data/maps/g4.js) — так; маркер отряда (Coordination.js) — отдельно.
     const propIcons = new Set();
     Object.values(ZONES).forEach((zone) => (zone.props || []).forEach((p) => p.icon && propIcons.add(p.icon)));
+    // то же для фигур жителей деревни Ш2 (zone.village.groups[].members[].icon, Village.js)
+    Object.values(ZONES).forEach((zone) => zone.village && zone.village.groups.forEach((g) => g.members.forEach((m) => m.icon && propIcons.add(m.icon))));
     propIcons.forEach((path) => this.load.image(`prop-icon:${path}`, path));
     this.load.image('squad-marker', 'assets/props/squad_marker.png');
     this.load.image('sleeping-figure', 'assets/props/sleeping.png');
