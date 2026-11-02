@@ -161,3 +161,72 @@ for x in range(3, 94, 11):
 d.line([(0, 0), (95, 0)], fill=(112, 80, 54, 255))
 d.line([(0, 7), (95, 7)], fill=(112, 80, 54, 255))
 save(up(r), 'road.png')
+
+# --- Г1: жертвенники и бык (задачи ночной механики NightTasks) ---
+STONE = (150, 150, 158, 255)
+STONE_D = (108, 108, 118, 255)
+STONE_L = (190, 190, 198, 255)
+WOOD = (122, 84, 52, 255)
+WOOD_D = (86, 58, 38, 255)
+
+# жертвенник Баала + Ашера (шест): тёмный камень с «рогами» и резной шест рядом
+a = Image.new('RGBA', (22, 22), (0, 0, 0, 0))
+d = ImageDraw.Draw(a)
+d.rectangle([9, 1, 11, 20], fill=WOOD, outline=OUTLINE)  # Ашера
+d.rectangle([7, 4, 13, 5], fill=WOOD_D)
+d.rectangle([7, 9, 13, 10], fill=WOOD_D)
+d.rectangle([1, 12, 20, 20], fill=STONE_D, outline=OUTLINE)
+d.rectangle([3, 9, 18, 12], fill=STONE, outline=OUTLINE)
+px(d, [(3, 8), (3, 7), (18, 8), (18, 7)], OUTLINE)  # рога алтаря
+px(d, [(5, 14), (6, 14), (13, 17), (14, 17), (9, 15)], STONE)
+d.rectangle([8, 10, 13, 11], fill=(70, 50, 44, 255))  # копоть
+save(up(a, 3), 'altar_baal.png')
+
+# он же разрушен: груда камней и сломанный шест
+r2 = Image.new('RGBA', (22, 22), (0, 0, 0, 0))
+d = ImageDraw.Draw(r2)
+for (x0, y0, x1, y1, c) in [(2, 15, 8, 20, STONE_D), (7, 16, 14, 20, STONE), (13, 14, 19, 20, STONE_D), (5, 12, 10, 16, STONE), (11, 12, 15, 16, STONE_L)]:
+    d.rectangle([x0, y0, x1, y1], fill=c, outline=OUTLINE)
+d.line([(16, 12), (20, 8)], fill=WOOD, width=2)
+d.line([(3, 18), (1, 20)], fill=WOOD_D, width=1)
+save(up(r2, 3), 'altar_baal_ruined.png')
+
+# новый жертвенник на вершине: светлые аккуратные плиты + дрова
+n = Image.new('RGBA', (22, 22), (0, 0, 0, 0))
+d = ImageDraw.Draw(n)
+d.rectangle([2, 14, 19, 20], fill=STONE_L, outline=OUTLINE)
+d.rectangle([4, 9, 17, 14], fill=STONE, outline=OUTLINE)
+d.line([(11, 14), (11, 20)], fill=STONE_D)
+d.line([(7, 9), (7, 14)], fill=STONE_D)
+d.rectangle([6, 5, 15, 8], fill=WOOD, outline=OUTLINE)  # дрова
+d.line([(6, 7), (15, 7)], fill=WOOD_D)
+save(up(n, 3), 'altar_new.png')
+
+# он же после жертвы: на дровах огонь
+f2 = n.copy()
+d = ImageDraw.Draw(f2)
+d.polygon([(7, 5), (9, 1), (10, 4), (12, 0), (14, 5)], fill=(236, 150, 60, 255), outline=(190, 70, 40, 255))
+px(d, [(10, 3), (11, 3), (10, 4)], (250, 220, 110, 255))
+save(up(f2, 3), 'altar_new_fire.png')
+
+# бык (вид сбоку)
+b = Image.new('RGBA', (24, 16), (0, 0, 0, 0))
+d = ImageDraw.Draw(b)
+BULL = (130, 86, 58, 255)
+d.rectangle([4, 4, 17, 11], fill=BULL, outline=OUTLINE)  # туловище
+d.rectangle([0, 3, 5, 8], fill=(110, 72, 48, 255), outline=OUTLINE)  # голова
+px(d, [(0, 2), (1, 1), (4, 2), (5, 1)], (232, 226, 206, 255))  # рога
+px(d, [(2, 5)], OUTLINE)
+for x in (5, 8, 14, 16):
+    d.rectangle([x, 12, x + 1, 15], fill=(96, 62, 42, 255), outline=OUTLINE)
+d.line([(18, 5), (21, 9)], fill=(96, 62, 42, 255))  # хвост
+d.rectangle([6, 4, 10, 6], fill=(150, 104, 72, 255))
+save(up(b, 3), 'bull.png')
+
+# спящий горожанин: свёрток-плащ с головой (вид сверху-сбоку)
+sl = Image.new('RGBA', (14, 8), (0, 0, 0, 0))
+d = ImageDraw.Draw(sl)
+d.rectangle([4, 1, 13, 6], fill=(150, 130, 180, 255), outline=OUTLINE)
+d.rectangle([0, 2, 3, 5], fill=(226, 190, 150, 255), outline=OUTLINE)
+d.line([(6, 3), (11, 3)], fill=(120, 100, 150, 255))
+save(up(sl, 3), 'sleeper_town.png')

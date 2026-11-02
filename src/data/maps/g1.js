@@ -104,10 +104,14 @@ defineZone({
       sortie_alone: { speed: 1, work: 1.5, noise: 0.8 },
       sortie_servants: { speed: 0.85, work: 0.6, noise: 1.25, followers: 2 },
     },
+    sleeper_icon: 'assets/props/sleeper_town.png',
+    follower_icon: 'assets/props/villager_servant.png',
     tasks: [
-      { id: 'destroy', x: 18, y: 9, duration: 6, label: 'task_destroy_altar', color: 0xbf616a, done_color: 0x4c566a },
-      { id: 'build', x: 24, y: 5, duration: 6, label: 'task_build_altar', color: 0xd8dee9, done_color: 0xa3be8c },
-      { id: 'sacrifice', x: 24, y: 6, duration: 5, label: 'task_sacrifice', color: 0xd08770, done_color: 0xebcb8b },
+      { id: 'destroy', x: 18, y: 9, duration: 6, label: 'task_destroy_altar', color: 0xbf616a, done_color: 0x4c566a, icon: 'assets/props/altar_baal.png', done_icon: 'assets/props/altar_baal_ruined.png' },
+      // новый жертвенник виден бледным «чертежом» до постройки; когда принесён бык — на нём огонь
+      { id: 'build', x: 24, y: 5, duration: 6, label: 'task_build_altar', color: 0xd8dee9, done_color: 0xa3be8c, icon: 'assets/props/altar_new.png', done_icon: 'assets/props/altar_new.png', ghost: true },
+      // бык у жертвенника; после жертвы исчезает (огонь на жертвеннике)
+      { id: 'sacrifice', x: 24, y: 7, duration: 5, label: 'task_sacrifice', color: 0xd08770, done_color: 0xebcb8b, icon: 'assets/props/bull.png', done_icon: null, fire_on: 'build', fire_icon: 'assets/props/altar_new_fire.png' },
     ],
     // спящие горожане и слуги отца — условные «стражи»
     sleepers: [
