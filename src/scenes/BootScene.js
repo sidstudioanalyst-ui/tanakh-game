@@ -68,6 +68,12 @@ class BootScene extends Phaser.Scene {
     Object.values(ZONES).forEach((zone) => (zone.props || []).forEach((p) => p.icon && propIcons.add(p.icon)));
     // то же для фигур жителей деревни Ш2 (zone.village.groups[].members[].icon, Village.js)
     Object.values(ZONES).forEach((zone) => zone.village && zone.village.groups.forEach((g) => g.members.forEach((m) => m.icon && propIcons.add(m.icon))));
+    // и картинки ночных задач (zone.night: tasks[].icon/done_icon/fire_icon, sleeper_icon, follower_icon)
+    Object.values(ZONES).forEach((zone) => {
+      const n = zone.night;
+      if (!n) return;
+      [n.sleeper_icon, n.follower_icon, ...(n.tasks || []).flatMap((t) => [t.icon, t.done_icon, t.fire_icon])].forEach((i) => i && propIcons.add(i));
+    });
     propIcons.forEach((path) => this.load.image(`prop-icon:${path}`, path));
     this.load.image('squad-marker', 'assets/props/squad_marker.png');
     this.load.image('sleeping-figure', 'assets/props/sleeping.png');

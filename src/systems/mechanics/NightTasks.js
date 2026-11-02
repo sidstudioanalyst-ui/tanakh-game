@@ -34,6 +34,10 @@ class NightTasksMechanic {
     this.sleepers = [];
     this.gfx = scene.add.graphics().setDepth(8);
     this.sites = cfg.tasks.map((t) => ({ ...t, ...scene.tileCenter(t.x, t.y) }));
+    // картинки мест (task.icon / done_icon, необязательно): нет текстуры — остаётся цветной квадрат
+    this.sites.forEach((s) => {
+      if (s.icon && scene.textures.exists(`prop-icon:${s.icon}`)) s.img = scene.add.image(s.x, s.y + CONFIG.TILE_SIZE / 2 - 2, `prop-icon:${s.icon}`).setOrigin(0.5, 1).setDepth(7);
+    });
     this.drawSites();
     if (this.done) this.taskIndex = cfg.tasks.length;
   }
@@ -50,7 +54,10 @@ class NightTasksMechanic {
     this.dark = scene.add.rectangle(0, 0, CONFIG.FULLSCREEN_RECT, CONFIG.FULLSCREEN_RECT, 0x0b1020, cfg.darkness).setOrigin(0).setScrollFactor(0).setDepth(50);
     this.sleepers = cfg.sleepers.map((s) => {
       const { x, y } = scene.tileCenter(s.x, s.y);
-      const body = scene.add.rectangle(x, y, 22, 14, 0x81a1c1).setDepth(6).setStrokeStyle(1, 0x2e3440);
+      const sk = cfg.sleeper_icon && `prop-icon:${cfg.sleeper_icon}`;
+      const body = sk && scene.textures.exists(sk)
+        ? scene.add.image(x, y, sk).setDepth(6).setFlipX((s.x + s.y) % 2 === 0)
+        : scene.add.rectangle(x, y, 22, 14, 0x81a1c1).setDepth(6).setStrokeStyle(1, 0x2e3440);
       const zz = scene.add.text(x, y - 16, 'z', { fontFamily: CONFIG.UI_FONT, fontSize: '11px', color: '#88c0d0' }).setOrigin(0.5).setDepth(51);
       const bar = scene.add.graphics().setDepth(51);
       return { x, y, body, zz, bar, unrest: 0, awake: false };
@@ -59,7 +66,10 @@ class NightTasksMechanic {
     // слуги идут следом (только для вида)
     this.followers = [];
     for (let i = 0; i < (this.mode.followers || 0); i++) {
-      const f = scene.add.rectangle(scene.player.x, scene.player.y, 16, 16, 0xa3825c).setDepth(9).setStrokeStyle(1, 0x2e3440);
+      const fk = cfg.follower_icon && `prop-icon:${cfg.follower_icon}`;
+      const f = fk && scene.textures.exists(fk)
+        ? scene.add.image(scene.player.x, scene.player.y, fk).setOrigin(0.5, 0.8).setDepth(9)
+        : scene.add.rectangle(scene.player.x, scene.player.y, 16, 16, 0xa3825c).setDepth(9).setStrokeStyle(1, 0x2e3440);
       this.followers.push({ obj: f, lag: 18 + i * 16 });
     }
     this.trail = [];
@@ -181,7 +191,8 @@ class NightTasksMechanic {
   wake(s) {
     s.awake = true;
     s.bar.clear();
-    s.body.setFillStyle(0xebcb8b);
+    if (s.body.setFillStyle) s.body.setFillStyle(0xebcb8b);
+    else s.body.setTint(0xffe28a).setY(s.y - 3);
     s.zz.setText('!').setColor('#bf616a').setFontSize(16);
     if (!GameState.flags[this.cfg.noticedFlag]) this.scene.showToast(UI.t('toast_someone_woke'));
     GameState.flags[this.cfg.noticedFlag] = true;
@@ -205,7 +216,14 @@ class NightTasksMechanic {
       const done = i < this.taskIndex;
       const current = i === this.taskIndex && this.active && !this.done;
       const color = done ? s.done_color || 0x4c566a : s.color || 0xbf616a;
-      g.fillStyle(color, done ? 0.9 : current ? 1 : 0.6).fillRect(s.x - T / 2 + 4, s.y - T / 2 + 4, T - 8, T - 8);
+      if (s.img) {
+        // картинка вместо квадрата: после действия — done_icon (или исчезает), у следующих — бледнее
+        const fireOn = this.sites.find((o) => o.fire_on === s.id && this.taskIndex > this.sites.indexOf(o));
+        const key = fireOn ? `prop-icon:${fireOn.fire_icon}` : done && s.done_icon ? `prop-icon:${s.done_icon}` : `prop-icon:${s.icon}`;
+        if (this.scene.textures.exists(key)) s.img.setTexture(key);
+        s.img.setVisible(!(done && s.done_icon === null));
+        s.img.setAlpha(done ? 1 : current ? 1 : s.ghost ? 0.4 : 0.85);
+      } else g.fillStyle(color, done ? 0.9 : current ? 1 : 0.6).fillRect(s.x - T / 2 + 4, s.y - T / 2 + 4, T - 8, T - 8);
       if (current) g.lineStyle(2, 0xebcb8b, 1).strokeRect(s.x - T / 2 + 1, s.y - T / 2 + 1, T - 2, T - 2);
     });
     const site = this.sites[this.taskIndex];
