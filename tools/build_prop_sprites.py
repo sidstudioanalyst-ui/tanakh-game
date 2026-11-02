@@ -230,3 +230,57 @@ d.rectangle([4, 1, 13, 6], fill=(150, 130, 180, 255), outline=OUTLINE)
 d.rectangle([0, 2, 3, 5], fill=(226, 190, 150, 255), outline=OUTLINE)
 d.line([(6, 3), (11, 3)], fill=(120, 100, 150, 255))
 save(up(sl, 3), 'sleeper_town.png')
+
+# --- пальма Деворы (Бр1) ---
+pm = Image.new('RGBA', (32, 40), (0, 0, 0, 0))
+d = ImageDraw.Draw(pm)
+d.polygon([(14, 38), (18, 38), (17, 12), (15, 12)], fill=(150, 108, 64, 255), outline=OUTLINE)
+for y in range(16, 37, 4):
+    d.line([(15, y), (17, y)], fill=(112, 78, 46, 255))
+LEAF, LEAF_D = (92, 160, 84, 255), (58, 118, 66, 255)
+for (x1, y1) in [(2, 12), (6, 4), (16, 1), (26, 4), (30, 12)]:
+    d.line([(16, 11), (x1, y1)], fill=OUTLINE, width=4)
+    d.line([(16, 11), (x1, y1)], fill=LEAF, width=2)
+for (x1, y1) in [(4, 18), (28, 18)]:
+    d.line([(16, 12), (x1, y1)], fill=OUTLINE, width=4)
+    d.line([(16, 12), (x1, y1)], fill=LEAF_D, width=2)
+d.ellipse([12, 10, 20, 15], fill=(176, 112, 52, 255), outline=OUTLINE)  # финики
+save(up(pm, 2), 'palm.png')
+
+# --- Двора (фигура для Тавора, как стойка, ~34 px) ---
+save(figure('deborah', 0.55), 'deborah_fig.png')
+
+# --- руно на гумне (Г2): белый клубок шерсти + росинки ---
+fl = Image.new('RGBA', (22, 14), (0, 0, 0, 0))
+d = ImageDraw.Draw(fl)
+for (cx, cy, r) in [(6, 8, 5), (11, 6, 6), (16, 8, 5), (11, 9, 5)]:
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(244, 244, 248, 255), outline=OUTLINE)
+for (cx, cy, r) in [(6, 8, 4), (11, 6, 5), (16, 8, 4), (11, 9, 4)]:
+    d.ellipse([cx - r, cy - r, cx + r, cy + r], fill=(244, 244, 248, 255))
+px(d, [(8, 5), (13, 4), (15, 8), (9, 10), (5, 8)], (214, 220, 232, 255))
+px(d, [(11, 7), (7, 9), (14, 10)], (150, 200, 240, 255))  # роса
+save(up(fl, 3), 'fleece.png')
+
+# --- плащ для добычи (Г6): расстеленный красный плащ с золотыми серьгами ---
+ck = Image.new('RGBA', (26, 16), (0, 0, 0, 0))
+d = ImageDraw.Draw(ck)
+d.polygon([(2, 4), (23, 3), (25, 12), (14, 15), (1, 12)], fill=(158, 52, 56, 255), outline=OUTLINE)
+d.line([(4, 7), (22, 6)], fill=(120, 36, 44, 255))
+d.line([(3, 10), (23, 10)], fill=(120, 36, 44, 255))
+for (cx, cy) in [(7, 8), (12, 9), (17, 7), (20, 10), (9, 5)]:
+    d.ellipse([cx - 1, cy - 1, cx + 1, cy + 1], fill=(236, 200, 70, 255), outline=(160, 120, 30, 255))
+save(up(ck, 3), 'cloak.png')
+
+# --- беглец у брода (Й5/Й6): человек в сером ---
+save(figure('ephraim_farmer', 0.55), 'fugitive.png')
+
+# --- лагерь колена (Бр2): две палатки и костёр между ними ---
+tn = Image.open('assets/props/tent.png').convert('RGBA')
+cf = Image.open('assets/props/campfire.png').convert('RGBA')
+cf = cf.crop(cf.getbbox())
+cf = cf.resize((cf.width // 2, cf.height // 2), Image.BOX)
+camp = Image.new('RGBA', (170, 70), (0, 0, 0, 0))
+camp.alpha_composite(tn.resize((round(tn.width * .8), round(tn.height * .8)), Image.NEAREST), (0, 14))
+camp.alpha_composite(tn.resize((round(tn.width * .8), round(tn.height * .8)), Image.NEAREST).transpose(Image.FLIP_LEFT_RIGHT), (118, 14))
+camp.alpha_composite(cf, (85 - cf.width // 2, 70 - cf.height - 2))
+save(camp, 'camp.png')

@@ -75,7 +75,7 @@ defineZone({
   },
   start: [3, 8],
   npcs: [
-    { id: 'fleece_spot', x: 12, y: 8, dialogue: 'g2_fleece', color: 0xeceff4, name_he: 'גִּזַּת הַצֶּמֶר', name_ru: 'Шерсть на гумне' },
+    { id: 'fleece_spot', x: 12, y: 8, dialogue: 'g2_fleece', icon: 'assets/props/fleece.png', iconW: 2, iconH: 1.3, color: 0xeceff4, name_he: 'גִּזַּת הַצֶּמֶר', name_ru: 'Шерсть на гумне' },
   ],
   enemies: [],
   items: [],

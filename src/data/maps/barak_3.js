@@ -104,7 +104,7 @@ defineZone({
     { x: 6, y: 11, w: 11, h: 20, color: 0x5a6b4a, alpha: 0.35, depth: 1 },
     { x: 6, y: 20.4, w: 0.1, h: 0.1, color: 0x000000, alpha: 0, name_he: 'הַר תָּבוֹר', name_ru: 'Гора Тавор' },
     { x: 26, y: 20.4, w: 0.1, h: 0.1, color: 0x000000, alpha: 0, name_he: 'עֵמֶק קִישׁוֹן', name_ru: 'Долина Кишон' },
-    { x: 4, y: 9, w: 0.8, h: 0.8, color: 0xd8c3a5, name_he: 'דְּבוֹרָה', name_ru: 'Двора', speaker: 'deborah', if_flag: 'deborah_with' },
+    { x: 4, y: 9, w: 0.55, h: 1.1, icon: 'assets/props/deborah_fig.png', color: 0xd8c3a5, name_he: 'דְּבוֹרָה', name_ru: 'Двора', speaker: 'deborah', if_flag: 'deborah_with' },
   ],
   descent: {
     activeFlag: 'descent_signal',
