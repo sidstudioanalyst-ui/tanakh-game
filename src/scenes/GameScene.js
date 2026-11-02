@@ -804,22 +804,28 @@ class GameScene extends Phaser.Scene {
       .setDepth(100);
     // длинное «карта · зона» не помещается (между полоской здоровья и подсказками,
     // а на телефоне — в ширину экрана) — только зона
-    const titleRoom = narrow ? W - 32 : 360;
+    // Подсказка по клавишам (справа сверху) строится раньше и задаёт, сколько места осталось
+    // названию: на узком окне оно раньше налезало на подсказки
+    let hint = null;
+    if (!CONFIG.TOUCH && !story) {
+      // в боевой зоне — ещё строка про уворот и блок
+      hint = addUiText(this, W - 16, 16, UI.t(calm ? 'hud_controls_calm' : 'hud_controls') + (this.combatZone ? `\n${UI.t('hud_controls_defense')}` : ''))
+        .setOrigin(UI.rtl ? 0 : 1, 0)
+        .setScrollFactor(0)
+        .setDepth(100);
+    }
+    let titleRoom = narrow ? W - 32 : 360;
+    if (hint && !narrow && !UI.rtl) {
+      titleRoom = Math.min(titleRoom, 2 * (W - 16 - hint.width - 12 - W / 2));
+    }
     if (title.width > titleRoom) title.setText(UI.pick(this.zone, 'name'));
+    // и одной зоны может не хватить — тогда чуть уменьшаем
+    if (!narrow && title.width > titleRoom && titleRoom > 80) title.setScale(Math.max(0.6, titleRoom / title.width));
     const statusY = narrow ? titleY + title.height + 2 : 36;
     this.statusText = addUiText(this, W / 2, statusY, '', { center: true, size: 14, color: '#ebcb8b' })
       .setScrollFactor(0)
       .setDepth(100);
     this.updateStatusHud();
-
-    // Подсказка по клавишам — в противоположном от полоски здоровья углу (на тач там иконки)
-    if (!CONFIG.TOUCH && !story) {
-      // в боевой зоне — ещё строка про уворот и блок
-      addUiText(this, W - 16, 16, UI.t(calm ? 'hud_controls_calm' : 'hud_controls') + (this.combatZone ? `\n${UI.t('hud_controls_defense')}` : ''))
-        .setOrigin(UI.rtl ? 0 : 1, 0)
-        .setScrollFactor(0)
-        .setDepth(100);
-    }
 
     // Всплывающее сообщение (подобранный предмет и т. п.); на тач — над кнопками
     const toastY = this.touch ? this.touch.buttonsTop - 56 : H - 58;
