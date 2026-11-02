@@ -147,6 +147,7 @@ CHARACTERS = {
         'walk': 'walk/walk_{d}.gif',
         'diag_walk': 'walk/{d}.gif',
         'idle': 'idle/{d}.png',
+        'despeckle': 8,  # в перегенерированных GIF разбросаны одиночные пиксели-крошки
         'out': 'chariot.png',
     },
     'deborah': {
@@ -172,12 +173,42 @@ CHARACTERS = {
 }
 
 
-def frames(path):
-    return [f.convert('RGBA') for f in ImageSequence.Iterator(Image.open(path))]
+def despeckle(img, min_px):
+    """Убирает одиночные пиксели-«крошки» (мусор генерации PixelLab): связные области
+    (8 соседей) меньше min_px пикселей. Иначе они сдвигают линию земли ряда (feet ниже) и
+    рябят на кадрах."""
+    w, h = img.size
+    px = img.load()
+    seen = [[False] * w for _ in range(h)]
+    for y in range(h):
+        for x in range(w):
+            if seen[y][x] or px[x, y][3] == 0:
+                continue
+            comp, stack = [], [(x, y)]
+            seen[y][x] = True
+            while stack:
+                cx, cy = stack.pop()
+                comp.append((cx, cy))
+                for dx in (-1, 0, 1):
+                    for dy in (-1, 0, 1):
+                        nx, ny = cx + dx, cy + dy
+                        if 0 <= nx < w and 0 <= ny < h and not seen[ny][nx] and px[nx, ny][3] > 0:
+                            seen[ny][nx] = True
+                            stack.append((nx, ny))
+            if len(comp) < min_px:
+                for cx, cy in comp:
+                    px[cx, cy] = (0, 0, 0, 0)
+    return img
+
+
+def _frames(path, min_px=0):
+    out = [f.convert('RGBA') for f in ImageSequence.Iterator(Image.open(path))]
+    return [despeckle(f, min_px) for f in out] if min_px else out
 
 
 def build(spec):
     name = lambda kind, d: spec['dir'] + spec[kind].format(d=d, D=d.capitalize())
+    frames = lambda path: _frames(path, spec.get('despeckle', 0))  # noqa: E731 — min_px из спека
     if spec.get('stand_only'):
         # Только 4 кадра стойки — ни ходьбы, ни удара (см. docstring вверху файла)
         rows = [frames(name('idle', d)) for d in DIRS]
