@@ -72,7 +72,7 @@ defineZone({
   start: [2, 6],
   onEnter: { dialogue: 'barak4_pursuit', unless_flag: 'pursuit_seen' },
   props: [
-    { x: 25, y: 6, w: 3, h: 2.4, shape: 'tri', color: 0x8a6d5b, name_he: 'אֹהֶל יָעֵל', name_ru: 'Шатёр Яэли' },
+    { x: 25, y: 6, w: 3, h: 2.35, icon: 'assets/props/tent.png', shape: 'tri', color: 0x8a6d5b, name_he: 'אֹהֶל יָעֵל', name_ru: 'Шатёр Яэли' },
   ],
   npcs: [
     { id: 'yael', x: 22, y: 7, dialogue: 'barak4_yael', color: 0xc9a0dc, name_he: 'יָעֵל', name_ru: 'Яэль', sprite: 'yael' },
