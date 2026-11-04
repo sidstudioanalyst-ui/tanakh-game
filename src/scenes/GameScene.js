@@ -13,6 +13,7 @@ class GameScene extends Phaser.Scene {
     this.spawnAt = data.at || null;
     this.zone = ZONES[this.zoneId];
     this.gameOver = false;
+    this.lastHp = undefined;
     this.transitioning = false;
     this.touch = null; // TouchControls — создаётся в HUD на тач-устройствах
     this.cutscene = false; // сцена идёт сама (паника в Г4): игрок не двигается и не действует
@@ -20,6 +21,9 @@ class GameScene extends Phaser.Scene {
     // В скрытности (стража, ночная вылазка) — нет: защита не должна помогать обходить стражу.
     const z = this.zone;
     this.combatZone = !!z && !z.guards && !z.night && !!(z.waves || z.descent || z.coordination || z.liberation || (z.enemies || []).length);
+    // Музыка по настроению карты: zone.music, иначе по механике (ночь · бой/стража · «рассказ» · спокойно)
+    this.moodName = z && (z.music || (z.night ? 'night' : z.guards || this.combatZone ? 'tense' : z.look === 'story' ? 'court' : 'calm'));
+    GameAudio.music(this.moodName || 'calm');
     this.startPartIfNeeded();
     GameState.enterZone(this.zoneId, this.spawnAt);
   }
@@ -89,6 +93,11 @@ class GameScene extends Phaser.Scene {
     this.createUI();
     this.bindKeys();
     this.bindEvents();
+    // M — звук по кругу: всё → только эффекты → выключен
+    this.input.keyboard.on('keydown-M', () => {
+      const mode = GameAudio.cycle();
+      this.showToast(UI.t(`menu_sound_${mode}`));
+    });
     this.updateAura(false);
 
     // Короткая пауза перед тем, как выходы и триггеры начнут срабатывать — чтобы не «отскочить» обратно
@@ -523,6 +532,7 @@ class GameScene extends Phaser.Scene {
 
   pickUpItem(item) {
     if (!item.body.enable) return;
+    GameAudio.sfx('pickup');
     const data = ITEMS[item.itemId];
     // Еда (ITEMS[id].heal, без slot) — не экипировка: лечит сразу и не занимает слот/сумку
     if (data && data.heal) {
@@ -666,6 +676,7 @@ class GameScene extends Phaser.Scene {
   }
 
   transition(then) {
+    GameAudio.sfx('door');
     if (this.transitioning) return;
     this.transitioning = true;
     this.player.setVelocity(0, 0);
@@ -946,15 +957,22 @@ class GameScene extends Phaser.Scene {
   }
 
   showToast(message) {
+    GameAudio.sfx('toast');
     this.toastText.setText(message).setVisible(true);
     if (this.toastTimer) this.toastTimer.remove();
     this.toastTimer = this.time.delayedCall(2500, () => this.toastText.setVisible(false));
   }
 
   bindEvents() {
-    this.events.on('player-hp-changed', (hp, max) => this.healthBar.draw(hp, max));
+    this.events.on('player-hp-changed', (hp, max) => {
+      if (this.lastHp !== undefined && hp < this.lastHp) GameAudio.sfx('hurt');
+      this.lastHp = hp;
+      this.healthBar.draw(hp, max);
+    });
+    this.events.on('player-blocked', () => GameAudio.sfx('block'));
 
     this.events.on('player-attack', ({ x, y, range, damage, dir, arc }) => {
+      GameAudio.sfx('swing');
       this.enemies.getChildren().forEach((enemy) => {
         if (enemy.isDead) return;
         // Учитываем размер врага: достаточно задеть его край
@@ -971,8 +989,10 @@ class GameScene extends Phaser.Scene {
       });
     });
 
+    this.events.on('enemy-dead', (enemy) => GameAudio.sfx('enemyDie'));
     this.events.on('enemy-dead', (enemy) => enemy.spawnKey && GameState.markRemoved(this.zoneId, enemy.spawnKey));
     this.events.on('player-dead', () => {
+      GameAudio.sfx('death');
       const key = GameState.map.restartOnDeath === 'zone' ? 'death_message_zone' : 'death_message';
       this.endGame(key);
       this.deadWaitingRestart = true;
@@ -995,6 +1015,7 @@ class GameScene extends Phaser.Scene {
     // заказанные диалогом переход или провал
     const onResume = () => {
       this.input.keyboard.resetKeys();
+      GameAudio.music(this.moodName || 'calm'); // после суда/спора/комментаторов — музыка карты
       this.refreshExits();
       this.triggers.forEach((t) => (t.inside = t.rect.contains(this.player.x, this.player.y)));
       this.updateAura();
@@ -1004,7 +1025,7 @@ class GameScene extends Phaser.Scene {
 
     // Сцена переиспользует свой EventEmitter при рестарте — снимаем подписки
     this.events.once('shutdown', () => {
-      ['player-hp-changed', 'player-attack', 'enemy-dead', 'player-dead', 'toast'].forEach((e) => this.events.off(e));
+      ['player-hp-changed', 'player-attack', 'player-blocked', 'enemy-dead', 'player-dead', 'toast'].forEach((e) => this.events.off(e));
       this.events.off('resume', onResume);
       GameState.events.off('equipment-changed', onEquipment);
       GameState.events.off('door-opened', onDoor);

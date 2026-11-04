@@ -9,6 +9,7 @@ class TitleScene extends Phaser.Scene {
   }
 
   create() {
+    GameAudio.music('title');
     this.cameras.main.setBackgroundColor('#1b1f27');
     this.cameras.main.fadeIn(400);
     this.started = false;

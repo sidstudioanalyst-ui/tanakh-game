@@ -24,6 +24,7 @@ class DisputeScene extends Phaser.Scene {
   }
 
   create() {
+    GameAudio.music('court');
     this.bg = this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x1d2129, 0.97).setOrigin(0);
     this.layer = this.add.container(0, 0);
     this.measure();
@@ -31,7 +32,10 @@ class DisputeScene extends Phaser.Scene {
     const kb = this.input.keyboard;
     kb.on('keydown', (event) => {
       const n = parseInt(event.key, 10);
-      if (n >= 1 && n <= this.options.length && this.options[n - 1]) this.options[n - 1]();
+      if (n >= 1 && n <= this.options.length && this.options[n - 1]) {
+        GameAudio.sfx('select');
+        this.options[n - 1]();
+      }
     });
     const single = () => this.options.filter(Boolean).length === 1 && this.options.find(Boolean)();
     kb.on('keydown-SPACE', single);

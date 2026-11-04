@@ -215,6 +215,7 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     }
     dir.normalize();
     const p = this.stats;
+    GameAudio.sfx('dodge');
     this.dodgeUntil = time + p.dodgeMs;
     this.nextDodgeAt = time + p.dodgeCooldown;
     this.invulnerableUntil = Math.max(this.invulnerableUntil, time + p.dodgeMs + 60);

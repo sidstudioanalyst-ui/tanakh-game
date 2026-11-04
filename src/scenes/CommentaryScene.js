@@ -24,6 +24,7 @@ class CommentaryScene extends Phaser.Scene {
     const right = this.panelX + panelW - pad;
     const width = panelW - pad * 2;
 
+    GameAudio.music('court');
     const shade = this.add.rectangle(0, 0, W, H, 0x000000, 0.6).setOrigin(0);
     shade.setInteractive().on('pointerdown', () => this.close());
     const panel = this.add.rectangle(this.panelX, 0, panelW, 10, 0x2e3440, 0.98).setOrigin(0).setStrokeStyle(2, 0x88c0d0);

@@ -14,6 +14,8 @@ class CreditsScene extends Phaser.Scene {
   create() {
     // из меню GameScene (на паузе) рисуется поверх всего, что стоит в списке раньше неё (см. IntroScene)
     if (this.fromMenu) this.scene.bringToTop();
+    GameAudio.music('title');
+    GameAudio.sfx('win');
     this.cameras.main.setBackgroundColor('#14171d');
     this.cameras.main.fadeIn(400);
     this.layer = this.add.container(0, 0);

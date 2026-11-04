@@ -25,6 +25,8 @@ class MenuScene extends Phaser.Scene {
     this.items = [
       { key: 'menu_continue', action: () => this.close() },
       { key: 'menu_restart', action: () => this.restartMap() },
+      // режим звука по кругу: всё → только эффекты → выключен (подпись — по текущему режиму)
+      { get key() { return `menu_sound_${GameAudio.mode}`; }, action: () => { GameAudio.cycle(); this.drawItems(); } },
       // демо-карты — только для разработки (dev.html или ?map=demo): игроку этот пункт не показываем
       ...(demo || window.DEV_MODE ? [{ key: demo ? 'menu_saviors' : 'menu_demo', action: () => this.switchCampaign(demo ? 'saviors' : 'demo') }] : []),
       { key: 'menu_howto', action: () => this.howTo() },
