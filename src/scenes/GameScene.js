@@ -13,6 +13,7 @@ class GameScene extends Phaser.Scene {
     this.spawnAt = data.at || null;
     this.zone = ZONES[this.zoneId];
     this.gameOver = false;
+    this.messageKeys = null; // большое сообщение прошлой зоны (победа, провал) не должно возвращаться при смене языка
     this.lastHp = undefined;
     this.transitioning = false;
     this.touch = null; // TouchControls — создаётся в HUD на тач-устройствах
