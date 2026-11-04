@@ -25,7 +25,8 @@ class MenuScene extends Phaser.Scene {
     this.items = [
       { key: 'menu_continue', action: () => this.close() },
       { key: 'menu_restart', action: () => this.restartMap() },
-      { key: demo ? 'menu_saviors' : 'menu_demo', action: () => this.switchCampaign(demo ? 'saviors' : 'demo') },
+      // демо-карты — только для разработки (dev.html или ?map=demo): игроку этот пункт не показываем
+      ...(demo || window.DEV_MODE ? [{ key: demo ? 'menu_saviors' : 'menu_demo', action: () => this.switchCampaign(demo ? 'saviors' : 'demo') }] : []),
       { key: 'menu_howto', action: () => this.howTo() },
       { key: 'menu_credits', action: () => this.credits() },
     ];
