@@ -310,8 +310,10 @@ class TrialScene extends Phaser.Scene {
 
   finish(last) {
     const finale = last && EPOCH_TRIALS[GameState.campaign]; // кампания с Судом эпохи кончается титрами
-    if (last) GameState.newGame(GameState.campaign);
-    else GameState.startMap(GameState.mapIndex + 1); // Мерило и вещи остаются
+    if (last) {
+      GameState.newGame(GameState.campaign);
+      GameState.clearSave(); // кампания пройдена — «Продолжить» на заставке больше нет
+    } else GameState.startMap(GameState.mapIndex + 1); // Мерило и вещи остаются
     if (finale) {
       this.scene.start('CreditsScene'); // после титров — заставка: игра начнётся заново
       return;

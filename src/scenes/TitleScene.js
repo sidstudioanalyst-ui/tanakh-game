@@ -13,6 +13,7 @@ class TitleScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor('#1b1f27');
     this.cameras.main.fadeIn(400);
     this.started = false;
+    this.save = GameState.readSave(); // есть сохранение — «Продолжить» и «Новая игра» вместо «Нажмите, чтобы начать»
     this.layer = this.add.container(0, 0);
     this.draw();
 
@@ -23,9 +24,12 @@ class TitleScene extends Phaser.Scene {
     const kb = this.input.keyboard;
     kb.on('keydown', (event) => {
       if (['l', 'L', 'b', 'B'].includes(event.key)) return; // язык — своя клавиша, не старт
-      this.start();
+      if (!this.save) return this.start();
+      // со сохранением: Enter/Пробел/C — продолжить, N — новая игра
+      if (['Enter', ' ', 'c', 'C'].includes(event.key)) this.start(true);
+      else if (['n', 'N'].includes(event.key)) this.start(false);
     });
-    this.input.on('pointerdown', () => this.start());
+    this.input.on('pointerdown', () => !this.save && this.start());
     bindLanguageKeys(this, () => this.draw());
   }
 
@@ -46,9 +50,13 @@ class TitleScene extends Phaser.Scene {
     const sub = addUiText(this, W / 2, cy - 18, UI.t('title_subtitle'), { center: true, size: 15, color: '#88c0d0' });
     this.layer.add(sub);
 
-    this.startText = addUiText(this, W / 2, cy + 90, UI.t('title_start'), { center: true, size: 15, color: '#d8dee9' });
-    this.layer.add(this.startText);
-    this.pulseTween = this.tweens.add({ targets: this.startText, alpha: 0.35, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    if (this.save) {
+      this.drawSaveButtons(cy + 62);
+    } else {
+      this.startText = addUiText(this, W / 2, cy + 90, UI.t('title_start'), { center: true, size: 15, color: '#d8dee9' });
+      this.layer.add(this.startText);
+      this.pulseTween = this.tweens.add({ targets: this.startText, alpha: 0.35, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+    }
 
     if (!CONFIG.TOUCH) {
       const hint = addUiText(this, W / 2, H - 28, UI.t('title_lang_hint'), { center: true, size: 11, color: '#4c566a' });
@@ -68,6 +76,26 @@ class TitleScene extends Phaser.Scene {
     }
   }
 
+  // «Продолжить» (с названием зоны) и «Новая игра» — две кнопки; тач и мышь — по кнопке, клавиши — C / N
+  drawSaveButtons(y) {
+    const W = CONFIG.WIDTH;
+    const bw = Math.min(300, W - 40);
+    const zone = ZONES[this.save.zoneEntry.zoneId];
+    const where = zone ? UI.pick(zone, 'name') : '';
+    const make = (cy, label, sub, color, onTap) => {
+      const bg = this.add.rectangle(W / 2, cy, bw, sub ? 52 : 40, 0x3b4252).setStrokeStyle(2, color);
+      bg.setInteractive({ useHandCursor: true }).on('pointerdown', onTap);
+      bg.on('pointerover', () => bg.setFillStyle(0x4c566a));
+      bg.on('pointerout', () => bg.setFillStyle(0x3b4252));
+      // у текста точка привязки — верхний край: ставим по высоте строки, а не по центру кнопки
+      const t = addUiText(this, W / 2, cy - (sub ? 21 : 11), label, { center: true, size: 16, bold: true, color: '#eceff4' });
+      this.layer.add([bg, t]);
+      if (sub) this.layer.add(addUiText(this, W / 2, cy + 3, sub, { center: true, size: 11, color: '#a0a8b8', width: bw - 16 }));
+    };
+    make(y + 6, UI.t('title_continue'), where, 0xebcb8b, () => this.start(true));
+    make(y + 72, UI.t('title_new_game'), '', 0x4c566a, () => this.start(false));
+  }
+
   pulseRing() {
     if (this.started) return;
     const W = CONFIG.WIDTH;
@@ -77,11 +105,19 @@ class TitleScene extends Phaser.Scene {
     this.tweens.add({ targets: ring, scale: 9, alpha: 0, duration: 2200, ease: 'Sine.easeOut', onComplete: () => ring.destroy() });
   }
 
-  start() {
+  // resume: true — загрузить сохранение (сразу в игру), иначе — новая игра (объяснение один раз на браузер)
+  start(resume = false) {
     if (this.started) return;
     this.started = true;
     this.ringTimer.remove();
     this.cameras.main.fadeOut(300);
+    if (resume) {
+      const entry = GameState.loadSave();
+      if (entry) {
+        this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start('GameScene', { zoneId: entry.zoneId, at: entry.at }));
+        return;
+      }
+    }
     // первый раз в этом браузере — объяснение (IntroScene) перед игрой; дальше сразу игра
     const next = readStorage('tanakh-game.introSeen') === '1' ? 'GameScene' : 'IntroScene';
     this.cameras.main.once('camerafadeoutcomplete', () => this.scene.start(next));
