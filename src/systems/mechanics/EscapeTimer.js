@@ -77,6 +77,7 @@ class EscapeTimerMechanic {
         this.immuneUntil = time + 800;
         this.remaining -= h.penalty * 1000;
         player.knockFrom(h.x, h.y, time);
+        GameAudio.sfx('hurt');
         this.scene.showToast(UI.t('toast_penalty', { value: `−${h.penalty}` }));
       }
     });

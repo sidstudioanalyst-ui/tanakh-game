@@ -102,6 +102,7 @@ class LiberationMechanic {
       a.pauseUntil = 0;
       a.waveIndex += 1;
       a.toSpawn = this.scaled(waves[a.waveIndex], a.point.extra);
+      GameAudio.sfx('horn');
       this.scene.showToast(UI.t('toast_wave', { n: a.waveIndex + 1 }));
       return;
     }
@@ -109,6 +110,7 @@ class LiberationMechanic {
   }
 
   start(point, time) {
+    GameAudio.sfx('horn');
     const a = (this.active = { point, enemies: [], waveIndex: 0, toSpawn: 0, nextAt: time + 600, pauseUntil: 0, spawned: 0 });
     if (point.waves) {
       a.toSpawn = this.scaled(point.waves[0], point.extra);

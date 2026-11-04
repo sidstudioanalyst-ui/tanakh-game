@@ -98,6 +98,7 @@ class VillageMechanic {
         if (mv.fade) scene.tweens.add({ targets: f, alpha: 0, delay: 1400 + k * 150, duration: 500 });
       });
     });
+    if (animate) GameAudio.sfx('announce');
     (ch.recolor || []).forEach((id) => {
       const prop = (scene.props || []).find((p) => p.data.id === id);
       if (!prop) return;

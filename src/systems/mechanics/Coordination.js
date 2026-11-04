@@ -189,6 +189,8 @@ class CoordinationMechanic {
 
     // кувшины разбиты: факелы у всех трёх отрядов, крик
     scene.cameras.main.flash(300, 235, 180, 90);
+    GameAudio.sfx('shatter');
+    GameAudio.sfx('horn');
     scene.showToast(UI.t('toast_shout'));
     [...this.squads.map((s) => ({ x: s.x, y: s.y })), { x: scene.player.x, y: scene.player.y }].forEach((pt) => {
       for (let i = 0; i < 3; i++) {

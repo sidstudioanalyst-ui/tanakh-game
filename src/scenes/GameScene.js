@@ -689,6 +689,7 @@ class GameScene extends Phaser.Scene {
   failZone(reasonKey) {
     if (this.gameOver || this.transitioning) return;
     this.gameOver = true;
+    GameAudio.sfx('fail');
     this.updateStatusHud(); // показать итог (например, последний прорвавшийся враг)
     this.player.setVelocity(0, 0);
     this.enemies.getChildren().forEach((e) => e.body && e.setVelocity(0, 0));
@@ -1008,7 +1009,10 @@ class GameScene extends Phaser.Scene {
       this.refreshExits();
     };
     GameState.events.on('equipment-changed', onEquipment);
-    const onDoor = (doorId) => this.openDoorNow(doorId);
+    const onDoor = (doorId) => {
+      GameAudio.sfx('unlock');
+      this.openDoorNow(doorId);
+    };
     GameState.events.on('door-opened', onDoor);
 
     // После паузы (диалог, инвентарь): сбросить клавиши, обновить выходы, выполнить

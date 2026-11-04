@@ -107,6 +107,7 @@ class InventoryScene extends Phaser.Scene {
   activate() {
     const entry = this.entries()[this.cursor];
     if (!entry) return;
+    GameAudio.sfx('equip');
     if (entry.kind === 'slot') this.equipment.unequip(entry.slot);
     else this.equipment.equipFromBag(entry.index);
     this.cursor = Math.min(this.cursor, this.entries().length - 1);

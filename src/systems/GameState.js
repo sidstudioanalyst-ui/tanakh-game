@@ -83,6 +83,7 @@ const GameState = {
     const m = this.measures[key];
     if (amount > 0) m.light += amount;
     else m.shadow += -amount;
+    GameAudio.sfx('measure');
     this.events.emit('measures-changed', key);
   },
 

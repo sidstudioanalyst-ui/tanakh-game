@@ -78,6 +78,7 @@ class WavesMechanic {
         this.nextAt = time + (this.cfg.pause || 4000);
         this.waveIndex += 1;
         this.toSpawn = this.wave.count;
+        GameAudio.sfx('horn');
         this.scene.showToast(UI.t('toast_wave', { n: this.waveIndex + 1 }));
       } else if (this.waveIndex < 0 && time >= this.nextAt) {
         this.waveIndex = 0;

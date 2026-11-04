@@ -85,6 +85,7 @@ class DescentMechanic {
       this.infantry.push(e);
     }
     this.total = count;
+    GameAudio.sfx('horn');
     scene.showToast(UI.t('toast_descent'));
   }
 

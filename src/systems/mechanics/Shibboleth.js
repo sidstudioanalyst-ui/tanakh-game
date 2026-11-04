@@ -160,6 +160,7 @@ class ShibbolethMechanic {
     const c = this.current;
     if (!c || !c.waiting || this.done) return;
     const { scene, cfg } = this;
+    GameAudio.sfx('select');
     c.waiting = false;
     this.setButtons(false);
     c.bubble.forEach((o) => o.destroy());
@@ -169,6 +170,7 @@ class ShibbolethMechanic {
       if (correctWord) {
         this.detainedWrong += 1;
         GameState.addMeasure('justice', -1);
+        GameAudio.sfx('wrong');
         scene.showToast(UI.t('shibboleth_wrong'));
       }
       // уводят за край кадра; экран на миг темнеет

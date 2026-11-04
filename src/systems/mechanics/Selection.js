@@ -196,6 +196,7 @@ class SelectionMechanic {
   }
 
   mark(w, time) {
+    GameAudio.sfx('mark');
     w.marked = true;
     this.marks += 1;
     this.markBusyUntil = time + this.cfg.markMs;
