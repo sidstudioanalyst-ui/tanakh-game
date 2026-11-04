@@ -88,6 +88,11 @@ class NightTasksMechanic {
     // работа идёт, пока игрок стоит у места; ушёл — пауза (прогресс сохраняется)
     if (this.working && Phaser.Math.Distance.Between(player.x, player.y, site.x, site.y) > this.siteRadius) this.working = false;
     if (this.working) {
+      this.workTick = (this.workTick || 0) - delta;
+      if (this.workTick <= 0) {
+        GameAudio.sfx('work');
+        this.workTick = 420;
+      }
       this.progress += delta / (site.duration * 1000 * this.mode.work);
       if (this.progress >= 1) this.completeTask();
     }
@@ -142,6 +147,7 @@ class NightTasksMechanic {
     const site = this.sites[this.taskIndex];
     this.working = false;
     this.progress = 0;
+    GameAudio.sfx('taskDone');
     this.scene.showToast(UI.t('task_done', { task: UI.t(site.label) }));
     this.taskIndex += 1;
     if (this.taskIndex >= this.sites.length) this.finish();
@@ -194,6 +200,7 @@ class NightTasksMechanic {
     if (s.body.setFillStyle) s.body.setFillStyle(0xebcb8b);
     else s.body.setTint(0xffe28a).setY(s.y - 3);
     s.zz.setText('!').setColor('#bf616a').setFontSize(16);
+    GameAudio.sfx('alarm');
     if (!GameState.flags[this.cfg.noticedFlag]) this.scene.showToast(UI.t('toast_someone_woke'));
     GameState.flags[this.cfg.noticedFlag] = true;
   }

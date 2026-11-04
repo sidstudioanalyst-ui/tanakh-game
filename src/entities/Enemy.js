@@ -192,6 +192,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
   }
 
   takeDamage(amount, fromX, fromY, time) {
+    GameAudio.sfx('hit');
     if (this.isDead) return;
 
     this.hp -= amount;

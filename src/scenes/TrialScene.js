@@ -40,6 +40,7 @@ class TrialScene extends Phaser.Scene {
   }
 
   create() {
+    GameAudio.music('court');
     this.cameras.main.setBackgroundColor('#1d2129');
     this.cameras.main.fadeIn(250);
     this.layer = this.add.container(0, 0);
@@ -49,7 +50,10 @@ class TrialScene extends Phaser.Scene {
     const kb = this.input.keyboard;
     kb.on('keydown', (event) => {
       const n = parseInt(event.key, 10);
-      if (n >= 1 && n <= this.options.length) this.options[n - 1]();
+      if (n >= 1 && n <= this.options.length) {
+        GameAudio.sfx('select');
+        this.options[n - 1]();
+      }
     });
     kb.on('keydown-SPACE', () => this.options.length === 1 && this.options[0]());
     kb.on('keydown-ENTER', () => this.options.length === 1 && this.options[0]());

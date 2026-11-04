@@ -46,6 +46,7 @@ class DialogueScene extends Phaser.Scene {
   }
 
   create() {
+    GameAudio.sfx('talk');
     this.dim = this.add.rectangle(0, 0, CONFIG.WIDTH, CONFIG.HEIGHT, 0x000000, this.intro ? 1 : 0.35).setOrigin(0);
     this.layer = this.add.container(0, 0);
 
@@ -53,7 +54,10 @@ class DialogueScene extends Phaser.Scene {
     kb.on('keydown', (event) => {
       if (this.closing) return;
       const n = parseInt(event.key, 10);
-      if (n >= 1 && n <= this.options.length) this.options[n - 1]();
+      if (n >= 1 && n <= this.options.length) {
+        GameAudio.sfx('select');
+        this.options[n - 1]();
+      }
     });
     kb.on('keydown-SPACE', () => !this.closing && this.options.length === 1 && this.options[0]());
     kb.on('keydown-ENTER', () => !this.closing && this.options.length === 1 && this.options[0]());

@@ -34,7 +34,10 @@ function createChoiceButton(scene, { rightX, y, width, number, text_he, text_ru,
   bg.setInteractive({ useHandCursor: true });
   bg.on('pointerover', () => bg.setFillStyle(0x4c566a));
   bg.on('pointerout', () => bg.setFillStyle(0x3b4252));
-  bg.on('pointerdown', () => onSelect());
+  bg.on('pointerdown', () => {
+    GameAudio.sfx('select');
+    onSelect();
+  });
 
   return container;
 }
