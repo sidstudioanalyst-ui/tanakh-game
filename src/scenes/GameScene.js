@@ -833,7 +833,9 @@ class GameScene extends Phaser.Scene {
     this.updateStatusHud();
 
     // Всплывающее сообщение (подобранный предмет и т. п.); на тач — над кнопками
-    const toastY = this.touch ? this.touch.buttonsTop - 56 : H - 58;
+    // и выше «призрачного» джойстика слева внизу — иначе широкие сообщения заходят на него
+    const ghostTop = H - CONFIG.TOUCH_UI.ghostInset.bottom - 2 * CONFIG.TOUCH_UI.stickRadius;
+    const toastY = this.touch ? Math.min(this.touch.buttonsTop - 56, ghostTop - 34) : H - 58;
     this.toastText = addUiText(this, W / 2, toastY, '', {
       center: true,
       size: 16,
