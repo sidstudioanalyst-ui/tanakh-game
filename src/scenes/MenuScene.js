@@ -19,6 +19,7 @@ class MenuScene extends Phaser.Scene {
   create() {
     const W = CONFIG.WIDTH;
     const H = CONFIG.HEIGHT;
+    GameAudio.sfx('menuOpen');
     this.add.rectangle(0, 0, W, H, 0x000000, 0.6).setOrigin(0);
 
     const demo = GameState.campaign === 'demo';
@@ -50,6 +51,7 @@ class MenuScene extends Phaser.Scene {
     const kb = this.input.keyboard;
     const move = (d) => {
       this.cursor = (this.cursor + d + this.items.length) % this.items.length;
+      GameAudio.sfx('tick');
       this.drawItems();
     };
     kb.on('keydown-UP', () => move(-1));
@@ -80,6 +82,7 @@ class MenuScene extends Phaser.Scene {
       bg.on('pointerover', () => {
         if (this.cursor === i) return; // перерисовка создаёт новый фон под курсором — без проверки зациклится
         this.cursor = i;
+        GameAudio.sfx('tick');
         this.drawItems();
       });
       // без «1.» в строке: в иврите точка по правилам bidi встала бы не с той стороны
@@ -94,6 +97,7 @@ class MenuScene extends Phaser.Scene {
   }
 
   close() {
+    GameAudio.sfx('menuClose');
     this.scene.stop();
     this.scene.resume('GameScene');
   }

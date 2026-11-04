@@ -159,6 +159,53 @@ const GameAudio = (() => {
     alarm(ctx, d, t) {
       [0, 0.16].forEach((o, i) => tone(ctx, d, { t0: t + o, dur: 0.15, freq: i ? 460 : 620, type: 'triangle', vol: 0.3 }));
     },
+    step(ctx, d, t) {
+      const f = 90 + Math.random() * 40;
+      tone(ctx, d, { t0: t, dur: 0.06, freq: f * 1.6, freq2: f, vol: 0.09, attack: 0.002 });
+      noise(ctx, d, { t0: t, dur: 0.05, vol: 0.07, type: 'lowpass', f0: 800, f1: 300 });
+    },
+    mark(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 0.1, freq: 240, freq2: 110, type: 'triangle', vol: 0.3, attack: 0.002 });
+      noise(ctx, d, { t0: t, dur: 0.05, vol: 0.2, type: 'highpass', f0: 2000 });
+    },
+    // шофар: бычий тон с подъёмом высоты — начало волны, зов, крик
+    horn(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 1.0, freq: 185, freq2: 247, type: 'sawtooth', vol: 0.3, attack: 0.09, filter: { freq: 1100 } });
+      tone(ctx, d, { t0: t, dur: 0.9, freq: 370, freq2: 494, type: 'triangle', vol: 0.12, attack: 0.09 });
+    },
+    shatter(ctx, d, t) {
+      noise(ctx, d, { t0: t, dur: 0.3, vol: 0.45, type: 'highpass', f0: 2500, f1: 5000, q: 0.7 });
+      [0, 0.05, 0.11, 0.17].forEach((o) => tone(ctx, d, { t0: t + o, dur: 0.12, freq: 3000 + Math.random() * 2500, vol: 0.08 }));
+    },
+    wrong(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 0.24, freq: 150, type: 'square', vol: 0.18, filter: { freq: 600 } });
+    },
+    fail(ctx, d, t) {
+      [57, 52].forEach((m, i) => tone(ctx, d, { t0: t + i * 0.28, dur: 0.6, freq: midiHz(m), type: 'triangle', vol: 0.3, filter: { freq: 1200 } }));
+    },
+    announce(ctx, d, t) {
+      [72, 79].forEach((m, i) => bell(ctx, d, t + i * 0.12, m, 1.2, 0.18));
+    },
+    unlock(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 0.09, freq: 320, freq2: 150, type: 'square', vol: 0.18, filter: { freq: 1500 } });
+      bell(ctx, d, t + 0.09, 79, 0.7, 0.16);
+    },
+    measure(ctx, d, t) {
+      bell(ctx, d, t, 84, 0.9, 0.1);
+    },
+    tick(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 0.04, freq: 1100, vol: 0.1 });
+    },
+    menuOpen(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 0.12, freq: 440, freq2: 660, vol: 0.14 });
+    },
+    menuClose(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 0.12, freq: 660, freq2: 440, vol: 0.14 });
+    },
+    equip(ctx, d, t) {
+      tone(ctx, d, { t0: t, dur: 0.09, freq: 330, freq2: 440, type: 'triangle', vol: 0.2 });
+      noise(ctx, d, { t0: t, dur: 0.06, vol: 0.14, type: 'bandpass', f0: 1500, q: 1 });
+    },
     win(ctx, d, t) {
       [62, 66, 69, 74].forEach((m, i) => bell(ctx, d, t + i * 0.16, m, 2.4, 0.2));
     },
@@ -169,10 +216,10 @@ const GameAudio = (() => {
   // scale — ступени в полутонах от тоники; root — MIDI тоники (мелодия); bpm; rest — доля пауз;
   // bell — вместо щипка колокольчик; drums — ритм-партия; drone — бурдон (тоника + квинта)
   const MOODS = {
-    title: { scale: [0, 1, 4, 5, 7, 8, 10], root: 62, bpm: 70, rest: 0.35, drone: true, drums: false },
-    calm: { scale: [0, 1, 4, 5, 7, 8, 10], root: 62, bpm: 66, rest: 0.45, drone: true, drums: false },
+    title: { scale: [0, 1, 4, 5, 7, 8, 10], root: 62, bpm: 70, rest: 0.35, drone: true, drums: false, ambient: 'wind' },
+    calm: { scale: [0, 1, 4, 5, 7, 8, 10], root: 62, bpm: 66, rest: 0.45, drone: true, drums: false, ambient: 'wind' },
     tense: { scale: [0, 1, 3, 5, 7, 8, 10], root: 57, bpm: 104, rest: 0.25, drone: true, drums: true },
-    night: { scale: [0, 1, 4, 5, 7, 8, 10], root: 69, bpm: 52, rest: 0.55, drone: true, drums: false, bell: true },
+    night: { scale: [0, 1, 4, 5, 7, 8, 10], root: 69, bpm: 52, rest: 0.55, drone: true, drums: false, bell: true, ambient: 'crickets' },
     court: { scale: [0, 2, 3, 5, 7, 9, 10], root: 55, bpm: 56, rest: 0.5, drone: true, drums: false, bell: true },
   };
 
@@ -191,6 +238,30 @@ const GameAudio = (() => {
       this.droneNodes = [];
       this.stopped = false;
       if (mood.drone) this.startDrone();
+      if (mood.ambient === 'wind') this.startWind();
+    }
+
+    // Ветер: фильтрованный шум, громкость медленно «дышит»
+    startWind() {
+      const { ctx } = this;
+      const src = ctx.createBufferSource();
+      src.buffer = noiseBuffer(ctx);
+      src.loop = true;
+      const f = ctx.createBiquadFilter();
+      f.type = 'bandpass';
+      f.frequency.value = 420;
+      f.Q.value = 0.5;
+      const g = ctx.createGain();
+      g.gain.value = 0.04;
+      const lfo = ctx.createOscillator();
+      lfo.frequency.value = 0.08;
+      const lg = ctx.createGain();
+      lg.gain.value = 0.025;
+      lfo.connect(lg).connect(g.gain);
+      src.connect(f).connect(g).connect(this.out);
+      src.start();
+      lfo.start();
+      this.droneNodes.push(src, lfo);
     }
 
     startDrone() {
@@ -270,6 +341,11 @@ const GameAudio = (() => {
           this.newPhrase();
           this.nextTime += unit * (2 + Math.floor(Math.random() * 3));
           continue;
+        }
+        // ночью — цикады: редкие короткие трели
+        if (mood.ambient === 'crickets' && Math.random() < 0.18) {
+          const pitch = 4200 + Math.random() * 400;
+          [0, 0.06, 0.12].forEach((o) => tone(ctx, this.out, { t0: t + o, dur: 0.04, freq: pitch, vol: 0.03 }));
         }
         if (mood.drums) {
           if (this.step % 8 === 0) drum(ctx, this.out, t, 1);

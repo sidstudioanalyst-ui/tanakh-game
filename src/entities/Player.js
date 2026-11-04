@@ -245,6 +245,11 @@ class Player extends Phaser.Physics.Arcade.Sprite {
     // Во время отбрасывания управление ненадолго отключено
     if (time >= this.stunnedUntil) {
       this.handleMovement();
+      // шаги: пока идёт — раз в ~0,32 с
+      if (this.body.velocity.lengthSq() > 900 && time >= (this.nextStepAt || 0)) {
+        GameAudio.sfx('step');
+        this.nextStepAt = time + 320;
+      }
     }
   }
 
