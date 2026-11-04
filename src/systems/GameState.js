@@ -8,6 +8,7 @@
 // События (GameState.events): 'equipment-changed', 'measures-changed', 'gauge-changed'.
 const PROLOGUE_STORAGE_KEY = 'tanakh-game.prologueSeen';
 
+const SAVE_KEY = 'tanakh-game.save';
 const GameState = {
   events: new Phaser.Events.EventEmitter(),
 
@@ -198,6 +199,61 @@ const GameState = {
     this.currentZone = zoneId;
     this.zoneEntry = { zoneId, at: at || null };
     this.zoneSnapshot = this.serialize();
+    this.saveProgress();
+  },
+
+  // --- Сохранение между запусками (localStorage) ---------------------------------
+  // Автосохранение — при входе в зону: состояние на момент входа (то же, с чего начнётся зона после
+  // провала) и на начало карты. Перезагрузка страницы возвращает игрока в начало текущей зоны.
+  // Не сохраняем из dev.html — проверки не должны затирать настоящее сохранение.
+
+  saveProgress() {
+    if (window.DEV_MODE || CONFIG.START_ZONE) return; // отладочные старты не затирают настоящее сохранение
+    writeStorage(SAVE_KEY, JSON.stringify({
+      v: 1,
+      campaign: this.campaign,
+      mapIndex: this.mapIndex,
+      mapSnapshot: this.mapSnapshot,
+      zoneSnapshot: this.zoneSnapshot,
+      zoneEntry: this.zoneEntry,
+      savedAt: Date.now(),
+    }));
+  },
+
+  // Сохранение, если оно есть и целое (карта и зона существуют); иначе null
+  readSave() {
+    try {
+      const save = JSON.parse(readStorage(SAVE_KEY));
+      const maps = save && save.v === 1 && CAMPAIGNS[save.campaign];
+      if (!maps || !maps[save.mapIndex] || !save.zoneEntry || !ZONES[save.zoneEntry.zoneId]) return null;
+      JSON.parse(save.zoneSnapshot);
+      JSON.parse(save.mapSnapshot);
+      return save;
+    } catch (e) {
+      return null;
+    }
+  },
+
+  hasSave() {
+    return !!this.readSave();
+  },
+
+  // Загрузить: состояние на вход в сохранённую зону. Возвращает { zoneId, at }
+  loadSave() {
+    const save = this.readSave();
+    if (!save) return null;
+    this.newGame(save.campaign);
+    this.mapSnapshot = save.mapSnapshot;
+    this.restore(save.zoneSnapshot);
+    this.zoneSnapshot = save.zoneSnapshot;
+    this.zoneEntry = save.zoneEntry;
+    this.currentZone = save.zoneEntry.zoneId;
+    this.introQueue = []; // заставки и пролог уже были
+    return save.zoneEntry;
+  },
+
+  clearSave() {
+    writeStorage(SAVE_KEY, '');
   },
 
   // --- Снимки ---------------------------------------------------------------
